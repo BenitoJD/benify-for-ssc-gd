@@ -135,6 +135,10 @@ function App() {
 
   return (
     <div className="split-layout">
+      <div className="brand-mark" aria-label="Benify">
+        Benify
+      </div>
+
       <div className="visual-panel">
         <img className="hero-illustration" src={heroImage} alt="Illustration of a person reaching for a star above a growth chart." />
       </div>
