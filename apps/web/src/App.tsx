@@ -54,9 +54,7 @@ function App() {
         }
       })
       .catch(() => {
-        if (!ignore) {
-          setError('The API is reachable, but the current session could not be restored.')
-        }
+        // A missing or expired session is a normal startup state for logged-out users.
       })
       .finally(() => {
         if (!ignore) {

@@ -1,4 +1,7 @@
-export type User = {
+// Auth utilities for Next.js
+// Note: This file replaces the old Vite-based auth.ts
+
+export interface User {
   sub: string
   email: string
   name?: string
@@ -11,13 +14,13 @@ type Envelope<T> = {
   error?: string
 }
 
-export function getApiBaseUrl() {
-  const configured = import.meta.env.VITE_API_BASE_URL?.trim()
-  const fallback = 'http://localhost:8080'
+export function getApiBaseUrl(): string {
+  const configured = process.env.NEXT_PUBLIC_API_URL?.trim()
+  const fallback = 'http://localhost:3100'
   return (configured || fallback).replace(/\/+$/, '')
 }
 
-export function createApiUrl(path: string) {
+export function createApiUrl(path: string): string {
   return `${getApiBaseUrl()}${path}`
 }
 
@@ -31,7 +34,7 @@ async function readEnvelope<T>(response: Response): Promise<T> {
   return payload.data
 }
 
-export async function fetchCurrentUser() {
+export async function fetchCurrentUser(): Promise<User | null> {
   const response = await fetch(createApiUrl('/api/v1/auth/me'), {
     credentials: 'include',
   })
@@ -43,7 +46,7 @@ export async function fetchCurrentUser() {
   return readEnvelope<User>(response)
 }
 
-export async function signInWithGoogle(credential: string) {
+export async function signInWithGoogle(credential: string): Promise<User> {
   const response = await fetch(createApiUrl('/api/v1/auth/google'), {
     method: 'POST',
     credentials: 'include',
@@ -56,7 +59,7 @@ export async function signInWithGoogle(credential: string) {
   return readEnvelope<User>(response)
 }
 
-export async function logout() {
+export async function logout(): Promise<{ status: string }> {
   const response = await fetch(createApiUrl('/api/v1/auth/logout'), {
     method: 'POST',
     credentials: 'include',
@@ -64,4 +67,3 @@ export async function logout() {
 
   return readEnvelope<{ status: string }>(response)
 }
-

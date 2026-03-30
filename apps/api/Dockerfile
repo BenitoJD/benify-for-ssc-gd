@@ -1,19 +1,29 @@
-FROM golang:1.24-alpine AS build
+FROM python:3.11-slim
+
 WORKDIR /app
 
-COPY apps/api/go.mod apps/api/go.sum ./
-RUN go mod download
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    libpq-dev \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
 
-COPY apps/api ./
-RUN go test ./...
-RUN go build -o /bin/benify-api ./cmd/server
+# Copy requirements first for caching
+COPY apps/api/requirements.txt .
 
-FROM alpine:3.21
-WORKDIR /app
-RUN adduser -D -u 10001 benify
-USER benify
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
 
-COPY --from=build /bin/benify-api /app/benify-api
-EXPOSE 8080
+# Copy application code
+COPY apps/api/ .
 
-CMD ["/app/benify-api"]
+# Create non-root user
+RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
+USER appuser
+
+# Expose port
+EXPOSE 3100
+
+# Run the application
+CMD ["uvicorn", "internal.main:app", "--host", "0.0.0.0", "--port", "3100"]
