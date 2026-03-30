@@ -1,0 +1,1 @@
+# Environment\n\nSee .env.example in apps/api and apps/web for required environment variables.\n\nSetup:\n1. Copy apps/api/.env.example to apps/api/.env\n2. Copy apps/web/.env.example to apps/web/.env\n3. Fill in actual values\n
