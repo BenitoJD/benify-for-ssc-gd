@@ -1,6 +1,34 @@
 // Auth utilities for Next.js
 // Note: This file replaces the old Vite-based auth.ts
 
+// Backend API response types
+export interface ApiUser {
+  id: string
+  email: string
+  name?: string
+  phone?: string
+  avatar_url?: string
+  role: string
+  language_preference: string
+  subscription_status: string
+  created_at: string
+  updated_at?: string
+}
+
+export interface ApiTokenResponse {
+  access_token: string
+  refresh_token: string
+  token_type: string
+  expires_in: number
+}
+
+type Envelope<T> = {
+  success: boolean
+  data?: T
+  error?: string
+}
+
+// Frontend User type (uses different field names than API)
 export interface User {
   sub: string
   email: string
@@ -8,10 +36,14 @@ export interface User {
   picture?: string
 }
 
-type Envelope<T> = {
-  success: boolean
-  data?: T
-  error?: string
+// Transform API user to frontend user
+function transformUser(apiUser: ApiUser): User {
+  return {
+    sub: apiUser.id,
+    email: apiUser.email,
+    name: apiUser.name,
+    picture: apiUser.avatar_url,
+  }
 }
 
 export function getApiBaseUrl(): string {
@@ -43,7 +75,13 @@ export async function fetchCurrentUser(): Promise<User | null> {
     return null
   }
 
-  return readEnvelope<User>(response)
+  // The API returns User directly, not wrapped in envelope
+  const payload = await response.json()
+  if (!response.ok) {
+    throw new Error(payload.detail || 'Request failed')
+  }
+
+  return transformUser(payload as ApiUser)
 }
 
 export async function signInWithGoogle(credential: string): Promise<User> {
@@ -56,7 +94,18 @@ export async function signInWithGoogle(credential: string): Promise<User> {
     body: JSON.stringify({ credential }),
   })
 
-  return readEnvelope<User>(response)
+  // The API returns TokenResponse + sets cookie, then we need to fetch user
+  if (!response.ok) {
+    const payload = await response.json()
+    throw new Error(payload.detail || 'Google sign-in failed')
+  }
+
+  // After successful Google auth, fetch the user info
+  const user = await fetchCurrentUser()
+  if (!user) {
+    throw new Error('Failed to fetch user after Google sign-in')
+  }
+  return user
 }
 
 export async function logout(): Promise<{ status: string }> {

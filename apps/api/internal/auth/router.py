@@ -3,9 +3,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Optional
 import uuid
 import re
+from datetime import datetime
 
 from ..database import get_db
 from ..redis import get_cache, CacheService
+from ..config import settings
 from .schemas import (
     UserRegisterRequest,
     UserLoginRequest,
@@ -272,18 +274,124 @@ async def google_auth(
     request: GoogleAuthRequest,
     response: Response,
     db: AsyncSession = Depends(get_db),
+    cache: CacheService = Depends(get_cache),
 ):
-    """Authenticate with Google OAuth."""
-    # This is a simplified version - in production, verify the Google token
-    # For now, we'll just decode the credential to get the email
-    # In production, use google-auth-library or similar to verify the token
+    """Authenticate with Google OAuth.
     
-    # For demo purposes, we'll just return a mock response
-    # TODO: Implement proper Google token verification
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Google OAuth not yet implemented",
+    Accepts a Google ID token (credential), verifies it against Google's servers,
+    and creates/links a user account. Returns JWT tokens on success.
+    """
+    import logging
+    logger = logging.getLogger(__name__)
+    
+    # Check if Google OAuth is configured
+    if not settings.GOOGLE_CLIENT_ID:
+        logger.error("Google OAuth not configured: GOOGLE_CLIENT_ID is not set")
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Google OAuth is not configured on this server",
+        )
+    
+    try:
+        # Verify the Google ID token
+        import google.auth
+        import google.auth.transport.requests
+        from google.oauth2 import id_token
+        
+        # Specify the CLIENT_ID of the app that accesses the backend
+        # Or use None to allow any client - but for security, we should verify
+        id_info = id_token.verify_oauth2_token(
+            request.credential,
+            google.auth.transport.requests.Request(),
+            settings.GOOGLE_CLIENT_ID
+        )
+        
+        # id_info contains the claims from the Google ID token
+        # See: https://developers.google.com/identity/gsi/web/reference/js reference#credential
+        google_id = id_info.get("sub")
+        email = id_info.get("email")
+        name = id_info.get("name")
+        picture = id_info.get("picture")
+        
+        if not google_id or not email:
+            logger.warning(f"Google token missing required claims: google_id={google_id}, email={email}")
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid Google token: missing required claims",
+            )
+        
+        logger.info(f"Google OAuth: Successfully verified token for {email}")
+        
+    except google.auth.exceptions.GoogleAuthError as e:
+        logger.warning(f"Google OAuth authentication failed: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid Google credential",
+        )
+    except ValueError as e:
+        # This can happen if the token is malformed
+        logger.warning(f"Google OAuth token validation error: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid Google token format",
+        )
+    
+    # Find or create user by google_id
+    result = await db.execute(select(User).where(User.google_id == google_id))
+    user = result.scalar_one_or_none()
+    
+    if not user:
+        # Check if user exists with same email but no google_id (account linking)
+        result = await db.execute(select(User).where(User.email == email))
+        user = result.scalar_one_or_none()
+        
+        if user:
+            # Link existing account to Google
+            user.google_id = google_id
+            if not user.avatar_url and picture:
+                user.avatar_url = picture
+            if not user.name and name:
+                user.name = name
+            await db.flush()
+            logger.info(f"Google OAuth: Linked existing account {email} to Google")
+        else:
+            # Create new user
+            user = User(
+                id=uuid.uuid4(),
+                email=email,
+                name=name,
+                avatar_url=picture,
+                google_id=google_id,
+                password_hash=None,  # OAuth users don't have password
+            )
+            db.add(user)
+            await db.flush()
+            await db.refresh(user)
+            logger.info(f"Google OAuth: Created new user {email}")
+    
+    # Update last login
+    user.last_login_at = datetime.utcnow()
+    await db.flush()
+    
+    # Create tokens
+    tokens = create_tokens(user)
+    
+    # Store refresh token family for rotation
+    await cache.set(f"refresh_family:{user.id}", tokens.refresh_token, ttl=7 * 24 * 60 * 60)
+    
+    # Set refresh token in httpOnly cookie
+    response.set_cookie(
+        key="refresh_token",
+        value=tokens.refresh_token,
+        httponly=True,
+        secure=True,
+        samesite="lax",
+        max_age=7 * 24 * 60 * 60,
     )
+    
+    logger.info(f"Google OAuth: Successfully authenticated user {email}")
+    
+    return tokens
 
 
 @router.post("/otp/request", response_model=OTPRequestResponse)
