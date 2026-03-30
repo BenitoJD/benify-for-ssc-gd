@@ -10,6 +10,7 @@ from .shared.middleware import RequestLoggingMiddleware, ErrorHandlingMiddleware
 from .auth.router import router as auth_router
 from .users.router import router as users_router
 from .syllabus.router import router as syllabus_router
+from .tests.router import router as tests_router, attempt_router as attempts_router
 
 # Configure logging
 logging.basicConfig(
@@ -87,6 +88,8 @@ async def health_check():
 app.include_router(auth_router, prefix="/api/v1")
 app.include_router(users_router, prefix="/api/v1")
 app.include_router(syllabus_router, prefix="/api/v1")
+app.include_router(tests_router, prefix="/api/v1")
+app.include_router(attempts_router, prefix="/api/v1")
 
 
 # Root endpoint
