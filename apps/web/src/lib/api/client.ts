@@ -10,6 +10,23 @@ export const apiClient = axios.create({
   },
 })
 
+// Request interceptor to add admin token for admin routes
+apiClient.interceptors.request.use(
+  (config) => {
+    // Check if this is an admin API request
+    if (config.url?.startsWith('/admin')) {
+      const adminToken = typeof window !== 'undefined' 
+        ? localStorage.getItem('admin_access_token') 
+        : null
+      if (adminToken) {
+        config.headers.Authorization = `Bearer ${adminToken}`
+      }
+    }
+    return config
+  },
+  (error) => Promise.reject(error)
+)
+
 // Response interceptor for error handling
 apiClient.interceptors.response.use(
   (response) => response,
