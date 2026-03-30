@@ -9,6 +9,7 @@ from .redis import get_redis, close_redis
 from .shared.middleware import RequestLoggingMiddleware, ErrorHandlingMiddleware
 from .auth.router import router as auth_router
 from .users.router import router as users_router
+from .syllabus.router import router as syllabus_router
 
 # Configure logging
 logging.basicConfig(
@@ -85,6 +86,7 @@ async def health_check():
 # Include routers
 app.include_router(auth_router, prefix="/api/v1")
 app.include_router(users_router, prefix="/api/v1")
+app.include_router(syllabus_router, prefix="/api/v1")
 
 
 # Root endpoint
