@@ -17,6 +17,7 @@ from .analytics.router import router as analytics_router
 from .study_plans.router import router as study_plans_router
 from .subscriptions.router import router as subscriptions_router, payments_router
 from .notifications.router import router as notifications_router
+from .community.router import router as community_router, reports_router as community_reports_router
 
 # Configure logging
 logging.basicConfig(
@@ -103,6 +104,8 @@ app.include_router(study_plans_router, prefix="/api/v1")
 app.include_router(subscriptions_router, prefix="/api/v1")
 app.include_router(payments_router, prefix="/api/v1")
 app.include_router(notifications_router, prefix="/api/v1")
+app.include_router(community_router, prefix="/api/v1")
+app.include_router(community_reports_router, prefix="/api/v1")
 
 
 # Root endpoint
