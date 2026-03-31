@@ -1,0 +1,57 @@
+{
+  "featureId": "personalized-study-plans",
+  "reviewedAt": "2026-03-31T14:45:00Z",
+  "commitId": "befa9c0626d09a6462ace23f925ee3006cda0e4c",
+  "transcriptSkeletonReviewed": false,
+  "diffReviewed": true,
+  "status": "fail",
+  "codeReview": {
+    "summary": "The personalized study plans feature implements AI-powered generation, spaced repetition (SM-2), backlog recovery, and streak tracking. However, there are 2 blocking bugs and several non-blocking issues that need attention. The commit is incomplete - mission directory and handoff files were not found, so transcript skeleton review was skipped.",
+    "issues": [
+      {
+        "file": "apps/api/internal/study_plans/service.py",
+        "line": 419,
+        "severity": "blocking",
+        "description": "_update_streak() modifies record.streak_freezes_available (when using freeze) and record.current_streak (when streak breaks) in memory but NEVER calls update_streak_record() to persist these changes. Compare to _update_streak_on_completion() which properly calls await self.repo.update_streak_record() at line 493. This means streak freezes used and streak breaks are not persisted to the database."
+      },
+      {
+        "file": "apps/api/internal/study_plans/service.py",
+        "line": 155,
+        "severity": "blocking",
+        "description": "In _generate_daily_tasks(), weak topics are iterated TWICE: First at line 155-159 for revision tasks (weak_topics[:2]), then at line 165-167 for lesson tasks (weak_topics[:remaining_slot]). This causes the same weak topics to be scheduled for BOTH revision AND lesson on the same day, creating duplicate tasks for the same topic. The second loop should iterate over weak_topics that weren't already processed in the first loop."
+      },
+      {
+        "file": "apps/api/internal/study_plans/service.py",
+        "line": 248,
+        "severity": "non_blocking",
+        "description": "_create_test_task() sets reference_id to None. While this may be intentional for test tasks that don't reference specific content, it could cause NullReference errors if downstream code expects a valid UUID when dereferencing task.reference_id."
+      },
+      {
+        "file": "apps/api/internal/study_plans/schemas.py",
+        "line": 68,
+        "severity": "non_blocking",
+        "description": "StudyPlanBase.title is defined as required str, but the service layer provides a fallback: 'title: plan_data.title or f\"Study Plan {start_date.strftime(\"%Y-%m-%d\")}\"'. This creates an inconsistency - if title is truly required, the fallback shouldn't exist; if it's optional with a default, it should be Optional[str] = None with a default in the schema."
+      },
+      {
+        "file": "apps/api/tests/test_study_plans.py",
+        "line": 90,
+        "severity": "non_blocking",
+        "description": "Test mock for get_topic_stats_for_attempts returns {'total_questions': 10, 'accuracy': 45.0} but the actual analytics repository returns a richer dict with keys: total_questions, correct_answers, accuracy, avg_time_per_question, total_time, error_rate. The test doesn't fully exercise the structure that would exist in production."
+      }
+    ]
+  },
+  "sharedStateObservations": [
+    {
+      "area": "conventions",
+      "observation": "The router uses UnauthorizedException from shared/exceptions.py but get_current_user from auth/service.py already raises HTTPException(401). This double-check (if not current_user: raise UnauthorizedException()) after Depends(get_current_user) is redundant since get_current_user will already have raised.",
+      "evidence": "router.py lines 49-51: if not current_user: raise UnauthorizedException() - but get_current_user (auth/service.py) raises HTTPException 401 if credentials is None"
+    },
+    {
+      "area": "skills",
+      "observation": "The mission directory (.factory/missions/567c9788-264e-4ea0-9086-e78c404b2f80) was not found. Unable to verify if worker followed the backend-worker skill procedure for this feature.",
+      "evidence": "ls of .factory/missions returned empty or non-existent directory"
+    }
+  ],
+  "addressesFailureFrom": null,
+  "summary": "Feature 'personalized-study-plans' has 2 blocking bugs that cause data integrity issues: (1) _update_streak() doesn't persist streak freeze usage or streak breaks, and (2) _generate_daily_tasks() creates duplicate tasks for weak topics. Both issues would cause incorrect behavior in production. The feature implements the core requirements (AI generation, SM-2 spaced repetition, backlog recovery, streak tracking) but the bugs must be fixed before passing review."
+}
