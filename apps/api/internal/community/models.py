@@ -55,8 +55,8 @@ class Discussion(Base):
     
     # Relationships
     user = relationship("User", backref="discussions")
-    replies = relationship("DiscussionReply", back_populates="discussion", cascade="all, delete-orphan")
-    upvotes_records = relationship("DiscussionUpvote", back_populates="discussion", cascade="all, delete-orphan")
+    replies = relationship("DiscussionReply", back_populates="discussion", cascade="all, delete-orphan", foreign_keys="[DiscussionReply.discussion_id]")
+    upvotes_records = relationship("DiscussionUpvote", back_populates="discussion", cascade="all, delete-orphan", foreign_keys="[DiscussionUpvote.discussion_id]")
     
     # Indexes
     __table_args__ = (
@@ -93,9 +93,9 @@ class DiscussionReply(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
     
     # Relationships
-    discussion = relationship("Discussion", back_populates="replies")
+    discussion = relationship("Discussion", back_populates="replies", foreign_keys="[DiscussionReply.discussion_id]")
     user = relationship("User", backref="discussion_replies")
-    upvotes_records = relationship("DiscussionUpvote", back_populates="reply", cascade="all, delete-orphan")
+    upvotes_records = relationship("DiscussionUpvote", back_populates="reply", cascade="all, delete-orphan", foreign_keys="[DiscussionUpvote.reply_id]")
     
     # Indexes
     __table_args__ = (
@@ -134,8 +134,8 @@ class DiscussionUpvote(Base):
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     
     # Relationships
-    discussion = relationship("Discussion", back_populates="upvotes_records")
-    reply = relationship("DiscussionReply", back_populates="upvotes_records")
+    discussion = relationship("Discussion", back_populates="upvotes_records", foreign_keys="[DiscussionUpvote.discussion_id]")
+    reply = relationship("DiscussionReply", back_populates="upvotes_records", foreign_keys="[DiscussionUpvote.reply_id]")
     user = relationship("User", backref="discussion_upvotes")
     
     # Indexes
