@@ -15,7 +15,8 @@ import {
   Menu, 
   X,
   Flame,
-  Activity
+  Activity,
+  FileCheck
 } from 'lucide-react'
 
 interface SidebarProps {
@@ -27,6 +28,7 @@ const navItems = [
   { href: '/study', icon: BookOpen, labelKey: 'nav.study' },
   { href: '/tests', icon: FileText, labelKey: 'nav.tests' },
   { href: '/physical', icon: Activity, labelKey: 'nav.physical' },
+  { href: '/documents', icon: FileCheck, labelKey: 'nav.documents' },
   { href: '/analytics', icon: BarChart3, labelKey: 'nav.analytics' },
   { href: '/community', icon: Users, labelKey: 'nav.community' },
   { href: '/profile', icon: User, labelKey: 'nav.profile' },
