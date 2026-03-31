@@ -13,6 +13,7 @@ from .syllabus.router import router as syllabus_router
 from .tests.router import router as tests_router, attempt_router as attempts_router
 from .admin.router import router as admin_router
 from .pyqs.router import router as pyqs_router
+from .analytics.router import router as analytics_router
 
 # Configure logging
 logging.basicConfig(
@@ -94,6 +95,7 @@ app.include_router(tests_router, prefix="/api/v1")
 app.include_router(attempts_router, prefix="/api/v1")
 app.include_router(admin_router, prefix="/api/v1")
 app.include_router(pyqs_router, prefix="/api/v1")
+app.include_router(analytics_router, prefix="/api/v1")
 
 
 # Root endpoint
