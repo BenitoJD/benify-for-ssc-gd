@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Optional
+from pydantic import BaseModel
 import uuid
 
 from ..database import get_db
@@ -17,6 +18,39 @@ from .service import UserService
 from ..shared.pagination import get_pagination_meta, PaginatedResponse
 
 router = APIRouter(prefix="/users", tags=["Users"])
+
+
+class AssessmentAnswer(BaseModel):
+    """Single assessment answer."""
+    question_id: str
+    answer: str
+
+
+class AssessmentSubmitRequest(BaseModel):
+    """Request body for submitting assessment answers."""
+    answers: dict[str, str]  # question_id -> answer
+
+
+class AssessmentResult(BaseModel):
+    """Assessment result with calculated level."""
+    level: str
+    score: int
+    total_questions: int
+
+
+# Diagnostic questions with correct answers (for server-side calculation)
+DIAGNOSTIC_QUESTIONS = {
+    "q1": "a",  # APPLE -> ELPPA, MANGO -> OGNAM
+    "q2": "b",  # Pattern: n*(n+1), 6*7=42
+    "q3": "a",  # 15% of x = 45, x = 300
+    "q4": "a",  # Average of first 10 naturals = 5.5
+    "q5": "c",  # Dr. B.R. Ambedkar
+    "q6": "b",  # Mars
+    "q7": "b",  # Abundant = Plentiful
+    "q8": "a",  # "has made its decision"
+    "q9": "a",  # Guru = teacher
+    "q10": "a", # First option has correct spelling
+}
 
 
 @router.get("/me", response_model=dict)
@@ -38,6 +72,38 @@ async def update_current_user_profile(
     """Update current user's profile."""
     service = UserService(db)
     return await service.update_profile(uuid.UUID(current_user.user_id), data)
+
+
+@router.post("/onboarding/assessment", response_model=AssessmentResult)
+async def submit_assessment(
+    data: AssessmentSubmitRequest,
+    current_user: TokenData = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Submit diagnostic quiz answers and get calculated level."""
+    # Calculate score server-side
+    correct_count = 0
+    total_questions = len(DIAGNOSTIC_QUESTIONS)
+    
+    for question_id, correct_answer in DIAGNOSTIC_QUESTIONS.items():
+        if data.answers.get(question_id) == correct_answer:
+            correct_count += 1
+    
+    percentage = (correct_count / total_questions) * 100
+    
+    # Determine level based on score
+    if percentage >= 70:
+        level = "advanced"
+    elif percentage >= 40:
+        level = "intermediate"
+    else:
+        level = "beginner"
+    
+    return AssessmentResult(
+        level=level,
+        score=correct_count,
+        total_questions=total_questions,
+    )
 
 
 @router.post("/onboarding", response_model=ProfileResponse)

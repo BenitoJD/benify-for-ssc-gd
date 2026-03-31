@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { clsx } from 'clsx'
+import { submitAssessment } from '@/lib/api/users'
 
 interface DiagnosticQuizProps {
   onComplete: (answers: Record<string, string>, level: 'beginner' | 'intermediate' | 'advanced') => void
@@ -20,7 +21,6 @@ const diagnosticQuestions = [
       { id: 'c', text: 'AGMON' },
       { id: 'd', text: 'NGOMA' },
     ],
-    correctAnswer: 'a',
   },
   {
     id: 'q2',
@@ -32,7 +32,6 @@ const diagnosticQuestions = [
       { id: 'c', text: '44' },
       { id: 'd', text: '46' },
     ],
-    correctAnswer: 'b',
   },
   {
     id: 'q3',
@@ -44,7 +43,6 @@ const diagnosticQuestions = [
       { id: 'c', text: '200' },
       { id: 'd', text: '350' },
     ],
-    correctAnswer: 'a',
   },
   {
     id: 'q4',
@@ -56,7 +54,6 @@ const diagnosticQuestions = [
       { id: 'c', text: '5' },
       { id: 'd', text: '4.5' },
     ],
-    correctAnswer: 'a',
   },
   {
     id: 'q5',
@@ -68,7 +65,6 @@ const diagnosticQuestions = [
       { id: 'c', text: 'Dr. B.R. Ambedkar' },
       { id: 'd', text: 'Sardar Patel' },
     ],
-    correctAnswer: 'c',
   },
   {
     id: 'q6',
@@ -80,7 +76,6 @@ const diagnosticQuestions = [
       { id: 'c', text: 'Jupiter' },
       { id: 'd', text: 'Saturn' },
     ],
-    correctAnswer: 'b',
   },
   {
     id: 'q7',
@@ -92,7 +87,6 @@ const diagnosticQuestions = [
       { id: 'c', text: 'Rare' },
       { id: 'd', text: 'Limited' },
     ],
-    correctAnswer: 'b',
   },
   {
     id: 'q8',
@@ -104,7 +98,6 @@ const diagnosticQuestions = [
       { id: 'c', text: 'make' },
       { id: 'd', text: 'doing' },
     ],
-    correctAnswer: 'a',
   },
   {
     id: 'q9',
@@ -116,7 +109,6 @@ const diagnosticQuestions = [
       { id: 'c', text: 'शत्रु' },
       { id: 'd', text: 'राजा' },
     ],
-    correctAnswer: 'a',
   },
   {
     id: 'q10',
@@ -128,7 +120,6 @@ const diagnosticQuestions = [
       { id: 'c', text: 'पुस्तकालय' },
       { id: 'd', text: 'पुस्तकालय' },
     ],
-    correctAnswer: 'a',
   },
 ]
 
@@ -137,6 +128,7 @@ export function DiagnosticQuiz({ onComplete }: DiagnosticQuizProps) {
   const [currentQuestion, setCurrentQuestion] = useState(0)
   const [answers, setAnswers] = useState<Record<string, string>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const question = diagnosticQuestions[currentQuestion]
   const totalQuestions = diagnosticQuestions.length
@@ -158,36 +150,32 @@ export function DiagnosticQuiz({ onComplete }: DiagnosticQuizProps) {
     }
   }
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     setIsSubmitting(true)
+    setError(null)
     
-    // Calculate level based on correct answers
-    let correctCount = 0
-    diagnosticQuestions.forEach((q) => {
-      if (answers[q.id] === q.correctAnswer) {
-        correctCount++
-      }
-    })
-
-    const percentage = (correctCount / totalQuestions) * 100
-    let level: 'beginner' | 'intermediate' | 'advanced'
-    
-    if (percentage >= 70) {
-      level = 'advanced'
-    } else if (percentage >= 40) {
-      level = 'intermediate'
-    } else {
-      level = 'beginner'
+    try {
+      // Submit answers to API and get calculated level
+      const result = await submitAssessment(answers)
+      const level = result.level as 'beginner' | 'intermediate' | 'advanced'
+      onComplete(answers, level)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to submit assessment')
+      setIsSubmitting(false)
     }
-
-    onComplete(answers, level)
-    setIsSubmitting(false)
   }
 
   const canProceed = answers[question.id] !== undefined
 
   return (
     <div className="w-full">
+      {/* Error Message */}
+      {error && (
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+          {error}
+        </div>
+      )}
+
       {/* Progress */}
       <div className="mb-6">
         <div className="flex justify-between text-sm text-gray-600 mb-2">

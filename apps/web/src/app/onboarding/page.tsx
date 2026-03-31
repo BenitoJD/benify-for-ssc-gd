@@ -114,7 +114,7 @@ export default function OnboardingPage() {
     checkAuth()
   }, [router])
 
-  const saveProfile = async (data: Partial<OnboardingState>) => {
+  const saveProfile = async (data: Partial<OnboardingState>, setOnboardingComplete = false) => {
     setIsSaving(true)
     setError(null)
     
@@ -126,7 +126,7 @@ export default function OnboardingPage() {
         daily_study_hours: data.dailyStudyHours ?? profile.dailyStudyHours ?? undefined,
         gender: data.gender ?? profile.gender ?? undefined,
         fitness_level: data.fitnessLevel ?? profile.fitnessLevel ?? undefined,
-        onboarding_complete: true,
+        onboarding_complete: setOnboardingComplete,
       })
       return true
     } catch (err) {
@@ -153,18 +153,27 @@ export default function OnboardingPage() {
       setError(t('onboarding.steps.assessment.error'))
       return
     }
-
-    // Save progress
-    await saveProfile({})
-
-    if (currentStep < STEPS.length - 1) {
-      setCurrentStep((prev) => prev + 1)
-    } else {
-      // Complete onboarding
-      const success = await saveProfile({})
-      if (success) {
-        router.push('/dashboard')
+    // Step 5 (fitness) requires gender and fitnessLevel
+    if (currentStepName === 'fitness') {
+      if (!profile.gender) {
+        setError(t('onboarding.steps.fitness.genderRequired'))
+        return
       }
+      if (!profile.fitnessLevel) {
+        setError(t('onboarding.steps.fitness.levelRequired'))
+        return
+      }
+    }
+
+    // Save progress (onboarding_complete only set to true on final step)
+    const isLastStep = currentStep === STEPS.length - 1
+    const success = await saveProfile({}, isLastStep)
+
+    if (!isLastStep) {
+      setCurrentStep((prev) => prev + 1)
+    } else if (success) {
+      // Complete onboarding and redirect to dashboard
+      router.push('/dashboard')
     }
   }
 
