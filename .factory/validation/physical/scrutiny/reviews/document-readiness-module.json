@@ -1,0 +1,95 @@
+{
+  "featureId": "document-readiness-module",
+  "reviewedAt": "2026-04-01T00:30:00.000Z",
+  "commitId": "13a4ee8",
+  "transcriptSkeletonReviewed": true,
+  "diffReviewed": true,
+  "status": "fail",
+  "codeReview": {
+    "summary": "The document-readiness-module frontend is implemented but makes API calls to backend endpoints that do not exist. Critical functionality (document upload, delete, self-assessment, reminders) will fail at runtime with 404 errors.",
+    "issues": [
+      {
+        "file": "apps/web/src/lib/api/documents.ts",
+        "line": 85,
+        "severity": "blocking",
+        "description": "uploadDocument() calls POST /documents/upload but this endpoint does not exist in the backend router (apps/api/internal/documents/router.py). The frontend upload feature will fail with 404."
+      },
+      {
+        "file": "apps/web/src/lib/api/documents.ts",
+        "line": 103,
+        "severity": "blocking",
+        "description": "deleteDocument() calls DELETE /documents/{documentId} but this endpoint does not exist in the backend router. Document deletion will fail."
+      },
+      {
+        "file": "apps/web/src/lib/api/documents.ts",
+        "line": 118,
+        "severity": "blocking",
+        "description": "getMedicalSelfAssessment() calls GET /documents/medical/self-assessment but no such endpoint exists. Self-assessment questions will not load."
+      },
+      {
+        "file": "apps/web/src/lib/api/documents.ts",
+        "line": 129,
+        "severity": "blocking",
+        "description": "submitSelfAssessment() calls POST /documents/medical/self-assessment but no such endpoint exists. Self-assessment submission will fail."
+      },
+      {
+        "file": "apps/web/src/lib/api/documents.ts",
+        "line": 140,
+        "severity": "blocking",
+        "description": "setReminder() calls POST /documents/reminders but no such endpoint exists. Setting reminders will fail."
+      },
+      {
+        "file": "apps/web/src/lib/api/documents.ts",
+        "line": 152,
+        "severity": "blocking",
+        "description": "getMyReminders() calls GET /documents/reminders/me but no such endpoint exists. Reminders will not load."
+      },
+      {
+        "file": "apps/web/src/lib/api/documents.ts",
+        "line": 159,
+        "severity": "blocking",
+        "description": "deleteReminder() calls DELETE /documents/reminders/{reminderId} but no such endpoint exists. Deleting reminders will fail."
+      },
+      {
+        "file": "apps/api/internal/documents/router.py",
+        "line": 1,
+        "severity": "blocking",
+        "description": "Missing backend implementation for document upload, delete, self-assessment, and reminder endpoints. The router.py only implements read-only endpoints (checklists, medical guidelines). All write operations (upload, delete, reminders, self-assessment) are missing."
+      },
+      {
+        "file": "apps/api/internal/documents/models.py",
+        "line": 1,
+        "severity": "blocking",
+        "description": "No database models exist for MedicalSelfAssessment (self-assessment questions) or Reminder entities. Even if endpoints were added, there would be no tables to store/query the data."
+      },
+      {
+        "file": "apps/api/internal/documents/service.py",
+        "line": 150,
+        "severity": "non_blocking",
+        "description": "get_medical_guidelines() returns hardcoded static data instead of querying a medical_guidelines database table. This works for now but is not a proper implementation.",
+        "suggestion": "Create a MedicalGuideline database model and query it instead of returning static data."
+      },
+      {
+        "file": "apps/web/src/app/documents/page.tsx",
+        "line": 1,
+        "severity": "non_blocking",
+        "description": "The frontend DocumentStage type uses 'new_application' | 'admit_card_released' | 'dv_scheduled' but the backend DocumentStage enum uses 'pst' | 'pet' | 'medical' | 'document_verification'. This mismatch means stage filtering in getDocumentChecklists(currentStage) will not work correctly.",
+        "suggestion": "Align frontend stage values with backend enum values, or implement stage mapping/translation."
+      }
+    ]
+  },
+  "sharedStateObservations": [
+    {
+      "area": "conventions",
+      "observation": "The worker implemented frontend API calls without verifying backend endpoints exist. This is a common pattern violation - frontend and backend should be implemented together or contracts should be agreed upon upfront.",
+      "evidence": "apps/web/src/lib/api/documents.ts calls POST /documents/upload, DELETE /documents/{id}, POST /documents/medical/self-assessment, etc. - none of which exist in apps/api/internal/documents/router.py"
+    },
+    {
+      "area": "knowledge",
+      "observation": "AGENTS.md defines the backend modules structure including 'documents' under internal/, but the document module was implemented without the upload, delete, self-assessment, and reminder functionality that the feature description requires.",
+      "evidence": "AGENTS.md states 'Documents: Document checklists' but the feature description requires 'upload with validation, reminders, medical self-assessment questionnaire' which need additional endpoints beyond simple checklists."
+    }
+  ],
+  "addressesFailureFrom": null,
+  "summary": "The document-readiness-module feature fails review due to missing backend API endpoints. The frontend correctly implements the UI (checklist tabs, file upload validation, medical guidelines display, self-assessment questionnaire, reminder modal) but all write operations (upload, delete, reminders, self-assessment) call API endpoints that do not exist in the backend. Additionally, no database models exist for self-assessment questions or reminders. The feature cannot function at runtime without implementing these missing backend components."
+}

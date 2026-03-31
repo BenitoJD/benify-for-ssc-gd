@@ -1,0 +1,71 @@
+{
+  "featureId": "physical-training-module",
+  "reviewedAt": "2026-04-01T10:30:00.000Z",
+  "commitId": "6fd6510",
+  "transcriptSkeletonReviewed": true,
+  "diffReviewed": true,
+  "status": "fail",
+  "codeReview": {
+    "summary": "Implementation covers most expected behaviors but has a critical blocking issue: no database migration exists for the new physical_plans and physical_progress_logs tables. Without migration, the tables won't exist in the database and all API calls will fail.",
+    "issues": [
+      {
+        "file": "apps/api/internal/main.py",
+        "line": 18,
+        "severity": "blocking",
+        "description": "Database migration missing: The router imports PhysicalService but there is no Alembic migration for the new physical_plans and physical_progress_logs tables. Running the API will fail with 'relation does not exist' errors."
+      },
+      {
+        "file": "apps/web/src/app/physical/page.tsx",
+        "line": 336,
+        "severity": "non_blocking",
+        "description": "Plan type filter dropdown is rendered but has no onChange handler - it doesn't actually filter plans. The select element is missing the value and onChange props.",
+        "suggestion": "Add state for planType filter and connect it to the API call: const [planTypeFilter, setPlanTypeFilter] = useState(''); ... getPhysicalPlans({ plan_type: planTypeFilter || undefined })"
+      },
+      {
+        "file": "apps/web/src/app/physical/page.tsx",
+        "line": 412,
+        "severity": "non_blocking",
+        "description": "Progress log form is missing sets_reps field for strength training. Users cannot log sets/reps for strength activities.",
+        "suggestion": "Add conditional sets_reps input field when activity_type === 'strength'"
+      },
+      {
+        "file": "apps/web/src/app/physical/page.tsx",
+        "line": 438,
+        "severity": "non_blocking",
+        "description": "Progress tab shows endurance chart but doesn't display logged progress history. Users cannot see their past training sessions.",
+        "suggestion": "Add a list of recent progress logs below or alongside the chart using getMyProgress()"
+      },
+      {
+        "file": "apps/api/internal/physical/service.py",
+        "line": 269,
+        "severity": "non_blocking",
+        "description": "In get_weekly_summary, week range calculation appears off. For week 0: week_end = datetime.utcnow() - timedelta(weeks=0) = now, week_start = week_end - timedelta(days=7) = 7 days ago. But query uses date >= week_start AND date < week_end, which excludes today.",
+        "suggestion": "Consider adjusting the date range to include current day or clarify the week boundary logic"
+      }
+    ]
+  },
+  "sharedStateObservations": [
+    {
+      "area": "skills",
+      "observation": "Worker did not follow frontend-worker SKILL.md procedure. The skill mandates TDD with Jest tests and agent-browser UI validation, but handoff reports 'No new tests added' and no interactiveChecks were performed.",
+      "evidence": "Handoff shows: tests: {added: [], coverage: 'No new tests added'} and verification: {commandsRun: [...], interactiveChecks: []}"
+    },
+    {
+      "area": "skills",
+      "observation": "Frontend-worker skill requires agent-browser verification for all UI work. The handoff shows no interactiveChecks were performed, meaning the UI was never visually verified.",
+      "evidence": "Handoff verification section has empty interactiveChecks array: []"
+    },
+    {
+      "area": "conventions",
+      "observation": "AGENTS.md specifies database migrations should be run via 'npm run db:migrate' but no migration was created for the new physical tables. The worker only ran 'python3 -m py_compile' which only checks syntax, not database schema.",
+      "evidence": "Handoff verification shows: 'cd apps/api && python3 -m py_compile internal/physical/*.py' - this only validates Python syntax, not database migrations"
+    },
+    {
+      "area": "services",
+      "observation": "Worker did not start the API service to verify the physical endpoints work. services.yaml shows api should be started via 'cd apps/api && uvicorn internal.main:app --reload --port 3100' but worker only compiled Python files.",
+      "evidence": "Handoff verification only ran py_compile and npm commands, did not start uvicorn to test actual API functionality"
+    }
+  ],
+  "addressesFailureFrom": null,
+  "summary": "Feature implementation is functionally complete for most expected behaviors (PST/PET requirements display, gender-specific plans, progress logging, endurance chart, mock PET calculator). However, it FAILS review due to missing database migration - the new physical_plans and physical_progress_logs tables have no Alembic migration, so the feature cannot work in practice. Additionally, the worker did not follow the frontend-worker skill's TDD and agent-browser verification procedures, and the plan filter dropdown is non-functional."
+}

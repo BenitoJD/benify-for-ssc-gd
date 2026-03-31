@@ -1,0 +1,67 @@
+{
+  "featureId": "motivation-gamification",
+  "reviewedAt": "2026-03-31T20:54:26.831Z",
+  "commitId": "cb85d71",
+  "transcriptSkeletonReviewed": true,
+  "diffReviewed": true,
+  "status": "fail",
+  "codeReview": {
+    "summary": "The motivation-gamification feature implements streaks, badges, achievements, Pomodoro timer, and daily missions. However, there are two blocking bugs that will cause incorrect behavior at runtime. The first is a streak calculation bug in update_streak_on_activity that resets the streak instead of incrementing it when bonus points are awarded. The second is a response model mismatch in the streak freeze endpoint that will cause a validation error.",
+    "issues": [
+      {
+        "file": "apps/api/internal/gamification/repository.py",
+        "line": 523,
+        "severity": "blocking",
+        "description": "Streak calculation bug in update_streak_on_activity: When user completes a mission on a consecutive day (days_diff==1), the code sets current_streak to '1 + bonus_points + (1 if bonus_points == 0 else 0)' instead of incrementing from existing value. This resets the streak to 1 instead of adding to it. For example, if current_streak=5 and bonus_points=2, the streak becomes 6 instead of 8 (5+1+2)."
+      },
+      {
+        "file": "apps/api/internal/gamification/router.py",
+        "line": 100,
+        "severity": "blocking",
+        "description": "Streak freeze endpoint response model mismatch: POST /streaks/freeze declares response_model=StreakFreezeResponse (expects id, freeze_date, used_at) but returns {\"success\": True, \"message\": \"...\"}. This will cause a Pydantic validation error at runtime. Additionally, the service.use_streak_freeze() returns True/False instead of the created StreakFreeze record."
+      },
+      {
+        "file": "apps/api/internal/gamification/service.py",
+        "line": 348,
+        "severity": "non_blocking",
+        "description": "Inefficient badge response construction in complete_pomodoro: After calling check_and_award_badge which already fetches the badge definition, the code re-fetches it using get_badge_by_type(BadgeType(badge.badge.badge_type.value)). This is redundant and may fail if the relationship isn't properly loaded."
+      },
+      {
+        "file": "apps/api/internal/gamification/service.py",
+        "line": 73,
+        "severity": "non_blocking",
+        "description": "_set_notification_service method is never called. If notification_service is not injected at initialization, it stays None and badge/achievement notifications are silently skipped. Consider calling this method in the router dependency or ensuring notification_service is always injected."
+      },
+      {
+        "file": "apps/api/internal/gamification/repository.py",
+        "line": 524,
+        "severity": "non_blocking",
+        "description": "Logic error: When days_diff==1 (consecutive day), the code adds 1 twice when bonus_points > 0: first in the assignment (1 + bonus_points + 1) and then again in the if block (current_streak += bonus_points). This double-counts bonus_points."
+      }
+    ]
+  },
+  "sharedStateObservations": [
+    {
+      "area": "conventions",
+      "observation": "The router POST /streaks/freeze endpoint returns a dict but declares response_model=StreakFreezeResponse. The codebase convention appears to be using response_model for all endpoints. AGENTS.md doesn't explicitly document this pattern.",
+      "evidence": "router.py:100 - returns {\"success\": True, \"message\": \"...\"} but response_model=StreakFreezeResponse"
+    },
+    {
+      "area": "conventions",
+      "observation": "The GamificationRepository.update_streak_on_activity has complex conditional logic for streak updates that is difficult to follow. The comment structure doesn't clearly document all edge cases (same day, consecutive day, 2-day gap with freeze, >2 day gap).",
+      "evidence": "repository.py:480-540 - 60+ lines of streak update logic with nested conditionals"
+    },
+    {
+      "area": "skills",
+      "observation": "The worker followed the backend-worker skill procedure correctly according to skillFeedback. No deviations noted.",
+      "evidence": "handoff.skillFeedback.followedProcedure: true"
+    },
+    {
+      "area": "knowledge",
+      "observation": "The handoff notes that badge/achievement seed data is not included in seed.py. This is a known gap that would prevent the badge system from working in a fresh environment. This knowledge should be captured in the library for future workers to address.",
+      "evidence": "handoff.whatWasLeftUndone: 'Badge seeding in seed.py not implemented (can be added later)'"
+    }
+  ],
+  "addressesFailureFrom": null,
+  "summary": "The motivation-gamification feature implementation is mostly complete with proper structure (models, repository, service, router layers). However, two blocking bugs were identified: 1) A streak calculation bug in update_streak_on_activity that incorrectly calculates streaks when bonus points are awarded on consecutive days, and 2) A response model mismatch in the streak freeze endpoint that will cause runtime validation errors. These must be fixed before user testing can proceed. Additionally, notification service integration may silently fail if not properly injected."
+}

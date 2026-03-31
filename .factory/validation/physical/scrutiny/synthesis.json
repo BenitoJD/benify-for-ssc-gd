@@ -1,0 +1,144 @@
+{
+  "milestone": "physical",
+  "round": 1,
+  "status": "fail",
+  "validatorsRun": {
+    "test:frontend": {
+      "passed": true,
+      "command": "npm run test:web",
+      "exitCode": 0,
+      "notes": "Frontend tests pass"
+    },
+    "test:backend": {
+      "passed": false,
+      "command": "cd apps/api && python3 -m pytest",
+      "exitCode": 1,
+      "notes": "168 passed, 7 errors. Errors are in test fixtures (admin_user_token) due to database password authentication failure - environment configuration issue, not code bug"
+    },
+    "typecheck:frontend": {
+      "passed": true,
+      "command": "cd apps/web && npm run typecheck",
+      "exitCode": 0,
+      "notes": "TypeScript type check passed"
+    },
+    "lint:frontend": {
+      "passed": true,
+      "command": "cd apps/web && npm run lint",
+      "exitCode": 0,
+      "notes": "Lint passed with warnings only (unused vars, img element, any types)"
+    }
+  },
+  "reviewsSummary": {
+    "total": 4,
+    "passed": 0,
+    "failed": 4,
+    "failedFeatures": [
+      "physical-training-module",
+      "document-readiness-module",
+      "motivation-gamification",
+      "admin-physical-document-management"
+    ]
+  },
+  "blockingIssues": [
+    {
+      "featureId": "physical-training-module",
+      "severity": "blocking",
+      "description": "Missing database migration: The router imports PhysicalService but there is no Alembic migration for the new physical_plans and physical_progress_logs tables. Running the API will fail with 'relation does not exist' errors.",
+      "location": "apps/api/internal/main.py:18"
+    },
+    {
+      "featureId": "document-readiness-module",
+      "severity": "blocking",
+      "description": "Missing backend API endpoints: The frontend calls POST /documents/upload, DELETE /documents/{documentId}, GET /documents/medical/self-assessment, POST /documents/medical/self-assessment, POST /documents/reminders, GET /documents/reminders/me, DELETE /documents/reminders/{reminderId} - none of which exist in the backend router.",
+      "location": "apps/web/src/lib/api/documents.ts:85-159"
+    },
+    {
+      "featureId": "document-readiness-module",
+      "severity": "blocking",
+      "description": "Missing database models: No models exist for MedicalSelfAssessment or Reminder entities. Even if endpoints were added, there would be no tables to store/query the data.",
+      "location": "apps/api/internal/documents/models.py"
+    },
+    {
+      "featureId": "document-readiness-module",
+      "severity": "blocking",
+      "description": "Stage enum mismatch: Frontend uses 'new_application'|'admit_card_released'|'dv_scheduled' but backend uses 'pst'|'pet'|'medical'|'document_verification'. Stage filtering will not work correctly.",
+      "location": "apps/web/src/app/documents/page.tsx vs apps/api/internal/documents/router.py"
+    },
+    {
+      "featureId": "motivation-gamification",
+      "severity": "blocking",
+      "description": "Streak calculation bug in update_streak_on_activity: When user completes a mission on a consecutive day, the code sets current_streak to '1 + bonus_points + ...' instead of incrementing from existing value. For example, if current_streak=5 and bonus_points=2, the streak becomes 6 instead of 8.",
+      "location": "apps/api/internal/gamification/repository.py:523"
+    },
+    {
+      "featureId": "motivation-gamification",
+      "severity": "blocking",
+      "description": "Streak freeze endpoint response model mismatch: POST /streaks/freeze declares response_model=StreakFreezeResponse but returns {\"success\": True, \"message\": \"...\"}. This will cause a Pydantic validation error at runtime.",
+      "location": "apps/api/internal/gamification/router.py:100"
+    },
+    {
+      "featureId": "admin-physical-document-management",
+      "severity": "blocking",
+      "description": "Bug: UUID.uuid4() is incorrect usage. uuid4() is a function, not a class method. This will cause TypeError: 'UUID' object is not callable at runtime.",
+      "location": "apps/api/internal/documents/service.py:149"
+    },
+    {
+      "featureId": "admin-physical-document-management",
+      "severity": "blocking",
+      "description": "Medical guidelines CRUD returns hardcoded static data with placeholder UUID 44444444-... instead of real database operations.",
+      "location": "apps/api/internal/documents/service.py:103"
+    },
+    {
+      "featureId": "admin-physical-document-management",
+      "severity": "blocking",
+      "description": "Announcements CRUD is completely fake: admin_get_announcements() returns empty list, admin_create_announcement() uses placeholder UUID 55555555-...",
+      "location": "apps/api/internal/documents/service.py:380"
+    },
+    {
+      "featureId": "admin-physical-document-management",
+      "severity": "blocking",
+      "description": "broadcast_announcement() method is not implemented - only contains pass. Announcements are never broadcast to users.",
+      "location": "apps/api/internal/documents/service.py:400"
+    },
+    {
+      "featureId": "admin-physical-document-management",
+      "severity": "blocking",
+      "description": "Document compliance stats return hardcoded placeholder data (60.0%, 50.0%, etc.) instead of real database calculations.",
+      "location": "apps/api/internal/documents/service.py:355, 368"
+    }
+  ],
+  "appliedUpdates": [],
+  "suggestedGuidanceUpdates": [
+    {
+      "target": "AGENTS.md",
+      "suggestion": "Add explicit requirement that workers must verify backend endpoints exist before implementing frontend API calls. Frontend-backend contract should be established upfront or both should be implemented together.",
+      "evidence": "document-readiness-module: frontend calls 7 endpoints that don't exist",
+      "isSystemic": true
+    },
+    {
+      "target": "AGENTS.md",
+      "suggestion": "Clarify that database migrations are REQUIRED for any new tables, not optional. Workers should run 'alembic revision --autogenerate' and 'alembic upgrade head' as part of verification, not just 'python3 -m py_compile'.",
+      "evidence": "physical-training-module: no migration created for physical_plans and physical_progress_logs tables",
+      "isSystemic": true
+    },
+    {
+      "target": "AGENTS.md",
+      "suggestion": "Add enforcement that verification must include starting the actual service (uvicorn) to test API endpoints work, not just syntax checking with py_compile.",
+      "evidence": "Multiple features: workers only ran py_compile which doesn't verify runtime behavior",
+      "isSystemic": true
+    },
+    {
+      "target": "skills/frontend-worker.md",
+      "suggestion": "Enforce agent-browser UI verification as a hard requirement, not optional. Worker handoffs should show interactiveChecks were performed.",
+      "evidence": "physical-training-module handoff shows empty interactiveChecks array",
+      "isSystemic": true
+    }
+  ],
+  "rejectedObservations": [
+    {
+      "observation": "Documents module should use Repository pattern",
+      "reason": "While other modules use repositories, this is an architectural inconsistency that should be addressed separately as a refactoring task, not blocking user testing"
+    }
+  ],
+  "previousRound": null
+}
