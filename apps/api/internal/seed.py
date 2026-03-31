@@ -34,6 +34,7 @@ from .physical.models import PhysicalPlan, PhysicalPlanType, PhysicalGoalGender,
 from .documents.models import DocumentChecklist, DocumentStage, UserDocumentChecklist
 from .subscriptions.models import Plan, Coupon  # noqa: F401
 from .notifications.models import Notification, NotificationPreference, NotificationType  # noqa: F401
+from .ai.models import DoubtAssistantKnowledge  # noqa: F401
 
 
 # ============================================================================
