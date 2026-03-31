@@ -1,6 +1,6 @@
 {
   "milestone": "foundation",
-  "round": 7,
+  "round": 8,
   "status": "fail",
   "validatorsRun": {
     "test:frontend": {
@@ -57,23 +57,6 @@
   },
   "blockingIssues": [
     {
-      "featureId": "foundation-fix-1-orphans",
-      "severity": "blocking",
-      "description": "Orphaned Go source files STILL EXIST in apps/api/internal/. The foundation-fix-1-orphans review confirmed the fix was marked PASS but Go files were found remaining. A pending task 'foundation-fix-1-orphans-force' exists but has not been executed yet. 9 Go source files remain at apps/api/internal/httpapi/, apps/api/internal/auth/, apps/api/internal/config/.",
-      "files": [
-        "apps/api/internal/httpapi/auth_adapter.go",
-        "apps/api/internal/httpapi/server.go",
-        "apps/api/internal/httpapi/handler_test.go",
-        "apps/api/internal/config/config.go",
-        "apps/api/internal/auth/session.go",
-        "apps/api/internal/auth/session_test.go",
-        "apps/api/internal/auth/google.go",
-        "apps/api/internal/auth/service.go",
-        "apps/api/internal/auth/service_test.go"
-      ],
-      "evidence": "find apps/api/internal -name '*.go' returns 9 files - NO CHANGE from round 6"
-    },
-    {
       "featureId": "student-onboarding",
       "severity": "blocking",
       "description": "Missing translation keys for fitness step validation cause runtime crashes. Translation key 'onboarding.steps.fitness.genderRequired' at page.tsx:159 and 'onboarding.steps.fitness.levelRequired' at page.tsx:163 are used but NOT defined in i18n.ts. User attempting to proceed past step 5 without selecting gender/fitness level will encounter runtime crash. NO FIX APPLIED since round 4.",
@@ -83,16 +66,23 @@
     {
       "featureId": "mock-test-engine",
       "severity": "blocking",
-      "description": "Bug in get_attempt_rank function at repository.py:375-401. When user_score falls between two scores in the sorted attempts list, the loop doesn't break early after finding a higher score. The rank is incorrectly overwritten on each iteration. Example: attempts=[100,80,60], user_score=70 should give rank 3 (2 scores higher), but loop produces rank=3 correctly here but for ties it breaks correctly. However, the issue is the 'break' is missing after the 'if attempt.total_score > score' branch - it only breaks on the 'elif' (equal) case. This causes incorrect rank calculation when there are multiple scores higher than user's. NO FIX APPLIED since round 4.",
+      "description": "Bug in get_attempt_rank function at repository.py:375-401 (tests/repository.py). The rank calculation algorithm may produce incorrect results when user_score falls between scores in certain edge cases with multiple ties. Reviewer analysis flagged this as blocking.",
       "location": "apps/api/internal/tests/repository.py:375-401",
-      "evidence": "Code at lines 389-396 shows the bug: no break after 'if attempt.total_score > score' branch"
+      "evidence": "Code review from round 7 identified this issue"
     },
     {
       "featureId": "basic-admin-panel",
       "severity": "blocking",
       "description": "Dashboard stats (reports_count, total_lessons_completed, total_tests_taken) are hardcoded to 0 instead of querying actual database tables. Admin panel shows fake data. NO FIX APPLIED since round 4.",
-      "location": "apps/api/internal/admin/service.py:123,126,129",
+      "location": "apps/api/internal/admin/service.py:122-127",
       "evidence": "grep shows reports_count = 0, total_lessons_completed = 0, total_tests_taken = 0"
+    }
+  ],
+  "resolvedIssuesFromPriorRound": [
+    {
+      "featureId": "foundation-fix-1-orphans",
+      "description": "Go source files have been deleted from apps/api/internal/. The directories httpapi/, auth/, and config/ are now empty. Files deleted: auth_adapter.go, server.go, handler_test.go, config.go, session.go, session_test.go, google.go, service.go, service_test.go. Note: Deletion is in working tree but not yet committed.",
+      "evidence": "ls apps/api/internal/httpapi/ and apps/api/internal/config/ are empty. Git status shows files as deleted."
     }
   ],
   "appliedUpdates": [],
@@ -112,7 +102,7 @@
     {
       "target": "skills/backend-worker",
       "suggestion": "Add requirement to verify rank/percentile calculation logic with unit tests covering edge cases (score between two attempts, score equal to highest, empty attempts list). The get_attempt_rank bug was not caught because tests passed with simple cases.",
-      "evidence": "mock-test-engine has blocking rank calculation bug that wasn't caught. The test suite tests percentiles with first/last/middle but doesn't test intermediate scores properly.",
+      "evidence": "mock-test-engine has blocking rank calculation issue flagged in review. The test suite tests percentiles with first/last/middle but doesn't test intermediate scores properly.",
       "isSystemic": false
     }
   ],
@@ -121,6 +111,6 @@
     "frontend": "Test files use vitest imports but project uses Jest. auth.test.ts imports from 'vitest', dashboard.test.tsx/onboarding.test.tsx use 'vi' from 'jest' (should be jest.fn()). TypeScript type annotations in mock functions cause parse errors. Pre-existing configuration issue requiring jest.config.ts setup with TypeScript/vitest support.",
     "backend": "Test fixtures in test_admin_users.py don't create required tables before tests run. 83 of 90 tests pass. 7 admin user tests fail due to fixture setup issue (no such table: users). Pre-existing test fixture issue."
   },
-  "previousRound": ".factory/validation/foundation/scrutiny/synthesis.json (round 6)",
-  "notes": "This is round 7. No new fix features have been created or completed since round 6. The pending task foundation-fix-1-orphans-force has not been executed. All blocking issues from round 6 remain unresolved. Orchestrator needs to ensure fix tasks are executed before next scrutiny run. Validators still show same pre-existing failures. The 3 failed features (student-onboarding, mock-test-engine, basic-admin-panel) still have their blocking issues. The Go files remain undeleted. The 9 .go files still exist at apps/api/internal/httpapi/, apps/api/internal/auth/, apps/api/internal/config/."
+  "previousRound": ".factory/validation/foundation/scrutiny/synthesis.json (round 7)",
+  "notes": "This is round 8. The Go files have been deleted from the working tree (not committed). The foundation-fix-1-orphans blocking issue is RESOLVED. However, 3 blocking issues remain: (1) student-onboarding missing i18n keys, (2) mock-test-engine rank calculation, (3) basic-admin-panel hardcoded stats. No new fix features have been completed since round 7. Orchestrator needs to ensure fix tasks are created and executed for the remaining blocking issues."
 }
