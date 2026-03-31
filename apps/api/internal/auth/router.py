@@ -112,6 +112,32 @@ async def register(
         max_age=7 * 24 * 60 * 60,  # 7 days
     )
     
+    # Track referral if code was provided
+    if request.referral_code:
+        try:
+            from ..referral.service import ReferralService
+            referral_service = ReferralService(db)
+            await referral_service.track_referral(
+                referred_user_id=user.id,
+                referral_code=request.referral_code
+            )
+        except Exception as e:
+            # Log but don't fail registration if referral tracking fails
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.warning(f"Failed to track referral for user {user.id}: {e}")
+    
+    # Generate a referral code for the new user
+    try:
+        from ..referral.service import ReferralService
+        referral_service = ReferralService(db)
+        await referral_service.get_or_create_referral_code(user.id)
+    except Exception as e:
+        # Log but don't fail registration if code generation fails
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.warning(f"Failed to generate referral code for user {user.id}: {e}")
+    
     return tokens
 
 

@@ -22,6 +22,7 @@ from .physical.router import router as physical_router
 from .documents.router import router as documents_router
 from .gamification.router import router as gamification_router
 from .ai.router import router as ai_router
+from .referral.router import router as referral_router
 
 # Configure logging
 logging.basicConfig(
@@ -114,6 +115,7 @@ app.include_router(physical_router, prefix="/api/v1")
 app.include_router(documents_router, prefix="/api/v1")
 app.include_router(gamification_router, prefix="/api/v1")
 app.include_router(ai_router, prefix="/api/v1")
+app.include_router(referral_router, prefix="/api/v1")
 
 
 # Root endpoint

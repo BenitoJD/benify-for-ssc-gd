@@ -34,6 +34,7 @@ class UserRegisterRequest(BaseModel):
     email: EmailStr
     password: str = Field(..., min_length=8)
     name: Optional[str] = None
+    referral_code: Optional[str] = Field(None, max_length=50, description="Referral code from URL parameter")
 
 
 class UserLoginRequest(BaseModel):
