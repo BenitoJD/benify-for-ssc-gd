@@ -239,13 +239,31 @@ class SyllabusRepository:
         )
         return list(result.scalars().all())
     
-    async def create_bookmark(self, user_id: UUID, lesson_id: UUID) -> Bookmark:
-        """Create a new bookmark."""
+    async def create_bookmark(self, user_id: UUID, lesson_id: UUID) -> Optional[Bookmark]:
+        """Create a new bookmark with UPSERT behavior.
+        
+        Handles concurrent requests gracefully by first checking if a bookmark
+        exists, and only creating a new one if it doesn't. This approach works
+        reliably across both PostgreSQL and SQLite.
+        """
+        # First check if bookmark already exists
+        existing = await self.get_bookmark_by_user_lesson(user_id, lesson_id)
+        if existing:
+            return existing
+        
+        # Create new bookmark
         bookmark = Bookmark(user_id=user_id, lesson_id=lesson_id)
         self.db.add(bookmark)
-        await self.db.flush()
-        await self.db.refresh(bookmark)
-        return bookmark
+        
+        try:
+            await self.db.flush()
+            await self.db.refresh(bookmark)
+            return bookmark
+        except Exception:
+            # If insert fails (e.g., due to race condition), fetch and return existing
+            await self.db.rollback()
+            existing = await self.get_bookmark_by_user_lesson(user_id, lesson_id)
+            return existing
     
     async def delete_bookmark(self, bookmark_id: UUID) -> bool:
         """Delete a bookmark by ID."""
@@ -311,17 +329,47 @@ class SyllabusRepository:
     async def mark_lesson_complete(
         self, user_id: UUID, lesson_id: UUID
     ) -> LessonProgress:
-        """Mark a lesson as completed."""
-        # Check if already completed
+        """Mark a lesson as completed with UPSERT behavior.
+        
+        Handles concurrent requests gracefully by first checking if progress
+        exists, and only creating a new record if it doesn't. This approach
+        works reliably across both PostgreSQL and SQLite.
+        """
+        from datetime import datetime
+        
+        # First check if progress already exists
         existing = await self.get_progress_by_user_lesson(user_id, lesson_id)
         if existing:
             return existing
         
-        progress = LessonProgress(user_id=user_id, lesson_id=lesson_id)
+        # Create new progress record
+        progress = LessonProgress(
+            user_id=user_id,
+            lesson_id=lesson_id,
+            completed_at=datetime.utcnow()
+        )
         self.db.add(progress)
-        await self.db.flush()
-        await self.db.refresh(progress)
-        return progress
+        
+        try:
+            await self.db.flush()
+            await self.db.refresh(progress)
+            return progress
+        except Exception:
+            # If insert fails (e.g., due to race condition), fetch and return existing
+            await self.db.rollback()
+            existing = await self.get_progress_by_user_lesson(user_id, lesson_id)
+            if existing:
+                return existing
+            # If still no existing (shouldn't happen), try to create again
+            progress = LessonProgress(
+                user_id=user_id,
+                lesson_id=lesson_id,
+                completed_at=datetime.utcnow()
+            )
+            self.db.add(progress)
+            await self.db.flush()
+            await self.db.refresh(progress)
+            return progress
     
     async def unmark_lesson_complete(
         self, user_id: UUID, lesson_id: UUID

@@ -4,7 +4,7 @@ SQLAlchemy models for syllabus module.
 Includes: Subject, Topic, Lesson, Note (user notes on lessons),
 Bookmark (user bookmarks), LessonProgress (completion tracking).
 """
-from sqlalchemy import Column, String, DateTime, Boolean, Integer, Float, ForeignKey, Text
+from sqlalchemy import Column, String, DateTime, Boolean, Integer, Float, ForeignKey, Text, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from datetime import datetime
@@ -128,7 +128,7 @@ class Bookmark(Base):
     
     # Unique constraint to prevent duplicate bookmarks
     __table_args__ = (
-        # SQLite doesn't support UniqueConstraint the same way, but we'll handle this in the service
+        UniqueConstraint('user_id', 'lesson_id', name='uq_bookmark_user_lesson'),
     )
     
     def __repr__(self):
@@ -151,7 +151,7 @@ class LessonProgress(Base):
     
     # Unique constraint: one progress record per user per lesson
     __table_args__ = (
-        # SQLite doesn't support UniqueConstraint the same way, but we'll handle this in the service
+        UniqueConstraint('user_id', 'lesson_id', name='uq_lesson_progress_user_lesson'),
     )
     
     def __repr__(self):
