@@ -1,0 +1,73 @@
+{
+  "featureId": "basic-admin-panel",
+  "reviewedAt": "2026-03-31T00:05:00.000Z",
+  "commitId": "ea0e6c8",
+  "transcriptSkeletonReviewed": true,
+  "diffReviewed": true,
+  "status": "fail",
+  "codeReview": {
+    "summary": "The admin panel implementation is incomplete. While admin login, dashboard stats, and user status update work, the user management feature (list users, view user detail) is broken because the backend API endpoints are missing. The frontend calls adminApi.listUsers() (GET /admin/users) and adminApi.getUser() (GET /admin/users/{id}) but these endpoints do not exist in the backend router.",
+    "issues": [
+      {
+        "file": "apps/api/internal/admin/router.py",
+        "line": 1,
+        "severity": "blocking",
+        "description": "Missing GET /admin/users endpoint - frontend adminApi.listUsers() calls this endpoint but it is not implemented. User management list/search will not work."
+      },
+      {
+        "file": "apps/api/internal/admin/router.py",
+        "line": 1,
+        "severity": "blocking",
+        "description": "Missing GET /admin/users/{user_id} endpoint - frontend adminApi.getUser() calls this endpoint but it is not implemented. User detail view will not work."
+      },
+      {
+        "file": "apps/web/src/lib/api/client.ts",
+        "line": 16,
+        "severity": "non_blocking",
+        "description": "Admin access token stored in localStorage instead of httpOnly cookie. AGENTS.md specifies 'JWT tokens in httpOnly cookies (not localStorage)'. While this may be intentional for admin UX, it is a security deviation from documented conventions."
+      },
+      {
+        "file": "apps/api/internal/admin/service.py",
+        "line": 90,
+        "severity": "non_blocking",
+        "description": "Dashboard stats reports_count, total_lessons_completed, total_tests_taken are hardcoded to 0 as placeholders. These are documented in handoff as non-blocking."
+      },
+      {
+        "file": "apps/api/internal/admin/router.py",
+        "line": 22,
+        "severity": "non_blocking",
+        "description": "Admin login endpoint lacks rate limiting. AGENTS.md specifies 'Rate limiting on auth endpoints (5 attempts/min for login)' but no rate limiting is applied to POST /admin/login."
+      },
+      {
+        "file": "apps/web/src/app/admin/users/[id]/page.tsx",
+        "line": 1,
+        "severity": "non_blocking",
+        "description": "User detail page shows placeholder data for profile and stats sections (no actual profile/stats API calls implemented)."
+      }
+    ]
+  },
+  "sharedStateObservations": [
+    {
+      "area": "conventions",
+      "observation": "Worker followed most conventions but stored admin tokens in localStorage instead of httpOnly cookies as specified in AGENTS.md. This may be intentional for admin UX simplicity but diverges from documented security guidance.",
+      "evidence": "apps/web/src/app/admin/login/page.tsx:29 - localStorage.setItem('admin_access_token', ...); apps/web/src/lib/api/client.ts:19 - checks localStorage for admin token"
+    },
+    {
+      "area": "skills",
+      "observation": "Worker followed frontend-worker skill procedure correctly. Transcript shows proper exploration of codebase, API client patterns, and component structure before implementation.",
+      "evidence": "Transcript skeleton shows worker read README, explored project structure, checked existing auth patterns before implementing admin module"
+    },
+    {
+      "area": "services",
+      "observation": "Worker used standard dev commands (npm run typecheck, npm run lint, python3 -m py_compile) already documented in services.yaml. No undocumented service usage.",
+      "evidence": "Handoff verification section shows commands: 'cd apps/web && npm run typecheck', 'cd apps/web && npm run lint', 'cd apps/api && python3 -m py_compile'"
+    },
+    {
+      "area": "implementation_gap",
+      "observation": "Worker implemented 3 of 5 expected admin API endpoints. The frontend expects GET /admin/users and GET /admin/users/{id} but these were not implemented. This appears to be an incomplete implementation rather than a shared state gap.",
+      "evidence": "Frontend admin.ts lines 66-76 calls GET /admin/users and GET /admin/users/{user_id}. Backend router.py only implements POST /admin/login, GET /admin/dashboard, PATCH /admin/users/{user_id}/status"
+    }
+  ],
+  "addressesFailureFrom": null,
+  "summary": "Implementation incomplete - user management API endpoints missing. Admin login, dashboard, and status update work correctly. However, GET /admin/users (list users with search/pagination) and GET /admin/users/{id} (get user detail) are not implemented in the backend, causing the frontend user management UI to fail. Security: admin tokens stored in localStorage (deviation from httpOnly cookie convention). Dashboard stats are placeholders (reports_count=0, lessons_completed=0, tests_taken=0)."
+}

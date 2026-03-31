@@ -1,0 +1,62 @@
+{
+  "featureId": "project-scaffold",
+  "reviewedAt": "2026-03-31T00:00:00.000Z",
+  "commitId": "07532e4",
+  "transcriptSkeletonReviewed": true,
+  "diffReviewed": true,
+  "status": "fail",
+  "codeReview": {
+    "summary": "The project scaffold implements the core infrastructure (Next.js 14, FastAPI, PostgreSQL, Redis, MinIO, Docker Compose, JWT auth) but contains critical architectural inconsistencies. The apps/api directory contains both Go and Python code side-by-side, with go.mod existing but FastAPI using Python. The apps/web has both Vite and Next.js configurations. These issues indicate incomplete implementation or mixing of different project approaches.",
+    "issues": [
+      {
+        "file": "apps/api/internal/",
+        "severity": "blocking",
+        "description": "Go and Python files coexist in the same directory structure. Files like auth/google.go, auth/service.go, auth/session.go, config/config.go, httpapi/server.go are Go files that have no purpose in a FastAPI/Python project. This creates architectural confusion and potential import/syntax errors if Python tooling misidentifies these as part of the project."
+      },
+      {
+        "file": "apps/api/go.mod",
+        "severity": "blocking",
+        "description": "go.mod and go.sum exist but are orphaned. The API uses Python/FastAPI (requirements.txt has fastapi, uvicorn, etc.) but the go.mod declares module 'benify/apps/api' with go 1.24.0. This file should be removed as it implies a Go backend that doesn't exist."
+      },
+      {
+        "file": "apps/web/vite.config.ts",
+        "severity": "blocking",
+        "description": "Vite configuration exists alongside Next.js configuration. The project has both vite.config.ts and next.config.js. The main.tsx entry point references a Vite React app, but the app/ directory structure uses Next.js App Router. This creates confusion about which build system is actually used."
+      },
+      {
+        "file": "apps/web/src/app/",
+        "severity": "non_blocking",
+        "description": "Route groups (public)/(student)/(admin) as specified in architecture.md are not implemented. The app directory is flat with admin/, dashboard/, onboarding/ folders rather than grouped routes. This deviates from the documented architecture but doesn't break functionality."
+      },
+      {
+        "file": "apps/web/src/components/ui/",
+        "severity": "non_blocking",
+        "description": "UI component library doesn't match architecture spec. The architecture.md specifies generic UI components (Button, Input, Card) but the actual ui/ folder contains feature-specific components (DiagnosticQuiz, ExamCountdown, FitnessBaselineForm). This is a deviation but follows a feature-based organization."
+      },
+      {
+        "file": "apps/api/internal/auth/router.py",
+        "severity": "non_blocking",
+        "description": "The router.py imports are inconsistent - it imports from .schemas but also imports schemas directly via 'from ..database import get_db'. This suggests the file was modified multiple times with mixed import styles."
+      }
+    ]
+  },
+  "sharedStateObservations": [
+    {
+      "area": "conventions",
+      "observation": "The worker created Go files (google.go, service.go, etc.) in a Python FastAPI project. These are clearly orphaned from a different implementation approach but weren't cleaned up. AGENTS.md doesn't specify what to do when switching implementation languages mid-project.",
+      "evidence": "apps/api/internal/auth/google.go, apps/api/internal/auth/service.go, apps/api/internal/auth/session.go, apps/api/internal/config/config.go, apps/api/internal/httpapi/server.go - all are Go files in a Python project"
+    },
+    {
+      "area": "conventions",
+      "observation": "The worker left both vite.config.ts (Vite) and next.config.js (Next.js) in the web project. AGENTS.md specifies Next.js 14 with App Router but doesn't clarify that Vite configs should be removed when using Next.js.",
+      "evidence": "apps/web/vite.config.ts and apps/web/next.config.js both exist, along with both main.tsx (Vite entry) and app/page.tsx (Next.js page)"
+    },
+    {
+      "area": "architecture",
+      "observation": "The feature 'project-scaffold' appears to have been implemented by the worker who set up the initial structure, but commit 07532e4 only shows .factory/ infrastructure files being added, not the actual apps/web and apps/api scaffolding. The actual project files (main.py, page.tsx, etc.) may have been created in a different commit or by a different worker.",
+      "evidence": "git show 07532e4 --stat shows only .factory/ files changed (init.sh, library/, services.yaml, skills/). The actual apps/web and apps/api content is not in this commit."
+    }
+  ],
+  "addressesFailureFrom": null,
+  "summary": "The scaffold establishes the foundation with Next.js 14, FastAPI, PostgreSQL, Redis, MinIO, and Docker Compose. However, it contains blocking architectural issues: (1) Go and Python code mixed in apps/api/, (2) orphaned go.mod in Python project, (3) Vite and Next.js configs both in web. These issues create confusion about the actual project architecture and should be cleaned up before proceeding to feature development."
+}

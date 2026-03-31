@@ -1,0 +1,165 @@
+{
+  "milestone": "foundation",
+  "round": 1,
+  "status": "fail",
+  "validatorsRun": {
+    "test:frontend": {
+      "passed": false,
+      "command": "cd apps/web && npm run test",
+      "exitCode": 1,
+      "error": "Test files import from 'vitest' but project uses Jest. auth.test.ts imports vi from vitest, dashboard.test.tsx and onboarding.test.tsx use vi from 'jest' (vi doesn't exist in Jest - should be jest.fn()). Also TypeScript type annotations in mocks cause parse errors."
+    },
+    "test:backend": {
+      "passed": false,
+      "command": "cd apps/api && python3 -m pytest tests/ -v",
+      "exitCode": 4,
+      "error": "DATABASE_URL not set. When set to sqlite, database.py passes pool_size/max_overflow args that SQLite doesn't support. This is a pre-existing test configuration issue."
+    },
+    "typecheck:frontend": {
+      "passed": true,
+      "command": "cd apps/web && npm run typecheck",
+      "exitCode": 0,
+      "output": "No TypeScript errors"
+    },
+    "lint:frontend": {
+      "passed": true,
+      "command": "cd apps/web && npm run lint",
+      "exitCode": 0,
+      "output": "Warnings only (no-img-element, unused vars) - non-blocking"
+    }
+  },
+  "reviewsSummary": {
+    "total": 10,
+    "completed": 8,
+    "timedOut": 2,
+    "passed": 4,
+    "failed": 4,
+    "failedFeatures": ["project-scaffold", "auth-google-oauth", "basic-admin-panel", "student-onboarding"],
+    "timedOutFeatures": ["landing-page", "mock-test-engine"],
+    "passedFeatures": ["auth-email-otp", "seed-ssc-gd-content", "student-dashboard", "syllabus-module"]
+  },
+  "blockingIssues": [
+    {
+      "featureId": "project-scaffold",
+      "severity": "blocking",
+      "description": "Go and Python files coexist in apps/api/internal/ - orphaned Go files (google.go, service.go, session.go, config.go, httpapi/server.go) in Python FastAPI project",
+      "files": ["apps/api/internal/auth/google.go", "apps/api/internal/auth/service.go", "apps/api/internal/auth/session.go", "apps/api/internal/config/config.go", "apps/api/internal/httpapi/server.go"]
+    },
+    {
+      "featureId": "project-scaffold",
+      "severity": "blocking",
+      "description": "Orphaned go.mod exists in Python FastAPI project - implies Go backend that doesn't exist",
+      "files": ["apps/api/go.mod", "apps/api/go.sum"]
+    },
+    {
+      "featureId": "project-scaffold",
+      "severity": "blocking",
+      "description": "Both Vite (vite.config.ts, main.tsx) and Next.js (next.config.js, app/page.tsx) configurations exist causing confusion about build system",
+      "files": ["apps/web/vite.config.ts", "apps/web/src/main.tsx"]
+    },
+    {
+      "featureId": "auth-google-oauth",
+      "severity": "blocking",
+      "description": "Logout endpoint returns plain JSON {\"message\": \"Logged out successfully\"} but frontend logout() uses readEnvelope<T>() expecting {\"success\": true, \"data\": {...}, \"error\": null}. All logout attempts fail even on success.",
+      "files": ["apps/api/internal/auth/router.py:218", "apps/web/src/lib/auth.ts:103"]
+    },
+    {
+      "featureId": "basic-admin-panel",
+      "severity": "blocking",
+      "description": "Missing GET /admin/users endpoint - frontend adminApi.listUsers() calls this but it is not implemented",
+      "files": ["apps/api/internal/admin/router.py"]
+    },
+    {
+      "featureId": "basic-admin-panel",
+      "severity": "blocking",
+      "description": "Missing GET /admin/users/{user_id} endpoint - frontend adminApi.getUser() calls this but it is not implemented",
+      "files": ["apps/api/internal/admin/router.py"]
+    },
+    {
+      "featureId": "student-onboarding",
+      "severity": "blocking",
+      "description": "Fitness baseline (Step 5) has no validation before completing onboarding. Required fields should gate dashboard access but gender and fitnessLevel can be left empty.",
+      "files": ["apps/web/src/app/onboarding/page.tsx:118"]
+    },
+    {
+      "featureId": "student-onboarding",
+      "severity": "blocking",
+      "description": "onboarding_complete flag set prematurely on every step save, not just when fully complete. Users who skip steps would have onboarding_complete=true",
+      "files": ["apps/web/src/app/onboarding/page.tsx:98"]
+    },
+    {
+      "featureId": "student-onboarding",
+      "severity": "blocking",
+      "description": "Diagnostic quiz calculates level locally instead of calling submitAssessment() API. Quiz answers not persisted to backend.",
+      "files": ["apps/web/src/components/ui/DiagnosticQuiz.tsx:118"]
+    },
+    {
+      "featureId": "syllabus-module",
+      "severity": "blocking",
+      "description": "Bookmark model lacks database-level unique constraint on (user_id, lesson_id). Concurrent requests could create duplicate bookmarks despite service-layer checks.",
+      "files": ["apps/api/internal/syllabus/models.py:126"]
+    },
+    {
+      "featureId": "syllabus-module",
+      "severity": "blocking",
+      "description": "LessonProgress model lacks database-level unique constraint on (user_id, lesson_id). Concurrent requests could create duplicate progress records.",
+      "files": ["apps/api/internal/syllabus/models.py:146"]
+    }
+  ],
+  "appliedUpdates": [],
+  "suggestedGuidanceUpdates": [
+    {
+      "target": "AGENTS.md",
+      "suggestion": "Document the API response envelope convention: when should endpoints return {\"success\": true, \"data\": {...}, \"error\": null} vs direct response format? The inconsistency between auth-google-oauth logout and other endpoints caused a blocking bug.",
+      "evidence": "auth-google-oauth review found logout() uses readEnvelope but fetchCurrentUser() and signInWithGoogle() don't. No documentation exists.",
+      "isSystemic": true
+    },
+    {
+      "target": "AGENTS.md",
+      "suggestion": "Add boundary rule: when switching implementation languages (e.g., Go to Python) mid-project, all orphaned files from the previous approach must be cleaned up before committing.",
+      "evidence": "project-scaffold review found Go files orphaned in Python FastAPI project. No rule existed for cleanup.",
+      "isSystemic": true
+    },
+    {
+      "target": "AGENTS.md",
+      "suggestion": "Document that admin tokens should follow same httpOnly cookie convention as user JWT tokens, or explicitly document why localStorage is acceptable for admin.",
+      "evidence": "basic-admin-panel stores admin token in localStorage contrary to AGENTS.md 'JWT tokens in httpOnly cookies (not localStorage)' guidance.",
+      "isSystemic": false
+    },
+    {
+      "target": "AGENTS.md",
+      "suggestion": "Clarify whether TDD is strictly enforced. Frontend-worker skill says 'Write tests first' but student-dashboard and student-onboarding created tests after implementation.",
+      "evidence": "student-dashboard skillFeedback.followedProcedure=true but transcript shows tests were added after implementation.",
+      "isSystemic": true
+    },
+    {
+      "target": "services.yaml",
+      "suggestion": "Add test:api command that sets DATABASE_URL=sqlite+aiosqlite:///:memory: and runs pytest with proper SQLite configuration (no pool args).",
+      "evidence": "Backend tests fail because database.py passes pool_size/max_overflow to create_async_engine which SQLite doesn't support.",
+      "isSystemic": false
+    },
+    {
+      "target": "services.yaml",
+      "suggestion": "Add dev:setup command that runs docker compose up -d postgres redis and pip install in one step.",
+      "evidence": "auth-email-otp review found workers had to discover setup steps individually.",
+      "isSystemic": false
+    },
+    {
+      "target": ".factory/library/architecture.md",
+      "suggestion": "Create architecture.md documenting: (1) API response envelope convention, (2) ID type convention (UUID vs str), (3) Database unique constraint patterns for user-specific records, (4) Module organization",
+      "evidence": "Multiple reviews noted missing architecture.md causing inconsistencies (ID types, envelope format, unique constraints).",
+      "isSystemic": true
+    }
+  ],
+  "rejectedObservations": [
+    {
+      "observation": "mission-worker-base skill file missing",
+      "reason": "Not actionable for this milestone - skill availability is an infrastructure concern"
+    }
+  ],
+  "testConfigurationIssues": {
+    "frontend": "Test files use vitest imports but project uses Jest. auth.test.ts imports from 'vitest', dashboard.test.tsx/onboarding.test.tsx use 'vi' from 'jest' (should be jest.fn()). TypeScript type annotations in mock functions cause parse errors. This is a pre-existing configuration issue not introduced by any single feature.",
+    "backend": "Test infrastructure requires DATABASE_URL but database.py doesn't handle SQLite properly (passes pool args). No jest.config.js for frontend tests. Pre-existing configuration issue."
+  },
+  "previousRound": null
+}

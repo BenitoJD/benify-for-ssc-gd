@@ -1,0 +1,74 @@
+{
+  "featureId": "student-onboarding",
+  "reviewedAt": "2026-03-31T03:48:00.000Z",
+  "commitId": "46f0242",
+  "transcriptSkeletonReviewed": true,
+  "diffReviewed": true,
+  "status": "fail",
+  "codeReview": {
+    "summary": "The multi-step onboarding flow is structurally implemented with 5 steps, i18n support, and API integration. However, there are blocking issues with required field gating, redirect logic for incomplete profiles, and incomplete backend integration for the diagnostic quiz. The diagnostic quiz calculates levels locally instead of using the API, and the onboarding_complete flag is set prematurely.",
+    "issues": [
+      {
+        "file": "apps/web/src/app/onboarding/page.tsx",
+        "line": 118,
+        "severity": "blocking",
+        "description": "Fitness baseline (Step 5) has no validation before completing onboarding. The expected behavior states 'required fields gate dashboard access' but gender and fitnessLevel are never validated. The onboarding completes and redirects to dashboard without checking if required fields were filled."
+      },
+      {
+        "file": "apps/web/src/app/onboarding/page.tsx",
+        "line": 280,
+        "severity": "blocking",
+        "description": "Missing redirect for incomplete profiles to /onboarding. The expected behavior states 'incomplete profile redirected back to /onboarding' but this logic was explicitly left undone per the handoff. The frontend cannot gate dashboard access without auth middleware support."
+      },
+      {
+        "file": "apps/web/src/components/ui/DiagnosticQuiz.tsx",
+        "line": 118,
+        "severity": "blocking",
+        "description": "The diagnostic quiz calculates the level locally (in handleSubmit) instead of calling the submitAssessment() API function that exists in users.ts. This bypasses the backend assessment scoring logic and doesn't persist quiz answers to the server."
+      },
+      {
+        "file": "apps/web/src/app/onboarding/page.tsx",
+        "line": 98,
+        "severity": "blocking",
+        "description": "saveProfile() sets onboarding_complete: true on every step progression (line 98), not just when onboarding is fully completed. This means a user who skips steps would still have onboarding_complete=true, violating 'required fields gate dashboard access'."
+      },
+      {
+        "file": "apps/web/src/app/onboarding/page.tsx",
+        "line": 280,
+        "severity": "non_blocking",
+        "description": "No profile completion indicator showing 0-100% progress as specified in expected behavior. Only the step progress bar exists."
+      },
+      {
+        "file": "apps/web/src/components/ui/DiagnosticQuiz.tsx",
+        "line": 25,
+        "severity": "non_blocking",
+        "description": "Diagnostic questions are hardcoded with a comment 'in production these would come from the API'. While acceptable for a first implementation, this means the quiz cannot be updated without code changes."
+      },
+      {
+        "file": "apps/web/src/__tests__/onboarding.test.tsx",
+        "line": 3,
+        "severity": "non_blocking",
+        "description": "Tests use vi from Vitest but AGENTS.md specifies Jest. The handoff noted this as a pre-existing issue but didn't flag it prominently."
+      }
+    ]
+  },
+  "sharedStateObservations": [
+    {
+      "area": "skills",
+      "observation": "The frontend-worker skill requires agent-browser for UI validation, but the handoff shows no interactive checks were performed. The worker noted 'verification with agent-browser requires properly configured backend with database'. This gap could be addressed by documenting test credentials or mock data setup in the skill.",
+      "evidence": "Handoff: verification.interactiveChecks: [], skillFeedback.suggestedChanges mentions '.env file with actual database credentials'"
+    },
+    {
+      "area": "conventions",
+      "observation": "AGENTS.md specifies 'Profile completion indicator shows 0-100% progress' but this was not implemented. This should either be added to the implementation or removed from AGENTS.md expectations for onboarding.",
+      "evidence": "apps/web/src/app/onboarding/page.tsx - no percentage-based completion indicator, only step progress"
+    },
+    {
+      "area": "services",
+      "observation": "The worker couldn't verify the frontend with agent-browser due to missing backend/database configuration. The services.yaml documents postgres, redis, minio, api, and web services but doesn't document the startup order or dependencies needed for full-stack verification.",
+      "evidence": "Handoff: 'verification with agent-browser requires properly configured backend with database'. No docker:up or db:migrate commands in verification.commandsRun."
+    }
+  ],
+  "addressesFailureFrom": null,
+  "summary": "The student-onboarding feature implements the multi-step wizard UI with language selection, exam year, diagnostic quiz, study hours slider, and fitness baseline. However, there are three blocking issues: (1) fitness baseline fields are not validated as required despite the expected behavior saying required fields gate dashboard access, (2) the onboarding_complete flag is set prematurely on each step save rather than only on completion, and (3) the diagnostic quiz calculates levels locally instead of using the submitAssessment API. Additionally, the redirect for incomplete profiles was explicitly left undone as it requires auth middleware changes. The implementation is structurally sound with good i18n support, but the gating logic is incomplete."
+}

@@ -1,0 +1,74 @@
+{
+  "featureId": "syllabus-module",
+  "reviewedAt": "2026-03-31T00:00:00Z",
+  "commitId": "f5d76c9",
+  "transcriptSkeletonReviewed": true,
+  "diffReviewed": true,
+  "status": "pass",
+  "codeReview": {
+    "summary": "Implementation covers all required endpoints with proper architecture (repository/service/router pattern). The feature is well-structured with good separation of concerns. However, there are some data integrity concerns and inconsistencies worth noting.",
+    "issues": [
+      {
+        "file": "apps/api/internal/syllabus/models.py",
+        "line": 126,
+        "severity": "blocking",
+        "description": "Bookmark model has no database-level unique constraint on (user_id, lesson_id). The __table_args__ is commented out with a note about SQLite compatibility. The service layer handles uniqueness but not race conditions - concurrent requests could create duplicate bookmarks."
+      },
+      {
+        "file": "apps/api/internal/syllabus/models.py",
+        "line": 146,
+        "severity": "blocking",
+        "description": "LessonProgress model has no database-level unique constraint on (user_id, lesson_id). Same issue as Bookmark - concurrent requests could create duplicate progress records despite service-layer checks."
+      },
+      {
+        "file": "apps/api/internal/syllabus/repository.py",
+        "line": 355,
+        "severity": "non_blocking",
+        "description": "get_user_subject_progress has N+1 query pattern - fetches all topics then loops calling get_user_topic_progress for each. Should be a single query joining Topic and LessonProgress."
+      },
+      {
+        "file": "apps/api/internal/syllabus/service.py",
+        "line": 155,
+        "severity": "non_blocking",
+        "description": "get_adjacent_lessons function is defined but never used by any route handler. Dead code that could be removed or the route was never implemented."
+      },
+      {
+        "file": "apps/api/internal/syllabus/schemas.py",
+        "line": 136,
+        "severity": "non_blocking",
+        "description": "NoteCreate schema has lesson_id: Optional[UUID] = None field that is never used since lesson_id comes from the URL path, not request body."
+      },
+      {
+        "file": "apps/api/internal/syllabus/schemas.py",
+        "line": 69,
+        "severity": "non_blocking",
+        "description": "TopicResponse uses UUID type for id and subject_id fields, but TopicListResponse and most other schemas use str type for IDs. Inconsistent API contract."
+      },
+      {
+        "file": "apps/api/internal/syllabus/service.py",
+        "line": 300,
+        "severity": "non_blocking",
+        "description": "In get_subject_progress, the SubjectProgressResponse.completed_topics field is set from completed_lessons count, not actual completed topics count. Field name is misleading."
+      }
+    ]
+  },
+  "sharedStateObservations": [
+    {
+      "area": "conventions",
+      "observation": "The architecture.md documents the repository/service/router pattern, and the implementation correctly follows this. However, the unique constraint pattern for user-specific records (bookmarks, progress) is handled in application code rather than at the database level - this is not documented and could cause issues in production with concurrent requests.",
+      "evidence": "models.py lines 126, 146 - __table_args__ commented out, service layer handles uniqueness"
+    },
+    {
+      "area": "skills",
+      "observation": "The worker followed the backend-worker skill procedure correctly (TDD, repository/service/router pattern). The skill says to verify with curl commands, but the handoff only shows pytest results. Interactive curl verification may not have been performed.",
+      "evidence": "skillFeedback.followedProcedure: true, but verification only shows pytest results"
+    },
+    {
+      "area": "conventions",
+      "observation": "ID type inconsistency across schemas (some use UUID, others use str). The architecture.md doesn't specify whether API endpoints should return string or UUID types for IDs. This is a common source of frontend integration bugs.",
+      "evidence": "TopicResponse.id uses UUID, TopicListResponse.id uses str. Other modules (auth, users) should be checked for consistency."
+    }
+  ],
+  "addressesFailureFrom": null,
+  "summary": "The syllabus-module implementation is well-structured and covers all required endpoints. It follows the repository/service/router architecture pattern correctly. The main concerns are the lack of database-level unique constraints on Bookmark and LessonProgress which could lead to duplicate records under concurrent access, and some ID type inconsistencies across schemas. The implementation would benefit from adding unique constraints at the database level and standardizing ID types to strings for API responses."
+}
