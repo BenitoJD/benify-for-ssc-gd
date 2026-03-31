@@ -1,13 +1,13 @@
 {
   "milestone": "foundation",
-  "round": 6,
+  "round": 7,
   "status": "fail",
   "validatorsRun": {
     "test:frontend": {
       "passed": false,
       "command": "cd apps/web && npm run test",
       "exitCode": 1,
-      "error": "Pre-existing configuration issue: Test files use vitest imports but project uses Jest. auth.test.ts imports from 'vitest', dashboard.test.tsx/onboarding.test.tsx use 'vi' from 'jest' (should be jest.fn()). This is a pre-existing test configuration issue, not introduced by any feature."
+      "error": "Pre-existing test configuration issue: Test files use vitest imports but project uses Jest. auth.test.ts imports from 'vitest', dashboard.test.tsx/onboarding.test.tsx use 'vi' from 'jest' (should be jest.fn()). This is a pre-existing test configuration issue, not introduced by any feature."
     },
     "test:backend": {
       "passed": false,
@@ -61,17 +61,17 @@
       "severity": "blocking",
       "description": "Orphaned Go source files STILL EXIST in apps/api/internal/. The foundation-fix-1-orphans review confirmed the fix was marked PASS but Go files were found remaining. A pending task 'foundation-fix-1-orphans-force' exists but has not been executed yet. 9 Go source files remain at apps/api/internal/httpapi/, apps/api/internal/auth/, apps/api/internal/config/.",
       "files": [
-        "apps/api/internal/auth/google.go",
-        "apps/api/internal/auth/service.go",
-        "apps/api/internal/auth/service_test.go",
+        "apps/api/internal/httpapi/auth_adapter.go",
+        "apps/api/internal/httpapi/server.go",
+        "apps/api/internal/httpapi/handler_test.go",
+        "apps/api/internal/config/config.go",
         "apps/api/internal/auth/session.go",
         "apps/api/internal/auth/session_test.go",
-        "apps/api/internal/config/config.go",
-        "apps/api/internal/httpapi/auth_adapter.go",
-        "apps/api/internal/httpapi/handler_test.go",
-        "apps/api/internal/httpapi/server.go"
+        "apps/api/internal/auth/google.go",
+        "apps/api/internal/auth/service.go",
+        "apps/api/internal/auth/service_test.go"
       ],
-      "evidence": "find apps/api/internal -name '*.go' returns 9 files - NO CHANGE from round 5"
+      "evidence": "find apps/api/internal -name '*.go' returns 9 files - NO CHANGE from round 6"
     },
     {
       "featureId": "student-onboarding",
@@ -83,9 +83,9 @@
     {
       "featureId": "mock-test-engine",
       "severity": "blocking",
-      "description": "Bug in get_attempt_rank function. When user_score falls between two scores in the sorted attempts list, the loop doesn't break early and rank gets incorrectly incremented. Example: attempts=[100,80,60], user_score=70 should give rank 3 but loop produces rank=4. The formula rank=i+2 is also inconsistent - should be count of strictly higher scores + 1. NO FIX APPLIED since round 4.",
-      "location": "apps/api/internal/tests/repository.py:375-400",
-      "evidence": "Code at lines 389-395 shows the bug: no break after incrementing rank, continues loop incorrectly"
+      "description": "Bug in get_attempt_rank function at repository.py:375-401. When user_score falls between two scores in the sorted attempts list, the loop doesn't break early after finding a higher score. The rank is incorrectly overwritten on each iteration. Example: attempts=[100,80,60], user_score=70 should give rank 3 (2 scores higher), but loop produces rank=3 correctly here but for ties it breaks correctly. However, the issue is the 'break' is missing after the 'if attempt.total_score > score' branch - it only breaks on the 'elif' (equal) case. This causes incorrect rank calculation when there are multiple scores higher than user's. NO FIX APPLIED since round 4.",
+      "location": "apps/api/internal/tests/repository.py:375-401",
+      "evidence": "Code at lines 389-396 shows the bug: no break after 'if attempt.total_score > score' branch"
     },
     {
       "featureId": "basic-admin-panel",
@@ -121,6 +121,6 @@
     "frontend": "Test files use vitest imports but project uses Jest. auth.test.ts imports from 'vitest', dashboard.test.tsx/onboarding.test.tsx use 'vi' from 'jest' (should be jest.fn()). TypeScript type annotations in mock functions cause parse errors. Pre-existing configuration issue requiring jest.config.ts setup with TypeScript/vitest support.",
     "backend": "Test fixtures in test_admin_users.py don't create required tables before tests run. 83 of 90 tests pass. 7 admin user tests fail due to fixture setup issue (no such table: users). Pre-existing test fixture issue."
   },
-  "previousRound": ".factory/validation/foundation/scrutiny/synthesis.json (round 5)",
-  "notes": "This is round 6. No new fix features have been created or completed since round 5. The pending task foundation-fix-1-orphans-force has not been executed. All blocking issues from round 5 remain unresolved. Orchestrator needs to ensure fix tasks are executed before next scrutiny run. Validators still show same pre-existing failures. The 3 failed features (student-onboarding, mock-test-engine, basic-admin-panel) still have their blocking issues. The Go files remain undeleted."
+  "previousRound": ".factory/validation/foundation/scrutiny/synthesis.json (round 6)",
+  "notes": "This is round 7. No new fix features have been created or completed since round 6. The pending task foundation-fix-1-orphans-force has not been executed. All blocking issues from round 6 remain unresolved. Orchestrator needs to ensure fix tasks are executed before next scrutiny run. Validators still show same pre-existing failures. The 3 failed features (student-onboarding, mock-test-engine, basic-admin-panel) still have their blocking issues. The Go files remain undeleted. The 9 .go files still exist at apps/api/internal/httpapi/, apps/api/internal/auth/, apps/api/internal/config/."
 }
