@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Response
+from fastapi import APIRouter, Depends, HTTPException, status, Response, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Optional
 import uuid
@@ -13,6 +13,8 @@ from .schemas import (
     AdminDashboardStats,
     UserStatusUpdateRequest,
     UserStatusUpdateResponse,
+    PaginatedUsersResponse,
+    AdminUserDetail,
 )
 from .service import AdminService
 
@@ -107,6 +109,53 @@ async def update_user_status(
     
     result = await service.update_user_status(target_uuid, request.is_active)
     return UserStatusUpdateResponse(**result)
+
+
+@router.get("/users", response_model=PaginatedUsersResponse)
+async def list_users(
+    page: int = Query(1, ge=1, description="Page number"),
+    limit: int = Query(20, ge=1, le=100, description="Items per page"),
+    search: Optional[str] = Query(None, description="Search by email or name"),
+    role: Optional[str] = Query(None, description="Filter by role (student, instructor, admin, super_admin)"),
+    current_user: TokenData = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    """Get paginated list of users for admin.
+    
+    Supports searching by email or name, and filtering by role.
+    Returns users with their basic information including subscription status.
+    """
+    service = AdminService(db)
+    users, meta = await service.get_users(page, limit, search, role)
+    
+    return PaginatedUsersResponse(
+        data=users,
+        meta=meta,
+    )
+
+
+@router.get("/users/{user_id}", response_model=AdminUserDetail)
+async def get_user_detail(
+    user_id: str,
+    current_user: TokenData = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    """Get detailed user information for admin.
+    
+    Returns complete user profile including personal information,
+    onboarding status, and user statistics.
+    """
+    service = AdminService(db)
+    
+    try:
+        target_uuid = uuid.UUID(user_id)
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid user ID format",
+        )
+    
+    return await service.get_user_detail(target_uuid)
 
 
 # Re-export require_admin for convenience

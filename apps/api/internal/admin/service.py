@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from typing import Optional
+from typing import Optional, List, Tuple
 from uuid import UUID
 import uuid
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -11,7 +11,16 @@ from ..auth.models import User
 from ..auth.schemas import UserRole
 from ..auth.service import verify_password, get_password_hash, create_access_token, create_refresh_token
 from ..redis import get_cache, CacheService
-from .schemas import AdminDashboardStats
+from ..shared.exceptions import NotFoundException
+from .schemas import (
+    AdminDashboardStats,
+    AdminUserListItem,
+    AdminUserDetail,
+    ProfileInfo,
+    UserStatsInfo,
+    PaginationMeta,
+    PaginatedUsersResponse,
+)
 
 
 class AdminService:
@@ -174,3 +183,161 @@ class AdminService:
             "is_active": user.deleted_at is None,
             "message": "User activated successfully" if is_active else "User suspended successfully",
         }
+    
+    async def get_users(
+        self,
+        page: int = 1,
+        limit: int = 20,
+        search: Optional[str] = None,
+        role: Optional[str] = None,
+    ) -> Tuple[List[AdminUserListItem], PaginationMeta]:
+        """Get paginated list of users for admin.
+        
+        Args:
+            page: Page number (1-indexed)
+            limit: Items per page
+            search: Optional search term for email/name
+            role: Optional role filter
+            
+        Returns:
+            Tuple of (list of AdminUserListItem, pagination metadata)
+        """
+        # Build base query
+        query = select(User).where(User.deleted_at.is_(None))
+        
+        # Apply search filter
+        if search:
+            search_term = f"%{search}%"
+            query = query.where(
+                or_(
+                    User.email.ilike(search_term),
+                    User.name.ilike(search_term)
+                )
+            )
+        
+        # Apply role filter
+        if role:
+            try:
+                role_enum = UserRole(role)
+                query = query.where(User.role == role_enum)
+            except ValueError:
+                pass  # Ignore invalid role values
+        
+        # Get total count
+        count_query = select(func.count(User.id)).select_from(query.subquery())
+        total_result = await self.db.execute(count_query)
+        total = total_result.scalar() or 0
+        
+        # Apply pagination and ordering
+        offset = (page - 1) * limit
+        query = query.order_by(User.created_at.desc()).offset(offset).limit(limit)
+        
+        result = await self.db.execute(query)
+        users = result.scalars().all()
+        
+        # Convert to response models
+        user_items = [
+            AdminUserListItem(
+                id=str(u.id),
+                email=u.email,
+                name=u.name,
+                role=u.role,
+                subscription_status=u.subscription_status,
+                created_at=u.created_at,
+                last_login_at=u.last_login_at,
+                is_active=u.deleted_at is None,
+            )
+            for u in users
+        ]
+        
+        # Calculate pagination metadata
+        pages = (total + limit - 1) // limit if total > 0 else 0
+        pagination_meta = PaginationMeta(
+            page=page,
+            limit=limit,
+            total=total,
+            pages=pages,
+        )
+        
+        return user_items, pagination_meta
+    
+    async def get_user_detail(self, user_id: UUID) -> AdminUserDetail:
+        """Get detailed user information for admin.
+        
+        Args:
+            user_id: User UUID
+            
+        Returns:
+            AdminUserDetail with profile and stats
+            
+        Raises:
+            NotFoundException: If user not found
+        """
+        # Get user
+        result = await self.db.execute(
+            select(User).where(User.id == user_id)
+        )
+        user = result.scalar_one_or_none()
+        
+        if not user:
+            raise NotFoundException("User")
+        
+        # Get user profile separately
+        from ..users.models import Profile
+        profile_result = await self.db.execute(
+            select(Profile).where(Profile.user_id == user_id)
+        )
+        profile = profile_result.scalar_one_or_none()
+        
+        # Get user stats
+        from ..users.models import UserStats
+        stats_result = await self.db.execute(
+            select(UserStats).where(UserStats.user_id == user_id)
+        )
+        stats = stats_result.scalar_one_or_none()
+        
+        # Build profile info if profile exists
+        profile_info = None
+        if profile:
+            profile_info = ProfileInfo(
+                first_name=profile.first_name,
+                last_name=profile.last_name,
+                avatar_url=profile.avatar_url,
+                language_preference=profile.language_preference,
+                target_exam_year=profile.target_exam_year,
+                current_level=profile.current_level.value if profile.current_level else None,
+                daily_study_hours=profile.daily_study_hours,
+                onboarding_complete=profile.onboarding_complete,
+                phone=profile.phone,
+                phone_verified=profile.phone_verified,
+                gender=profile.gender,
+                height_cm=profile.height_cm,
+                weight_kg=profile.weight_kg,
+                physical_fitness_baseline=profile.physical_fitness_baseline,
+            )
+        
+        # Build stats info if stats exist
+        stats_info = None
+        if stats:
+            stats_info = UserStatsInfo(
+                total_lessons_completed=stats.total_lessons_completed,
+                total_tests_taken=stats.total_tests_taken,
+                total_study_hours=stats.total_study_hours,
+                total_focus_minutes=stats.total_focus_minutes,
+                current_streak=stats.current_streak,
+                longest_streak=stats.longest_streak,
+                overall_progress=stats.overall_progress,
+            )
+        
+        return AdminUserDetail(
+            id=str(user.id),
+            email=user.email,
+            name=user.name,
+            role=user.role,
+            subscription_status=user.subscription_status,
+            created_at=user.created_at,
+            last_login_at=user.last_login_at,
+            is_active=user.deleted_at is None,
+            profile=profile_info,
+            stats=stats_info,
+        )
