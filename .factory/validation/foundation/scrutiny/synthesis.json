@@ -1,6 +1,6 @@
 {
   "milestone": "foundation",
-  "round": 5,
+  "round": 6,
   "status": "fail",
   "validatorsRun": {
     "test:frontend": {
@@ -71,7 +71,7 @@
         "apps/api/internal/httpapi/handler_test.go",
         "apps/api/internal/httpapi/server.go"
       ],
-      "evidence": "find apps/api/internal -name '*.go' returns 9 files - NO CHANGE from round 4"
+      "evidence": "find apps/api/internal -name '*.go' returns 9 files - NO CHANGE from round 5"
     },
     {
       "featureId": "student-onboarding",
@@ -121,6 +121,6 @@
     "frontend": "Test files use vitest imports but project uses Jest. auth.test.ts imports from 'vitest', dashboard.test.tsx/onboarding.test.tsx use 'vi' from 'jest' (should be jest.fn()). TypeScript type annotations in mock functions cause parse errors. Pre-existing configuration issue requiring jest.config.ts setup with TypeScript/vitest support.",
     "backend": "Test fixtures in test_admin_users.py don't create required tables before tests run. 83 of 90 tests pass. 7 admin user tests fail due to fixture setup issue (no such table: users). Pre-existing test fixture issue."
   },
-  "previousRound": ".factory/validation/foundation/scrutiny/synthesis.json (round 4)",
-  "notes": "This is round 5. No new fix features have been created or completed since round 4. The pending task foundation-fix-1-orphans-force has not been executed. All blocking issues from round 4 remain unresolved. Orchestrator needs to ensure fix tasks are executed before next scrutiny run."
+  "previousRound": ".factory/validation/foundation/scrutiny/synthesis.json (round 5)",
+  "notes": "This is round 6. No new fix features have been created or completed since round 5. The pending task foundation-fix-1-orphans-force has not been executed. All blocking issues from round 5 remain unresolved. Orchestrator needs to ensure fix tasks are executed before next scrutiny run. Validators still show same pre-existing failures. The 3 failed features (student-onboarding, mock-test-engine, basic-admin-panel) still have their blocking issues. The Go files remain undeleted."
 }
