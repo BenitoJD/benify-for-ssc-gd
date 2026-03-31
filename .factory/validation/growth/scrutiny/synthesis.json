@@ -3,57 +3,108 @@
   "round": 1,
   "status": "fail",
   "validatorsRun": {
-    "lint": {
+    "test:frontend": {
+      "passed": false,
+      "command": "cd apps/web && npm run test",
+      "exitCode": 1,
+      "notes": "2 failed test suites (dashboard.test.tsx, onboarding.test.tsx) due to ReferenceError with vi.mock next-intl. 1 test file passed (auth.test.ts). These are test configuration issues with vitest mocking, not code bugs."
+    },
+    "lint:frontend": {
       "passed": true,
       "command": "cd apps/web && npm run lint",
       "exitCode": 0,
-      "notes": "Only warnings, no errors"
+      "notes": "Lint passed with only warnings (no-img-element, unused-vars, no-explicit-any). No blocking issues."
     },
-    "typecheck": {
+    "typecheck:frontend": {
       "passed": true,
       "command": "cd apps/web && npx tsc --noEmit",
-      "exitCode": 0
+      "exitCode": 0,
+      "notes": "TypeScript type check passed with no errors."
     },
-    "test": {
+    "test:backend": {
       "passed": false,
       "command": "cd apps/api && python3 -m pytest",
       "exitCode": 1,
-      "notes": "155 collected: 87 passed, 56 failed, 12 errors. Pydantic fix was successful (module now loads), but deeper test failures remain."
+      "notes": "56 failed, 87 passed, 12 errors. Main issues: (1) KeyError 'access_token'/'refresh_token' in auth-related tests - response format issue. (2) SQLAlchemy relationship errors (AmbiguousForeignKeysError, InvalidRequestError) in notification and community tests - model relationship issues. (3) Many tests failing with 500 status instead of expected codes."
     }
   },
   "reviewsSummary": {
     "total": 3,
-    "passed": 0,
-    "failed": 0,
-    "skipped": 3,
-    "reason": "Could not spawn reviewers - test validator has non-trivial failures"
+    "passed": 1,
+    "failed": 2,
+    "failedFeatures": ["subscription-module", "community-module"]
   },
   "blockingIssues": [
     {
-      "featureId": "community-module",
+      "featureId": "subscription-module",
       "severity": "blocking",
-      "description": "Pydantic forward reference error FIXED by adding ReportListResponse.model_rebuild(). Module now loads.",
-      "location": "internal/community/schemas.py",
-      "status": "FIXED"
+      "description": "All subscription module code is UNTRACKED in git. Entire implementation (backend: router.py, models.py, schemas.py, service.py, repository.py; frontend: pricing/page.tsx, PremiumGate.tsx, subscriptions.ts) consists of untracked files that will be lost on git operations.",
+      "location": "apps/api/internal/subscriptions/, apps/web/src/app/pricing/, apps/web/src/components/ui/PremiumGate.tsx, apps/web/src/lib/api/subscriptions.ts"
     },
     {
-      "featureId": "test-infrastructure",
+      "featureId": "subscription-module",
       "severity": "blocking",
-      "description": "Test failures after Pydantic fix: (1) Auth tests return 500 instead of expected status codes - likely missing environment variables or database setup; (2) SQLAlchemy mapper initialization errors across multiple test files; (3) AmbiguousForeignKeysError in admin tests suggests relationship configuration issues.",
-      "location": "tests/conftest.py, internal models",
-      "suggestedFix": "These are non-trivial infrastructure issues requiring: (1) Ensuring test environment has proper DATABASE_URL; (2) Debugging SQLAlchemy model relationships; (3) Fixing test fixtures"
-    }
-  ],
-  "appliedUpdates": [
+      "description": "Server-side premium endpoint gating NOT implemented. The require_premium_access dependency exists but is not used by ANY API endpoint. Premium content is not protected by 403 responses.",
+      "location": "apps/api/internal/shared/dependencies.py (exists but unused)"
+    },
     {
-      "target": "internal/community/schemas.py",
-      "description": "Added ReportListResponse.model_rebuild() to fix Pydantic forward reference error",
-      "sourceFeature": "community-module"
+      "featureId": "subscription-module",
+      "severity": "blocking",
+      "description": "No tests created for subscription module despite backend-worker skill requiring TDD. No test_subscriptions.py exists in apps/api/tests/.",
+      "location": "apps/api/tests/"
+    },
+    {
+      "featureId": "subscription-module",
+      "severity": "blocking",
+      "description": "Expected behavior 'Renewal reminder: notification sent 3 days before expiry' is NOT implemented. No notification logic or background task exists.",
+      "location": "apps/api/internal/subscriptions/service.py"
+    },
+    {
+      "featureId": "community-module",
+      "severity": "blocking",
+      "description": "deleteDiscussion is imported but does not exist in the API client. Will cause runtime error when trying to delete a discussion.",
+      "location": "apps/web/src/app/community/[id]/page.tsx:27"
+    },
+    {
+      "featureId": "community-module",
+      "severity": "blocking",
+      "description": "currentUserRole state is never populated. fetchCurrentUser() only returns user ID, not role. Moderator UI never displays.",
+      "location": "apps/web/src/app/community/[id]/page.tsx:46"
+    },
+    {
+      "featureId": "community-module",
+      "severity": "blocking",
+      "description": "Report button has no onClick handler. Users cannot report inappropriate content.",
+      "location": "apps/web/src/app/community/[id]/page.tsx:196"
     }
   ],
-  "suggestedGuidanceUpdates": [],
+  "appliedUpdates": [],
+  "suggestedGuidanceUpdates": [
+    {
+      "target": "AGENTS.md",
+      "suggestion": "Add explicit requirement that all new feature code must be committed to git before marking feature as complete. Untracked files should be treated as incomplete.",
+      "evidence": "subscription-module has all code untracked. Features cannot be considered complete if they're not version controlled.",
+      "isSystemic": true
+    },
+    {
+      "target": "AGENTS.md",
+      "suggestion": "Clarify TDD requirement - verify test files exist, not just that curl/agent-browser verification was done.",
+      "evidence": "subscription-module marked complete but has no test file despite TDD skill requirement.",
+      "isSystemic": true
+    },
+    {
+      "target": "AGENTS.md",
+      "suggestion": "Add requirement for server-side premium gating to be implemented and tested for any subscription feature.",
+      "evidence": "subscription-module has require_premium_access dependency but it's not applied to any endpoints.",
+      "isSystemic": false
+    },
+    {
+      "target": "AGENTS.md",
+      "suggestion": "Add rule: API client functions must be verified to exist before importing in components.",
+      "evidence": "community-module imports deleteDiscussion but only delete_discussion exists in API client.",
+      "isSystemic": true
+    }
+  ],
   "rejectedObservations": [],
-  "previousRound": null,
-  "featuresReviewed": ["subscription-module", "notifications-system", "community-module"],
-  "notes": "The Pydantic forward reference issue was fixed (1-line addition). However, 56 tests still fail and 12 have errors. These appear to be pre-existing test infrastructure issues (SQLAlchemy model configuration, test database setup) rather than issues with the growth milestone features themselves."
+  "previousRound": null
 }
