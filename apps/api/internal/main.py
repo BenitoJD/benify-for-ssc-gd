@@ -15,6 +15,8 @@ from .admin.router import router as admin_router
 from .pyqs.router import router as pyqs_router
 from .analytics.router import router as analytics_router
 from .study_plans.router import router as study_plans_router
+from .subscriptions.router import router as subscriptions_router, payments_router
+from .notifications.router import router as notifications_router
 
 # Configure logging
 logging.basicConfig(
@@ -98,6 +100,9 @@ app.include_router(admin_router, prefix="/api/v1")
 app.include_router(pyqs_router, prefix="/api/v1")
 app.include_router(analytics_router, prefix="/api/v1")
 app.include_router(study_plans_router, prefix="/api/v1")
+app.include_router(subscriptions_router, prefix="/api/v1")
+app.include_router(payments_router, prefix="/api/v1")
+app.include_router(notifications_router, prefix="/api/v1")
 
 
 # Root endpoint

@@ -16,6 +16,11 @@ from .schemas import (
 )
 from .service import UserService
 from ..shared.pagination import get_pagination_meta, PaginatedResponse
+from ..notifications.schemas import (
+    NotificationPreferenceUpdate,
+    NotificationPreferenceResponse,
+)
+from ..notifications.service import NotificationService
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
@@ -125,6 +130,69 @@ async def get_current_user_stats(
     """Get current user's statistics."""
     service = UserService(db)
     return await service.get_user_stats(uuid.UUID(current_user.user_id))
+
+
+# ============================================================================
+# Notification Preferences
+# ============================================================================
+
+@router.get("/{user_id}/notification-preferences", response_model=NotificationPreferenceResponse)
+async def get_user_notification_preferences(
+    user_id: str,
+    current_user: TokenData = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Get notification preferences for a user.
+    User can only view their own preferences.
+    """
+    # Check authorization
+    if user_id != current_user.user_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Cannot view another user's notification preferences"
+        )
+    
+    try:
+        user_uuid = uuid.UUID(user_id)
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid user ID format"
+        )
+    
+    service = NotificationService(db)
+    return await service.get_preferences(user_uuid)
+
+
+@router.put("/{user_id}/notification-preferences", response_model=NotificationPreferenceResponse)
+async def update_user_notification_preferences(
+    user_id: str,
+    preferences: NotificationPreferenceUpdate,
+    current_user: TokenData = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Update notification preferences for a user.
+    User can only update their own preferences.
+    """
+    # Check authorization
+    if user_id != current_user.user_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Cannot update another user's notification preferences"
+        )
+    
+    try:
+        user_uuid = uuid.UUID(user_id)
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid user ID format"
+        )
+    
+    service = NotificationService(db)
+    return await service.update_preferences(user_uuid, preferences)
 
 
 # Admin routes

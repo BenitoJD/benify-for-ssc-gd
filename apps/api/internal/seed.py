@@ -16,7 +16,7 @@ Run with: python -m apps.api.internal.seed
 import asyncio
 import json
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import List, Dict, Any
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -32,6 +32,8 @@ from .questions.models import Question, QuestionType, Difficulty
 from .tests.models import TestSeries, TestType, MockAttempt, AttemptAnswer
 from .physical.models import PhysicalPlan, PhysicalPlanType, PhysicalGoalGender, PhysicalProgressLog
 from .documents.models import DocumentChecklist, DocumentStage, UserDocumentChecklist
+from .subscriptions.models import Plan, Coupon  # noqa: F401
+from .notifications.models import Notification, NotificationPreference, NotificationType  # noqa: F401
 
 
 # ============================================================================
@@ -1052,6 +1054,177 @@ async def seed_document_checklists(db: AsyncSession) -> int:
     return docs_count
 
 
+# ============================================================================
+# SUBSCRIPTION PLANS & COUPONS
+# ============================================================================
+
+SUBSCRIPTION_PLANS = [
+    {
+        "name": "Free",
+        "plan_type": "free",
+        "price": 0,
+        "duration_days": 0,
+        "features": json.dumps([
+            "4 SSC GD Subjects",
+            "100+ Lessons",
+            "Basic Study Notes",
+            "Limited Mock Tests (2/month)",
+            "Community Access",
+            "Email Support"
+        ]),
+        "is_active": True,
+        "is_premium": False,
+        "trial_days": 0,
+        "display_order": 0
+    },
+    {
+        "name": "Monthly",
+        "plan_type": "monthly",
+        "price": 49900,  # ₹499 in paise
+        "duration_days": 30,
+        "features": json.dumps([
+            "All SSC GD Subjects",
+            "500+ Premium Lessons",
+            "Complete Study Materials",
+            "Unlimited Mock Tests",
+            "Previous Year Questions",
+            "Physical Training Plans",
+            "Document Checklist",
+            "Priority Support",
+            "AI Study Recommendations",
+            "Progress Analytics"
+        ]),
+        "is_active": True,
+        "is_premium": True,
+        "trial_days": 0,
+        "display_order": 1
+    },
+    {
+        "name": "Quarterly",
+        "plan_type": "quarterly",
+        "price": 119900,  # ₹1199 in paise
+        "duration_days": 90,
+        "features": json.dumps([
+            "All SSC GD Subjects",
+            "500+ Premium Lessons",
+            "Complete Study Materials",
+            "Unlimited Mock Tests",
+            "Previous Year Questions",
+            "Physical Training Plans",
+            "Document Checklist",
+            "Priority Support",
+            "AI Study Recommendations",
+            "Progress Analytics"
+        ]),
+        "is_active": True,
+        "is_premium": True,
+        "trial_days": 0,
+        "display_order": 2
+    },
+    {
+        "name": "Yearly",
+        "plan_type": "yearly",
+        "price": 399900,  # ₹3999 in paise
+        "duration_days": 365,
+        "features": json.dumps([
+            "All SSC GD Subjects",
+            "500+ Premium Lessons",
+            "Complete Study Materials",
+            "Unlimited Mock Tests",
+            "Previous Year Questions",
+            "Physical Training Plans",
+            "Document Checklist",
+            "Priority Support",
+            "AI Study Recommendations",
+            "Progress Analytics"
+        ]),
+        "is_active": True,
+        "is_premium": True,
+        "trial_days": 0,
+        "display_order": 3
+    }
+]
+
+SAMPLE_COUPONS = [
+    {
+        "code": "WELCOME10",
+        "discount_type": "percentage",
+        "discount_value": 10,
+        "max_uses": 100,
+        "current_uses": 0,
+        "min_order_amount": None,
+        "valid_from": datetime.utcnow(),
+        "valid_until": datetime.utcnow() + timedelta(days=365),
+        "is_active": True,
+        "description": "10% off for new users"
+    },
+    {
+        "code": "SAVE20",
+        "discount_type": "percentage",
+        "discount_value": 20,
+        "max_uses": 50,
+        "current_uses": 0,
+        "min_order_amount": 49900,
+        "valid_from": datetime.utcnow(),
+        "valid_until": datetime.utcnow() + timedelta(days=180),
+        "is_active": True,
+        "description": "20% off on all plans"
+    },
+    {
+        "code": "FLAT100",
+        "discount_type": "fixed",
+        "discount_value": 10000,
+        "max_uses": None,
+        "current_uses": 0,
+        "min_order_amount": 49900,
+        "valid_from": datetime.utcnow(),
+        "valid_until": datetime.utcnow() + timedelta(days=90),
+        "is_active": True,
+        "description": "₹100 off on Monthly and above"
+    }
+]
+
+
+async def seed_subscription_plans(db: AsyncSession) -> int:
+    """Seed subscription plans."""
+    print("Seeding subscription plans...")
+    plans_count = 0
+    
+    for plan_data in SUBSCRIPTION_PLANS:
+        existing = await db.execute(
+            select(Plan).where(Plan.plan_type == plan_data["plan_type"])
+        )
+        if not existing.scalar_one_or_none():
+            plan = Plan(id=uuid.uuid4(), **plan_data)
+            db.add(plan)
+            plans_count += 1
+            print(f"  Created plan: {plan_data['name']}")
+    
+    await db.commit()
+    print(f"Seeded {plans_count} subscription plans")
+    return plans_count
+
+
+async def seed_coupons(db: AsyncSession) -> int:
+    """Seed sample coupons."""
+    print("Seeding coupons...")
+    coupons_count = 0
+    
+    for coupon_data in SAMPLE_COUPONS:
+        existing = await db.execute(
+            select(Coupon).where(Coupon.code == coupon_data["code"])
+        )
+        if not existing.scalar_one_or_none():
+            coupon = Coupon(id=uuid.uuid4(), **coupon_data)
+            db.add(coupon)
+            coupons_count += 1
+            print(f"  Created coupon: {coupon_data['code']}")
+    
+    await db.commit()
+    print(f"Seeded {coupons_count} coupons")
+    return coupons_count
+
+
 async def seed_all():
     """Main seed function to seed all SSC GD content."""
     print("=" * 60)
@@ -1072,6 +1245,8 @@ async def seed_all():
             test_series_count = await seed_test_series(db)
             physical_count = await seed_physical_plans(db)
             docs_count = await seed_document_checklists(db)
+            plans_count = await seed_subscription_plans(db)
+            coupons_count = await seed_coupons(db)
             
             print("\n" + "=" * 60)
             print("SEED SUMMARY")
@@ -1084,6 +1259,8 @@ async def seed_all():
             print(f"  Test Series: {test_series_count}")
             print(f"  Physical Plans: {physical_count}")
             print(f"  Document Checklists: {docs_count}")
+            print(f"  Subscription Plans: {plans_count}")
+            print(f"  Coupons: {coupons_count}")
             print("=" * 60)
             print("Seed completed successfully!")
             print("=" * 60)
