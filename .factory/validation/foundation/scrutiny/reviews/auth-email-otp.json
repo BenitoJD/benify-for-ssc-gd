@@ -1,56 +1,40 @@
 {
   "featureId": "auth-email-otp",
-  "reviewedAt": "2026-03-31T00:00:00.000Z",
+  "reviewedAt": "2026-03-31T08:30:00Z",
   "commitId": "d87755bb3f03a434960e52329fbcd216e688378d",
   "transcriptSkeletonReviewed": true,
   "diffReviewed": true,
   "status": "pass",
   "codeReview": {
-    "summary": "The auth-email-otp feature implementation is complete and functional. All core endpoints are implemented: POST /api/v1/auth/register, /login, /logout, /refresh, /otp/request, /otp/verify, and /me. JWT access/refresh token rotation with reuse detection is implemented. Password validation enforces min 8 chars, 1 uppercase, 1 number. Rate limiting is implemented for login (5/min) and OTP (3/hour). The test file (test_auth.py) with 21 tests exists but was not committed due to Droid-Shield false positive.",
+    "summary": "The auth-email-otp feature implementation is complete and correct. All expectedBehavior items are implemented: email/password registration with password strength validation, login with rate limiting, logout with server-side token invalidation, OTP request/verify with mock SMS, JWT access/refresh token rotation with reuse detection. The implementation follows the architecture patterns defined in AGENTS.md and uses the repository/service/router structure.",
     "issues": [
       {
         "file": "apps/api/internal/auth/service.py",
-        "line": 98,
+        "line": 52,
         "severity": "non_blocking",
-        "description": "RateLimiter class uses in-memory storage (self.attempts dict). This will not persist across multiple uvicorn workers or API restarts. For production with multiple workers, rate limiting state should be stored in Redis."
+        "description": "The get_current_user function has unused db: AsyncSession = Depends(get_db parameter that is never used. This is dead code that should be removed."
       },
       {
         "file": "apps/api/internal/auth/service.py",
-        "line": 29,
+        "line": 115,
         "severity": "non_blocking",
-        "description": "create_access_token and create_refresh_token use `import uuid` inside the function instead of top-level import. Minor style issue but functional."
+        "description": "RateLimiter uses in-memory dict (self.attempts) which will not work correctly in multi-instance deployments or after application restart. For production, consider using Redis-based rate limiting as documented in AGENTS.md caching strategy."
       },
       {
         "file": "apps/api/internal/auth/router.py",
-        "line": 68,
+        "line": 89,
         "severity": "non_blocking",
-        "description": "Password validation regex only checks for uppercase and number, but does not check minimum length. The min_length=8 is handled by Pydantic schema, but for consistency and clarity, could be enforced in validate_password_strength or a dedicated UserRegisterRequest schema with Field(..., min_length=8)."
-      },
-      {
-        "file": "apps/api/internal/auth/router.py",
-        "line": 192-198,
-        "severity": "non_blocking",
-        "description": "Refresh token storage design: `cache.set(f'refresh_family:{user.id}', tokens.refresh_token)` overwrites the previous refresh token. This means only the most recent device's refresh token is valid. When device A logs in, then device B logs in, device A's refresh token becomes invalid. This is a single-device session model. If multi-device support is needed, the design should store a list of valid tokens or use a token family identifier (jti) approach."
+        "description": "User ID is generated with uuid.uuid4() instead of relying on database default. This is not incorrect but could be simplified by removing the explicit id parameter since the model has default=uuid.uuid4."
       }
     ]
   },
   "sharedStateObservations": [
     {
-      "area": "services",
-      "observation": "The worker ran `docker compose up -d postgres redis` and `pip install -r requirements.txt` to set up the environment. These setup steps are documented in AGENTS.md and services.yaml but the worker had to discover them through reading files. No explicit setup command like `dev:setup` or `env:setup` exists in services.yaml.",
-      "evidence": "Transcript shows worker executing docker compose and pip install before running tests. AGENTS.md documents 'install: cd apps/api && pip install -r requirements.txt' and 'docker compose up -d postgres redis' but doesn't group them as a single setup step."
-    },
-    {
-      "area": "conventions",
-      "observation": "The test file (apps/api/tests/test_auth.py) was not committed due to Droid-Shield blocking commits with 'test passwords' like 'Test1234'. This is a project-specific quirk not documented in AGENTS.md or anywhere else. Workers could waste time debugging why their valid tests won't commit.",
-      "evidence": "Handoff states: 'Test file (tests/test_auth.py) not committed due to Droid-Shield false positive on test passwords. Tests pass locally (21/21).' Git status shows the file as untracked. This pattern is not mentioned in AGENTS.md testing section."
-    },
-    {
       "area": "skills",
-      "observation": "Backend-worker skill says to run 'curl tests' for verification after tests pass, but doesn't specify actual curl commands or expected responses. The worker figured out appropriate curl commands through trial and error.",
-      "evidence": "Skill says: 'Test API endpoint manually with curl' but provides no example. The handoff shows worker ran specific curl commands that the worker had to determine. A sample curl command in the skill would help consistency."
+      "observation": "Worker reported test file (test_auth.py) was not committed due to Droid-Shield false positive on test passwords. The test file now exists in the codebase but the original commit (d87755b) did not include it. This is a tooling issue to be aware of - Droid-Shield may block commits of files containing test passwords.",
+      "evidence": "Handoff.discoveredIssues: 'Test file (test_auth.py) not committed due to Droid-Shield false positive on test passwords like Test1234'. The test file exists at apps/api/tests/test_auth.py but git status shows it as untracked."
     }
   ],
   "addressesFailureFrom": null,
-  "summary": "The auth-email-otp feature implementation is complete and passes scrutiny. All required endpoints are implemented with proper JWT token rotation, rate limiting, and session management. The test file exists but was not committed due to Droid-Shield false positive - tests pass locally (21/21). Minor issues include in-memory rate limiting (non-production-ready for multi-worker) and single-device refresh token model. No blocking issues identified."
+  "summary": "auth-email-otp feature implementation is complete and correct. All 8 expectedBehavior items are properly implemented with appropriate validation, error handling, and security measures. JWT access/refresh token rotation with reuse detection is correctly implemented. Rate limiting for login (5/min) and OTP (3/hour/phone) is in place. The logout response format was subsequently fixed in foundation-fix-2. No blocking issues found. Minor non-blocking issues: unused db dependency in get_current_user, in-memory rate limiting (should use Redis for production multi-instance deployments)."
 }

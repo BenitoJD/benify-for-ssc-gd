@@ -35,3 +35,8 @@ apps/api/bin/
 # Test and temp artifacts
 tmp/
 .cache/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo

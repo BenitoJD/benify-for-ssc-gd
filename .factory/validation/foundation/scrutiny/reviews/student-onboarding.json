@@ -1,74 +1,56 @@
 {
   "featureId": "student-onboarding",
-  "reviewedAt": "2026-03-31T03:48:00.000Z",
+  "reviewedAt": "2026-03-31T06:30:00.000Z",
   "commitId": "46f0242",
   "transcriptSkeletonReviewed": true,
   "diffReviewed": true,
   "status": "fail",
   "codeReview": {
-    "summary": "The multi-step onboarding flow is structurally implemented with 5 steps, i18n support, and API integration. However, there are blocking issues with required field gating, redirect logic for incomplete profiles, and incomplete backend integration for the diagnostic quiz. The diagnostic quiz calculates levels locally instead of using the API, and the onboarding_complete flag is set prematurely.",
+    "summary": "Implementation covers all 5 steps of the onboarding flow (language, year, assessment, study hours, fitness). However, there is a critical bug where validation error translation keys are missing for step 5 fitness fields, causing potential runtime crashes. The skip functionality for step 5 bypasses required field validation, creating inconsistent behavior.",
     "issues": [
       {
         "file": "apps/web/src/app/onboarding/page.tsx",
-        "line": 118,
+        "line": 159,
         "severity": "blocking",
-        "description": "Fitness baseline (Step 5) has no validation before completing onboarding. The expected behavior states 'required fields gate dashboard access' but gender and fitnessLevel are never validated. The onboarding completes and redirects to dashboard without checking if required fields were filled."
+        "description": "Translation key 'onboarding.steps.fitness.genderRequired' is used but not defined in i18n.ts. This will cause a runtime error when user tries to proceed past step 5 without selecting gender."
       },
       {
         "file": "apps/web/src/app/onboarding/page.tsx",
-        "line": 280,
+        "line": 163,
         "severity": "blocking",
-        "description": "Missing redirect for incomplete profiles to /onboarding. The expected behavior states 'incomplete profile redirected back to /onboarding' but this logic was explicitly left undone per the handoff. The frontend cannot gate dashboard access without auth middleware support."
-      },
-      {
-        "file": "apps/web/src/components/ui/DiagnosticQuiz.tsx",
-        "line": 118,
-        "severity": "blocking",
-        "description": "The diagnostic quiz calculates the level locally (in handleSubmit) instead of calling the submitAssessment() API function that exists in users.ts. This bypasses the backend assessment scoring logic and doesn't persist quiz answers to the server."
+        "description": "Translation key 'onboarding.steps.fitness.levelRequired' is used but not defined in i18n.ts. This will cause a runtime error when user tries to proceed past step 5 without selecting fitness level."
       },
       {
         "file": "apps/web/src/app/onboarding/page.tsx",
-        "line": 98,
-        "severity": "blocking",
-        "description": "saveProfile() sets onboarding_complete: true on every step progression (line 98), not just when onboarding is fully completed. This means a user who skips steps would still have onboarding_complete=true, violating 'required fields gate dashboard access'."
-      },
-      {
-        "file": "apps/web/src/app/onboarding/page.tsx",
-        "line": 280,
+        "line": 141,
         "severity": "non_blocking",
-        "description": "No profile completion indicator showing 0-100% progress as specified in expected behavior. Only the step progress bar exists."
-      },
-      {
-        "file": "apps/web/src/components/ui/DiagnosticQuiz.tsx",
-        "line": 25,
-        "severity": "non_blocking",
-        "description": "Diagnostic questions are hardcoded with a comment 'in production these would come from the API'. While acceptable for a first implementation, this means the quiz cannot be updated without code changes."
+        "description": "handleSkip() for step 5 (fitness) bypasses required field validation entirely. The validation at lines 156-165 only applies to handleNext(), not handleSkip(). User can skip step 5 and proceed to dashboard without gender/fitnessLevel, contradicting the 'required fields gate dashboard access' requirement."
       },
       {
         "file": "apps/web/src/__tests__/onboarding.test.tsx",
-        "line": 3,
+        "line": 1,
         "severity": "non_blocking",
-        "description": "Tests use vi from Vitest but AGENTS.md specifies Jest. The handoff noted this as a pre-existing issue but didn't flag it prominently."
+        "description": "Test file imports describe, expect, it from 'jest' but vi from 'vitest'. The project uses Jest according to frontend-worker skill, but vi.mock() syntax is from vitest. Pre-existing issue mentioned in handoff's discoveredIssues."
       }
     ]
   },
   "sharedStateObservations": [
     {
-      "area": "skills",
-      "observation": "The frontend-worker skill requires agent-browser for UI validation, but the handoff shows no interactive checks were performed. The worker noted 'verification with agent-browser requires properly configured backend with database'. This gap could be addressed by documenting test credentials or mock data setup in the skill.",
-      "evidence": "Handoff: verification.interactiveChecks: [], skillFeedback.suggestedChanges mentions '.env file with actual database credentials'"
+      "area": "conventions",
+      "observation": "Worker followed the frontend-worker skill procedure for TDD, component creation, and verification. The skill documentation was adequate for this feature.",
+      "evidence": "skillFeedback.followedProcedure: true, no deviations noted"
     },
     {
-      "area": "conventions",
-      "observation": "AGENTS.md specifies 'Profile completion indicator shows 0-100% progress' but this was not implemented. This should either be added to the implementation or removed from AGENTS.md expectations for onboarding.",
-      "evidence": "apps/web/src/app/onboarding/page.tsx - no percentage-based completion indicator, only step progress"
+      "area": "knowledge",
+      "observation": "The missing translation keys (genderRequired, levelRequired) indicate the worker may not have validated all i18n keys against the actual usage in code. This could have been caught by running the dev server and testing the validation flow.",
+      "evidence": "i18n.ts has 162 lines of translations but missing keys referenced in page.tsx:159,163"
     },
     {
       "area": "services",
-      "observation": "The worker couldn't verify the frontend with agent-browser due to missing backend/database configuration. The services.yaml documents postgres, redis, minio, api, and web services but doesn't document the startup order or dependencies needed for full-stack verification.",
-      "evidence": "Handoff: 'verification with agent-browser requires properly configured backend with database'. No docker:up or db:migrate commands in verification.commandsRun."
+      "observation": "The worker used 'npm run dev' to verify the page compiles and serves correctly, but did not run agent-browser for full UI validation as specified in the skill procedure's step 4. The handoff shows no interactiveChecks were performed.",
+      "evidence": "verification.commandsRun shows dev server started but no agent-browser usage. skillFeedback.followedProcedure is true but skill procedure step 4 requires agent-browser verification."
     }
   ],
   "addressesFailureFrom": null,
-  "summary": "The student-onboarding feature implements the multi-step wizard UI with language selection, exam year, diagnostic quiz, study hours slider, and fitness baseline. However, there are three blocking issues: (1) fitness baseline fields are not validated as required despite the expected behavior saying required fields gate dashboard access, (2) the onboarding_complete flag is set prematurely on each step save rather than only on completion, and (3) the diagnostic quiz calculates levels locally instead of using the submitAssessment API. Additionally, the redirect for incomplete profiles was explicitly left undone as it requires auth middleware changes. The implementation is structurally sound with good i18n support, but the gating logic is incomplete."
+  "summary": "Feature implementation is structurally complete with all 5 onboarding steps implemented. However, there are 2 blocking bugs: missing translation keys for fitness step validation that will cause runtime crashes. Additionally, the skip functionality for required fitness fields bypasses validation, creating incomplete state. The implementation follows the frontend-worker skill conventions but verification was limited to typecheck/lint/build without interactive browser testing."
 }

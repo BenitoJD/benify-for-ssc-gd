@@ -10,8 +10,6 @@
     "build:web": "npm run build --workspace web",
     "test:web": "npm run test --workspace web",
     "lint:web": "npm run lint --workspace web",
-    "test:api": "docker run --rm -v \"$PWD/apps/api:/app\" -w /app golang:1.24-alpine go test ./...",
-    "fmt:api": "docker run --rm -v \"$PWD/apps/api:/app\" -w /app golang:1.24-alpine sh -lc 'gofmt -w ./cmd ./internal'",
     "dev": "docker compose up --build"
   }
 }
