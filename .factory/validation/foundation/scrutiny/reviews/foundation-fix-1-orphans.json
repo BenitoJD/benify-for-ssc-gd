@@ -1,0 +1,70 @@
+{
+  "featureId": "foundation-fix-1-orphans",
+  "reviewedAt": "2026-03-31T05:55:00Z",
+  "commitId": "e9ee4f7",
+  "transcriptSkeletonReviewed": false,
+  "diffReviewed": true,
+  "status": "fail",
+  "codeReview": {
+    "summary": "Commit e9ee4f7 only removed go.mod, go.sum, cmd/server/main.go, and vite.config.ts but did NOT remove the orphaned Go source files in apps/api/internal/. The following Go files still exist: apps/api/internal/auth/google.go, apps/api/internal/auth/service.go, apps/api/internal/auth/service_test.go, apps/api/internal/auth/session.go, apps/api/internal/auth/session_test.go, apps/api/internal/config/config.go, apps/api/internal/httpapi/auth_adapter.go, apps/api/internal/httpapi/handler_test.go, apps/api/internal/httpapi/server.go.",
+    "issues": [
+      {
+        "file": "apps/api/internal/auth/google.go",
+        "line": 1,
+        "severity": "blocking",
+        "description": "Orphaned Go source file still exists - should have been removed as part of the Go cleanup"
+      },
+      {
+        "file": "apps/api/internal/auth/service.go",
+        "line": 1,
+        "severity": "blocking",
+        "description": "Orphaned Go source file still exists - should have been removed as part of the Go cleanup"
+      },
+      {
+        "file": "apps/api/internal/auth/service_test.go",
+        "line": 1,
+        "severity": "blocking",
+        "description": "Orphaned Go test file still exists - should have been removed as part of the Go cleanup"
+      },
+      {
+        "file": "apps/api/internal/auth/session.go",
+        "line": 1,
+        "severity": "blocking",
+        "description": "Orphaned Go source file still exists - should have been removed as part of the Go cleanup"
+      },
+      {
+        "file": "apps/api/internal/auth/session_test.go",
+        "line": 1,
+        "severity": "blocking",
+        "description": "Orphaned Go test file still exists - should have been removed as part of the Go cleanup"
+      },
+      {
+        "file": "apps/api/internal/config/config.go",
+        "line": 1,
+        "severity": "blocking",
+        "description": "Orphaned Go source file still exists - should have been removed as part of the Go cleanup"
+      },
+      {
+        "file": "apps/api/internal/httpapi/auth_adapter.go",
+        "line": 1,
+        "severity": "blocking",
+        "description": "Orphaned Go source file still exists - should have been removed as part of the Go cleanup"
+      },
+      {
+        "file": "apps/api/internal/httpapi/handler_test.go",
+        "line": 1,
+        "severity": "blocking",
+        "description": "Orphaned Go test file still exists - should have been removed as part of the Go cleanup"
+      },
+      {
+        "file": "apps/api/internal/httpapi/server.go",
+        "line": 1,
+        "severity": "blocking",
+        "description": "Orphaned Go source file still exists - should have been removed as part of the Go cleanup"
+      }
+    ]
+  },
+  "sharedStateObservations": [],
+  "addressesFailureFrom": "project-scaffold",
+  "summary": "RE-REVIEW: Feature still FAIL. Commit e9ee4f7 only removed go.mod, go.sum, cmd/server/main.go, and vite.config.ts. The 9 orphaned Go source files in apps/api/internal/auth/, apps/api/internal/config/, and apps/api/internal/httpapi/ directories still exist and were not removed. The fix was incomplete."
+}

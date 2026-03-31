@@ -1,0 +1,6 @@
+{
+  "featureId": "foundation-fix-5-unique-constraints",
+  "status": "pass",
+  "issues": [],
+  "notes": "Verified that both Bookmark and LessonProgress models in apps/api/internal/syllabus/models.py have the required UniqueConstraint on (user_id, lesson_id). Bookmark has 'uq_bookmark_user_lesson' constraint (line 108) and LessonProgress has 'uq_lesson_progress_user_lesson' constraint (line 133). Both constraints are properly defined using __table_args__ tuple format."
+}
