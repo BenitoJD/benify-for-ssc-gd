@@ -1,57 +1,28 @@
 {
   "featureId": "personalized-study-plans",
-  "reviewedAt": "2026-03-31T14:45:00Z",
-  "commitId": "befa9c0626d09a6462ace23f925ee3006cda0e4c",
-  "transcriptSkeletonReviewed": false,
+  "reviewedAt": "2026-03-31T08:45:00Z",
+  "commitId": "6673bca94c2f900accb36c4eb850c41851f5cff4",
+  "transcriptSkeletonReviewed": true,
   "diffReviewed": true,
   "status": "fail",
   "codeReview": {
-    "summary": "The personalized study plans feature implements AI-powered generation, spaced repetition (SM-2), backlog recovery, and streak tracking. However, there are 2 blocking bugs and several non-blocking issues that need attention. The commit is incomplete - mission directory and handoff files were not found, so transcript skeleton review was skipped.",
+    "summary": "This is a re-run review. The prior review identified 2 blocking bugs: (1) _update_streak() doesn't persist streak freezes/breaks, and (2) _generate_daily_tasks() creates duplicate weak topic tasks. The commit 6673bca only fixed a test file (title field requirement). The service.py code with the blocking bugs remains unchanged - both issues are STILL PRESENT and NOT FIXED.",
     "issues": [
       {
         "file": "apps/api/internal/study_plans/service.py",
-        "line": 419,
+        "line": "443-448, 455",
         "severity": "blocking",
-        "description": "_update_streak() modifies record.streak_freezes_available (when using freeze) and record.current_streak (when streak breaks) in memory but NEVER calls update_streak_record() to persist these changes. Compare to _update_streak_on_completion() which properly calls await self.repo.update_streak_record() at line 493. This means streak freezes used and streak breaks are not persisted to the database."
+        "description": "REMAINING UNFIXED: _update_streak() modifies record.streak_freezes_available (line 443), record.streak_freezes_used (line 444), and record.current_streak (line 447) in memory but NEVER calls update_streak_record() to persist these changes. Compare to _update_streak_on_completion() at line 491 which properly calls await self.repo.update_streak_record(). When a streak freeze is used, the decrement of streak_freezes_available and increment of streak_freezes_used are lost. When a streak breaks (current_streak = 0), this is not persisted. The function only returns a dict (line 455) without any database update."
       },
       {
         "file": "apps/api/internal/study_plans/service.py",
-        "line": 155,
+        "line": "152-167",
         "severity": "blocking",
-        "description": "In _generate_daily_tasks(), weak topics are iterated TWICE: First at line 155-159 for revision tasks (weak_topics[:2]), then at line 165-167 for lesson tasks (weak_topics[:remaining_slot]). This causes the same weak topics to be scheduled for BOTH revision AND lesson on the same day, creating duplicate tasks for the same topic. The second loop should iterate over weak_topics that weren't already processed in the first loop."
-      },
-      {
-        "file": "apps/api/internal/study_plans/service.py",
-        "line": 248,
-        "severity": "non_blocking",
-        "description": "_create_test_task() sets reference_id to None. While this may be intentional for test tasks that don't reference specific content, it could cause NullReference errors if downstream code expects a valid UUID when dereferencing task.reference_id."
-      },
-      {
-        "file": "apps/api/internal/study_plans/schemas.py",
-        "line": 68,
-        "severity": "non_blocking",
-        "description": "StudyPlanBase.title is defined as required str, but the service layer provides a fallback: 'title: plan_data.title or f\"Study Plan {start_date.strftime(\"%Y-%m-%d\")}\"'. This creates an inconsistency - if title is truly required, the fallback shouldn't exist; if it's optional with a default, it should be Optional[str] = None with a default in the schema."
-      },
-      {
-        "file": "apps/api/tests/test_study_plans.py",
-        "line": 90,
-        "severity": "non_blocking",
-        "description": "Test mock for get_topic_stats_for_attempts returns {'total_questions': 10, 'accuracy': 45.0} but the actual analytics repository returns a richer dict with keys: total_questions, correct_answers, accuracy, avg_time_per_question, total_time, error_rate. The test doesn't fully exercise the structure that would exist in production."
+        "description": "REMAINING UNFIXED: In _generate_daily_tasks(), weak topics are iterated TWICE: First at lines 152-157 for revision tasks (weak_topics[:2]), then at lines 163-167 for lesson tasks (weak_topics[:remaining_slot]). After the first loop adds 2 revision tasks, remaining_slot = 4 - 2 = 2, so the second loop iterates weak_topics[:2] again - the SAME topics. Example: if weak_topics = [A, B, C], revision creates tasks for A and B, then lesson creates tasks for A and B again (since remaining_slot=2 and [:2] gives A, B). The same topic gets BOTH revision AND lesson tasks on the same day, creating duplicates."
       }
     ]
   },
-  "sharedStateObservations": [
-    {
-      "area": "conventions",
-      "observation": "The router uses UnauthorizedException from shared/exceptions.py but get_current_user from auth/service.py already raises HTTPException(401). This double-check (if not current_user: raise UnauthorizedException()) after Depends(get_current_user) is redundant since get_current_user will already have raised.",
-      "evidence": "router.py lines 49-51: if not current_user: raise UnauthorizedException() - but get_current_user (auth/service.py) raises HTTPException 401 if credentials is None"
-    },
-    {
-      "area": "skills",
-      "observation": "The mission directory (.factory/missions/567c9788-264e-4ea0-9086-e78c404b2f80) was not found. Unable to verify if worker followed the backend-worker skill procedure for this feature.",
-      "evidence": "ls of .factory/missions returned empty or non-existent directory"
-    }
-  ],
-  "addressesFailureFrom": null,
-  "summary": "Feature 'personalized-study-plans' has 2 blocking bugs that cause data integrity issues: (1) _update_streak() doesn't persist streak freeze usage or streak breaks, and (2) _generate_daily_tasks() creates duplicate tasks for weak topics. Both issues would cause incorrect behavior in production. The feature implements the core requirements (AI generation, SM-2 spaced repetition, backlog recovery, streak tracking) but the bugs must be fixed before passing review."
+  "sharedStateObservations": [],
+  "addressesFailureFrom": "/home/benito/Desktop/Ben/Benify/.factory/validation/content/scrutiny/reviews/personalized-study-plans.json",
+  "summary": "RE-RUN REVIEW: Both blocking bugs from the prior review remain UNFIXED. (1) _update_streak() still doesn't persist streak freezes used or streak breaks to the database - changes remain in memory only. (2) _generate_daily_tasks() still creates duplicate tasks when weak_topics appear in both the revision loop and the lesson loop. The commit 6673bca only changed the test file to fix a title field issue, but did not address the service.py bugs."
 }

@@ -1,92 +1,46 @@
 {
   "featureId": "performance-analytics",
-  "reviewedAt": "2026-03-31T05:30:00Z",
-  "commitId": "aa2f27854189af33ad47d7eabe7da58ae2e28be9",
-  "transcriptSkeletonReviewed": false,
+  "reviewedAt": "2026-03-31T06:45:00Z",
+  "commitId": "d4869e1",
+  "transcriptSkeletonReviewed": true,
   "diffReviewed": true,
   "status": "fail",
   "codeReview": {
-    "summary": "The analytics backend implementation covers the required features but contains several blocking performance and correctness issues. The N+1 query problem in repository methods will cause severe performance degradation with real data. Additionally, there are bugs in date filtering logic for trend calculations and potential division by zero errors.",
+    "summary": "The re-run only addressed linting issues (commit d4869e1), not the blocking performance and correctness issues from the prior review. All three blocking issues remain unfixed.",
     "issues": [
       {
         "file": "apps/api/internal/analytics/repository.py",
-        "line": 104,
+        "line": 97,
         "severity": "blocking",
-        "description": "N+1 query problem in get_subject_stats_for_attempts: For each attempt, it calls get_attempt_answers(attempt.id), then for each answer it calls get_question_with_topic(answer.question_id). With 10 attempts and 50 questions each = 500+ database queries. Should use JOINs or batch queries."
+        "description": "N+1 query problem in get_subject_stats_for_attempts: Lines 110-124 loop through attempts, then call get_attempt_answers(attempt.id) per attempt, then call get_question_with_topic(answer.question_id) per answer. With 10 attempts x 50 questions = 500+ DB queries. Should use JOINs with selectinload to batch fetch."
       },
       {
         "file": "apps/api/internal/analytics/repository.py",
-        "line": 137,
+        "line": 143,
         "severity": "blocking",
-        "description": "N+1 query problem in get_topic_stats_for_attempts: Same pattern as get_subject_stats_for_attempts - nested loops with individual DB queries per question."
+        "description": "N+1 query problem in get_topic_stats_for_attempts: Lines 156-170 have the same nested loop pattern calling get_attempt_answers and get_question_with_topic individually per question."
+      },
+      {
+        "file": "apps/api/internal/analytics/repository.py",
+        "line": 187,
+        "severity": "blocking",
+        "description": "N+1 query problem in get_weak_questions_for_topic: Lines 194-206 loop through attempts and answers, calling get_question_with_topic individually per incorrect answer."
+      },
+      {
+        "file": "apps/api/internal/analytics/repository.py",
+        "line": 273,
+        "severity": "blocking",
+        "description": "N+1 query problem in get_time_stats_by_subject: Lines 281-298 loop through attempts and answers, calling get_question_with_topic individually per answer."
       },
       {
         "file": "apps/api/internal/analytics/service.py",
-        "line": 212,
+        "line": 201,
         "severity": "blocking",
-        "description": "Division by zero in _calculate_subject_accuracy: When calculating trend (recent vs older stats), if start_date is None, the older_stats calculation passes start_date to end_date parameter and None to start_date, causing incorrect date filtering logic."
-      },
-      {
-        "file": "apps/api/internal/analytics/service.py",
-        "line": 264,
-        "severity": "blocking",
-        "description": "Division by zero in _calculate_mock_comparison: platform_percentage = platform_avg / attempt.test_series.total_questions * 100 will divide by zero if total_questions is 0."
-      },
-      {
-        "file": "apps/api/internal/analytics/router.py",
-        "line": 41,
-        "severity": "non_blocking",
-        "description": "Redundant auth check: if not current_user: raise UnauthorizedException() is unnecessary because get_current_user dependency already raises HTTPException 401 when not authenticated."
-      },
-      {
-        "file": "apps/api/internal/analytics/router.py",
-        "line": 90,
-        "severity": "non_blocking",
-        "description": "Export endpoint returns placeholder URL: The /export endpoint returns a hardcoded download_url without actually generating the file. Comment says 'For now, return a placeholder response'."
-      },
-      {
-        "file": "apps/api/internal/analytics/router.py",
-        "line": 25,
-        "severity": "non_blocking",
-        "description": "Missing validation for CUSTOM date range: When date_range=CUSTOM, custom_start and custom_end can both be None without raising an error, resulting in no date filtering."
-      },
-      {
-        "file": "apps/api/internal/analytics/repository.py",
-        "line": 194,
-        "severity": "non_blocking",
-        "description": "get_weak_questions_for_topic has same N+1 pattern - loops through attempts then answers, calling get_question_with_topic individually."
-      },
-      {
-        "file": "apps/api/internal/analytics/repository.py",
-        "line": 280,
-        "severity": "non_blocking",
-        "description": "get_time_stats_by_subject has N+1 pattern - loops through attempts and answers, calling get_question_with_topic individually."
-      },
-      {
-        "file": "apps/api/internal/analytics/models.py",
-        "line": 72,
-        "severity": "non_blocking",
-        "description": "TopicAnalytics model is defined but never used - repository computes stats on-the-fly instead of using this cached/pre-computed model."
+        "description": "Date filtering bug in _calculate_subject_accuracy: When calculating trend (recent vs older stats), if start_date is None (ALL_TIME filter), the code calculates recent_stats with hardcoded 15-day window but older_stats ignores user's date filter entirely (passes None as end_date), producing incorrect trend results. Lines 201-207 and 208-216 need fixing to properly split the user's date range in half for trend comparison."
       }
     ]
   },
-  "sharedStateObservations": [
-    {
-      "area": "conventions",
-      "observation": "The backend-worker skill SKILL.md specifies to use pytest-asyncio for async tests, but the test file uses plain pytest with synchronous test methods (TestAnalyticsService) and only a mocked AsyncMock for integration tests. No actual async test methods exist.",
-      "evidence": "apps/api/tests/test_analytics.py - TestAnalyticsService class methods are synchronous (test_parse_json_field_none, test_get_date_range_last_30_days, etc.)"
-    },
-    {
-      "area": "skills",
-      "observation": "SKILL.md says to write tests first (TDD) and run pytest to ensure tests pass, but the tests provided are all schema validation tests, not actual integration tests that verify the repository and service methods work correctly with the database.",
-      "evidence": "TestAnalyticsServiceIntegration has a pass statement instead of actual assertions"
-    },
-    {
-      "area": "performance",
-      "observation": "No caching strategy documented for analytics computed data. The repository recalculates all stats from scratch on every API call. Architecture.md mentions Redis caching for analytics aggregates but implementation doesn't use it.",
-      "evidence": "repository.py - all methods compute stats from raw MockAttempt and AttemptAnswer tables each time"
-    }
-  ],
+  "sharedStateObservations": [],
   "addressesFailureFrom": null,
-  "summary": "The performance-analytics feature implementation provides the required functionality (score trends, subject/chapter accuracy, weak area map, time analytics, revision recommendations) but has blocking N+1 query issues that will cause severe performance problems at scale. The date filtering bug in trend calculations produces incorrect results when start_date is None. Division by zero errors possible in mock comparison calculations. Tests are schema-only and don't verify actual async database operations."
+  "summary": "The re-run (commit d4869e1) only fixed linting issues. All 3 blocking issues from prior review remain unfixed: N+1 queries in 4 repository methods (still using nested loops with individual DB queries), and date filtering bug in subject accuracy trend calculation. Division by zero issue was fixed."
 }

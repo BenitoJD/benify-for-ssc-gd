@@ -2,91 +2,63 @@
   "featureId": "pyq-library",
   "reviewedAt": "2026-03-31T12:00:00.000Z",
   "commitId": "89f8d5a",
-  "transcriptSkeletonReviewed": true,
+  "transcriptSkeletonReviewed": false,
   "diffReviewed": true,
   "status": "fail",
   "codeReview": {
-    "summary": "The PYQ library feature implements the basic structure but has several blocking issues. Backend pagination counts are incorrect when filtering by year. The practice/exam modes incorrectly handle the URL id parameter (it fetches a list but uses id to find one). Frontend uses hardcoded mock data for subjects/topics instead of API. Bookmarks are not persisted. The feature does not follow TDD approach (no tests added despite skill requirement).",
+    "summary": "All three blocking issues from prior review remain unfixed. Year counts are identical for all years due to missing year filter in get_question_count() calls. Practice/exam modes ignore URL id parameter - all filtered PYQs load regardless of id. Mock subjects/topics remain hardcoded and bookmarks are not persisted.",
     "issues": [
       {
         "file": "apps/api/internal/pyqs/router.py",
-        "line": 53,
+        "line": 129,
         "severity": "blocking",
-        "description": "When filtering PYQs by year, get_question_count() is called without year filter, returning incorrect total count for pagination. This causes wrong pagination metadata - total will be all questions for subject/difficulty, not PYQs for that specific year."
+        "description": "get_available_years endpoint: get_question_count() is called without year filter in the loop, causing all years to have identical counts. The comment acknowledges this: 'This is a simplification - in reality we'd want a specific count for PYQs per year' but no fix was implemented."
       },
       {
         "file": "apps/api/internal/pyqs/router.py",
-        "line": 41,
+        "line": 94,
         "severity": "blocking",
-        "description": "Search endpoint uses 'total = len(questions)' which only counts returned page items, not total matching results. This breaks pagination for search results."
+        "description": "get_pyqs endpoint: When year filter is provided, get_question_count() is called without the year parameter: `total = await service.get_question_count(subject_id=subject_id, difficulty=difficulty,)`. The exam_year filter is not passed, causing incorrect pagination totals."
       },
       {
-        "file": "apps/api/internal/pyqs/router.py",
-        "line": 118,
+        "file": "apps/api/internal/questions/service.py",
+        "line": null,
         "severity": "blocking",
-        "description": "get_available_years() calls get_question_count() without year filter for each year, so all years show identical counts. The year_counts should be per-year, not global."
+        "description": "Service layer: get_question_count() does not accept an exam_year parameter, so even if the router tried to pass it, it would fail. The repository method also lacks year filtering capability."
       },
       {
         "file": "apps/web/src/app/pyqs/[id]/practice/page.tsx",
-        "line": 68,
+        "line": 46,
         "severity": "blocking",
-        "description": "The practice page fetches a list of PYQs but uses params.id to find one specific PYQ. The logic 'const currentPYQ = pyqs.find(q => q.id === pyqId) || pyqs[0]' means if id doesn't match, it falls back to first item. The URL id parameter is effectively ignored - all filtered PYQs load and user navigates through them, making the id meaningless."
+        "description": "URL id parameter (pyqId) is extracted from params but never passed to fetchPYQs(). The useEffect has empty dependency array so pyqId changes don't trigger refetch. API call fetches all filtered PYQs regardless of which specific question was selected in the URL."
       },
       {
         "file": "apps/web/src/app/pyqs/[id]/exam/page.tsx",
-        "line": 68,
+        "line": 47,
         "severity": "blocking",
-        "description": "Same issue as practice page - fetches list but uses params.id to find one. The id parameter is ignored since the component shows a list and navigates through all."
+        "description": "Same issue as practice mode: URL id parameter is not passed to the API call. The pyqId is only used to find the starting question in the already-fetched list."
       },
       {
         "file": "apps/web/src/app/pyqs/page.tsx",
         "line": 13,
-        "severity": "non_blocking",
-        "description": "Uses hardcoded MOCK_SUBJECTS array with static IDs instead of fetching subjects from API. Topic filter also has hardcoded options. This means subject/topic filtering doesn't work with real data."
+        "severity": "blocking",
+        "description": "MOCK_SUBJECTS is hardcoded with 4 subjects. The comment 'Mock subjects for now - in production these would come from API' confirms this was a known limitation that was not addressed."
       },
       {
         "file": "apps/web/src/app/pyqs/page.tsx",
-        "line": 113,
-        "severity": "non_blocking",
-        "description": "Bookmarks are stored only in local React state (Set<string>) and never persisted to backend. User loses bookmarked PYQs on page reload."
+        "line": 145,
+        "severity": "blocking",
+        "description": "Topic filter has hardcoded option values (1, 2, 3, 4) instead of dynamically fetched from API based on selected subject."
       },
       {
-        "file": "apps/api/internal/pyqs/router.py",
-        "line": 66,
-        "severity": "non_blocking",
-        "description": "Unused variable 'topic_ids' is assigned empty list then never used. Dead code."
-      },
-      {
-        "file": "apps/api/internal/pyqs/router.py",
-        "line": 25,
-        "severity": "non_blocking",
-        "description": "Import of 'status' from fastapi is unused."
-      },
-      {
-        "file": "apps/web/src",
-        "line": 0,
-        "severity": "non_blocking",
-        "description": "No test files were added for the PYQ feature. The frontend-worker skill requires TDD with failing tests first, but no tests were created in apps/web/src/__tests__/"
+        "file": "apps/web/src/app/pyqs/page.tsx",
+        "line": 29,
+        "severity": "blocking",
+        "description": "Bookmarks are stored in local React state (Set<string>) only. There is no API call to persist bookmarks and no localStorage fallback. ToggleBookmark modifies in-memory state that is lost on page reload."
       }
     ]
   },
-  "sharedStateObservations": [
-    {
-      "area": "conventions",
-      "observation": "Worker did not follow TDD procedure from frontend-worker skill. Skill explicitly requires 'Write failing tests first (red phase)' but worker added no tests. skillFeedback.followedProcedure is true, but this appears incorrect since no test files exist.",
-      "evidence": "Skill says 'Create component test file in apps/web/src/__tests__/' and 'Write failing tests for expected rendering/interactions'. Handoff shows 'tests': {'added': [], 'coverage': 'No new test files added'}."
-    },
-    {
-      "area": "skills",
-      "observation": "The skill requires agent-browser verification, but handoff shows only curl verification was performed. interactiveChecks array is empty despite skill requiring browser validation of page rendering and interactions.",
-      "evidence": "Handoff verification shows commandsRun with curl to localhost:3101/pyqs, but interactiveChecks is empty [] while skill requires agent-browser verification for desktop and mobile viewports."
-    },
-    {
-      "area": "conventions",
-      "observation": "AGENTS.md specifies 'Clean Code: No giant files. Max 200-300 lines per file.' but exam/page.tsx is 620 lines and practice/page.tsx is 468 lines.",
-      "evidence": "apps/web/src/app/pyqs/[id]/exam/page.tsx has 620 lines, apps/web/src/app/pyqs/[id]/practice/page.tsx has 468 lines."
-    }
-  ],
+  "sharedStateObservations": [],
   "addressesFailureFrom": null,
-  "summary": "The PYQ library feature has significant implementation gaps. Backend has pagination bugs where year-filtered counts are wrong. Frontend practice/exam modes misuse URL id parameter. Mock data used instead of real API for subjects/topics. Bookmarks aren't persisted. No tests despite TDD requirement in skill. The feature compiles and basic structure exists, but core functionality like correct filtering, pagination accuracy, and bookmark persistence is broken or missing."
+  "summary": "RE-RUN REVIEW: All three blocking issues from the original review remain unfixed. (1) Pagination count bug: get_question_count() calls still omit year filter, causing identical counts for all years. (2) Practice/exam URL id parameter: pyqId from URL is never passed to API, so navigating to a specific question still loads all filtered PYQs. (3) Mock data and unpersisted bookmarks: Subjects/topics remain hardcoded and bookmarks are client-side only with no persistence."
 }
