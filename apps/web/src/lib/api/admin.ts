@@ -458,4 +458,363 @@ export const adminApi = {
   ): Promise<void> => {
     await apiClient.patch(`/admin/${type}/${id}/status`, { status })
   },
+
+  // ============ Physical Training Management ============
+
+  listPhysicalPlans: async (params?: {
+    page?: number
+    limit?: number
+    target_gender?: string
+    plan_type?: string
+    is_active?: boolean
+    search?: string
+  }): Promise<AdminPhysicalPlan[]> => {
+    const response = await apiClient.get('/admin/physical/plans', { params })
+    return response.data
+  },
+
+  getPhysicalPlan: async (id: string): Promise<AdminPhysicalPlanDetail> => {
+    const response = await apiClient.get(`/admin/physical/plans/${id}`)
+    return response.data
+  },
+
+  createPhysicalPlan: async (data: AdminPhysicalPlanCreateDTO): Promise<AdminPhysicalPlan> => {
+    const response = await apiClient.post('/admin/physical/plans', data)
+    return response.data
+  },
+
+  updatePhysicalPlan: async (id: string, data: AdminPhysicalPlanUpdateDTO): Promise<AdminPhysicalPlan> => {
+    const response = await apiClient.put(`/admin/physical/plans/${id}`, data)
+    return response.data
+  },
+
+  deletePhysicalPlan: async (id: string): Promise<void> => {
+    await apiClient.delete(`/admin/physical/plans/${id}`)
+  },
+
+  getPhysicalCompliance: async (): Promise<PhysicalComplianceStats> => {
+    const response = await apiClient.get('/admin/physical/compliance')
+    return response.data
+  },
+
+  getPhysicalComplianceByGender: async (): Promise<PhysicalComplianceByGender[]> => {
+    const response = await apiClient.get('/admin/physical/compliance/by-gender')
+    return response.data
+  },
+
+  // ============ Document Checklist Management ============
+
+  listDocumentChecklists: async (params?: {
+    page?: number
+    limit?: number
+    stage?: string
+    is_required?: boolean
+    is_active?: boolean
+    search?: string
+  }): Promise<AdminDocumentChecklist[]> => {
+    const response = await apiClient.get('/admin/documents/checklists', { params })
+    return response.data
+  },
+
+  getDocumentChecklist: async (id: string): Promise<AdminDocumentChecklist> => {
+    const response = await apiClient.get(`/admin/documents/checklists/${id}`)
+    return response.data
+  },
+
+  createDocumentChecklist: async (data: AdminDocumentChecklistCreateDTO): Promise<AdminDocumentChecklist> => {
+    const response = await apiClient.post('/admin/documents/checklists', data)
+    return response.data
+  },
+
+  updateDocumentChecklist: async (id: string, data: AdminDocumentChecklistUpdateDTO): Promise<AdminDocumentChecklist> => {
+    const response = await apiClient.put(`/admin/documents/checklists/${id}`, data)
+    return response.data
+  },
+
+  deleteDocumentChecklist: async (id: string): Promise<void> => {
+    await apiClient.delete(`/admin/documents/checklists/${id}`)
+  },
+
+  // ============ Medical Guidelines Management ============
+
+  listMedicalGuidelines: async (params?: {
+    page?: number
+    limit?: number
+    category?: string
+  }): Promise<AdminMedicalGuideline[]> => {
+    const response = await apiClient.get('/admin/documents/medical/guidelines', { params })
+    return response.data
+  },
+
+  createMedicalGuideline: async (data: AdminMedicalGuidelineCreateDTO): Promise<AdminMedicalGuideline> => {
+    const response = await apiClient.post('/admin/documents/medical/guidelines', data)
+    return response.data
+  },
+
+  updateMedicalGuideline: async (id: string, data: AdminMedicalGuidelineUpdateDTO): Promise<AdminMedicalGuideline> => {
+    const response = await apiClient.put(`/admin/documents/medical/guidelines/${id}`, data)
+    return response.data
+  },
+
+  deleteMedicalGuideline: async (id: string): Promise<void> => {
+    await apiClient.delete(`/admin/documents/medical/guidelines/${id}`)
+  },
+
+  // ============ Document Compliance ============
+
+  getDocumentCompliance: async (): Promise<DocumentComplianceStats> => {
+    const response = await apiClient.get('/admin/documents/compliance')
+    return response.data
+  },
+
+  getDocumentComplianceByGender: async (): Promise<DocumentComplianceByGender[]> => {
+    const response = await apiClient.get('/admin/documents/compliance/by-gender')
+    return response.data
+  },
+
+  // ============ Announcement Management ============
+
+  listAnnouncements: async (params?: {
+    page?: number
+    limit?: number
+    priority?: string
+    target?: string
+    is_active?: boolean
+  }): Promise<AdminAnnouncement[]> => {
+    const response = await apiClient.get('/admin/announcements', { params })
+    return response.data
+  },
+
+  createAnnouncement: async (data: AdminAnnouncementCreateDTO): Promise<AdminAnnouncement> => {
+    const response = await apiClient.post('/admin/announcements', data)
+    return response.data
+  },
+
+  updateAnnouncement: async (id: string, data: AdminAnnouncementUpdateDTO): Promise<AdminAnnouncement> => {
+    const response = await apiClient.put(`/admin/announcements/${id}`, data)
+    return response.data
+  },
+
+  deleteAnnouncement: async (id: string): Promise<void> => {
+    await apiClient.delete(`/admin/announcements/${id}`)
+  },
+}
+
+// ============ Physical Training Types ============
+
+export interface ExerciseItem {
+  day?: string
+  activity: string
+  duration?: number
+  sets?: number
+  reps?: string
+  description?: string
+}
+
+export interface AdminPhysicalPlan {
+  id: string
+  title: string
+  description?: string
+  plan_type: 'running' | 'strength' | 'flexibility' | 'mixed'
+  target_gender: 'male' | 'female' | 'all'
+  duration_weeks: number
+  difficulty_level?: string
+  is_premium: boolean
+  is_active: boolean
+  created_at: string
+}
+
+export interface AdminPhysicalPlanDetail extends AdminPhysicalPlan {
+  exercises: ExerciseItem[]
+  schedule?: Record<string, unknown>
+  targets?: Record<string, unknown>
+}
+
+export interface AdminPhysicalPlanCreateDTO {
+  title: string
+  description?: string
+  plan_type: 'running' | 'strength' | 'flexibility' | 'mixed'
+  target_gender: 'male' | 'female' | 'all'
+  duration_weeks?: number
+  difficulty_level?: string
+  exercises?: ExerciseItem[]
+  schedule?: Record<string, unknown>
+  targets?: Record<string, unknown>
+  is_premium?: boolean
+  is_active?: boolean
+}
+
+export interface AdminPhysicalPlanUpdateDTO {
+  title?: string
+  description?: string
+  plan_type?: 'running' | 'strength' | 'flexibility' | 'mixed'
+  target_gender?: 'male' | 'female' | 'all'
+  duration_weeks?: number
+  difficulty_level?: string
+  exercises?: ExerciseItem[]
+  schedule?: Record<string, unknown>
+  targets?: Record<string, unknown>
+  is_premium?: boolean
+  is_active?: boolean
+}
+
+export interface PhysicalComplianceStats {
+  total_users: number
+  pst_ready_count: number
+  pet_ready_count: number
+  fully_ready_count: number
+  pst_ready_percentage: number
+  pet_ready_percentage: number
+  fully_ready_percentage: number
+}
+
+export interface PhysicalComplianceByGender {
+  gender: string
+  total_users: number
+  pst_ready_count: number
+  pet_ready_count: number
+  fully_ready_count: number
+  pst_ready_percentage: number
+  pet_ready_percentage: number
+  fully_ready_percentage: number
+}
+
+// ============ Document Checklist Types ============
+
+export interface AdminDocumentChecklist {
+  id: string
+  title: string
+  description?: string
+  stage: 'pst' | 'pet' | 'medical' | 'document_verification'
+  document_type?: string
+  is_required: boolean
+  is_required_for_all: boolean
+  is_required_for_gender?: string
+  accepted_formats: string
+  max_file_size_mb: number
+  instructions?: string
+  order_index: number
+  is_active: boolean
+  created_at: string
+}
+
+export interface AdminDocumentChecklistCreateDTO {
+  title: string
+  description?: string
+  stage: 'pst' | 'pet' | 'medical' | 'document_verification'
+  document_type?: string
+  is_required?: boolean
+  is_required_for_all?: boolean
+  is_required_for_gender?: string
+  accepted_formats?: string
+  max_file_size_mb?: number
+  instructions?: string
+  order_index?: number
+  is_active?: boolean
+}
+
+export interface AdminDocumentChecklistUpdateDTO {
+  title?: string
+  description?: string
+  stage?: 'pst' | 'pet' | 'medical' | 'document_verification'
+  document_type?: string
+  is_required?: boolean
+  is_required_for_all?: boolean
+  is_required_for_gender?: string
+  accepted_formats?: string
+  max_file_size_mb?: number
+  instructions?: string
+  order_index?: number
+  is_active?: boolean
+}
+
+// ============ Medical Guideline Types ============
+
+export interface AdminMedicalGuideline {
+  id: string
+  title: string
+  category: 'vision' | 'physical' | 'common_rejections'
+  content: string
+  order_index: number
+  created_at: string
+}
+
+export interface AdminMedicalGuidelineCreateDTO {
+  title: string
+  category: 'vision' | 'physical' | 'common_rejections'
+  content: string
+  order_index?: number
+}
+
+export interface AdminMedicalGuidelineUpdateDTO {
+  title?: string
+  category?: 'vision' | 'physical' | 'common_rejections'
+  content?: string
+  order_index?: number
+}
+
+// ============ Document Compliance Types ============
+
+export interface DocumentComplianceStats {
+  total_users: number
+  pst_complete_count: number
+  pet_complete_count: number
+  medical_complete_count: number
+  dv_complete_count: number
+  fully_complete_count: number
+  pst_complete_percentage: number
+  pet_complete_percentage: number
+  medical_complete_percentage: number
+  dv_complete_percentage: number
+  fully_complete_percentage: number
+}
+
+export interface DocumentComplianceByGender {
+  gender: string
+  total_users: number
+  pst_complete_count: number
+  pet_complete_count: number
+  medical_complete_count: number
+  dv_complete_count: number
+  fully_complete_count: number
+  pst_complete_percentage: number
+  pet_complete_percentage: number
+  medical_complete_percentage: number
+  dv_complete_percentage: number
+  fully_complete_percentage: number
+}
+
+// ============ Announcement Types ============
+
+export interface AdminAnnouncement {
+  id: string
+  title: string
+  content: string
+  priority: 'low' | 'normal' | 'high' | 'urgent'
+  target: 'all' | 'male' | 'female' | 'premium' | 'free'
+  admin_id: string
+  admin_name?: string
+  is_active: boolean
+  start_date?: string
+  end_date?: string
+  created_at: string
+}
+
+export interface AdminAnnouncementCreateDTO {
+  title: string
+  content: string
+  priority?: 'low' | 'normal' | 'high' | 'urgent'
+  target?: 'all' | 'male' | 'female' | 'premium' | 'free'
+  start_date?: string
+  end_date?: string
+}
+
+export interface AdminAnnouncementUpdateDTO {
+  title?: string
+  content?: string
+  priority?: 'low' | 'normal' | 'high' | 'urgent'
+  target?: 'all' | 'male' | 'female' | 'premium' | 'free'
+  start_date?: string
+  end_date?: string
+  is_active?: boolean
 }

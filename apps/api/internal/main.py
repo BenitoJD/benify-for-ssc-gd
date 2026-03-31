@@ -19,6 +19,7 @@ from .subscriptions.router import router as subscriptions_router, payments_route
 from .notifications.router import router as notifications_router
 from .community.router import router as community_router, reports_router as community_reports_router
 from .physical.router import router as physical_router
+from .documents.router import router as documents_router
 from .gamification.router import router as gamification_router
 
 # Configure logging
@@ -109,6 +110,7 @@ app.include_router(notifications_router, prefix="/api/v1")
 app.include_router(community_router, prefix="/api/v1")
 app.include_router(community_reports_router, prefix="/api/v1")
 app.include_router(physical_router, prefix="/api/v1")
+app.include_router(documents_router, prefix="/api/v1")
 app.include_router(gamification_router, prefix="/api/v1")
 
 

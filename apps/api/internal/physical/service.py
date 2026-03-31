@@ -29,6 +29,12 @@ from .schemas import (
     MockPETStation,
     PSTRequirementsResponse,
     PETRequirementsResponse,
+    AdminPhysicalPlanCreate,
+    AdminPhysicalPlanUpdate,
+    AdminPhysicalPlanResponse,
+    AdminPhysicalPlanListItem,
+    PhysicalComplianceStats,
+    PhysicalComplianceByGender,
 )
 from ..users.repository import UserRepository
 from ..shared.exceptions import NotFoundException
@@ -536,3 +542,378 @@ class PhysicalService:
             stations=stations,
             recommendations=recommendations
         )
+    
+    # ============ Admin Physical Plan Operations ============
+    
+    async def admin_get_plans(
+        self,
+        page: int = 1,
+        limit: int = 20,
+        target_gender: Optional[str] = None,
+        plan_type: Optional[str] = None,
+        is_active: Optional[bool] = None,
+        search: Optional[str] = None
+    ) -> List[AdminPhysicalPlanListItem]:
+        """Get all physical plans for admin with filtering and pagination."""
+        query = select(PhysicalPlan)
+        
+        # Apply filters
+        if target_gender:
+            query = query.where(PhysicalPlan.target_gender == target_gender.lower())
+        if plan_type:
+            query = query.where(PhysicalPlan.plan_type == plan_type.lower())
+        if is_active is not None:
+            query = query.where(PhysicalPlan.is_active == is_active)
+        if search:
+            search_term = f"%{search}%"
+            query = query.where(PhysicalPlan.title.ilike(search_term))
+        
+        # Get total count
+        count_query = select(func.count(PhysicalPlan.id))
+        total_result = await self.db.execute(count_query)
+        total = total_result.scalar() or 0
+        
+        # Apply pagination
+        offset = (page - 1) * limit
+        query = query.order_by(PhysicalPlan.created_at.desc()).offset(offset).limit(limit)
+        
+        result = await self.db.execute(query)
+        plans = result.scalars().all()
+        
+        return [
+            AdminPhysicalPlanListItem(
+                id=str(plan.id),
+                title=plan.title,
+                description=plan.description,
+                plan_type=plan.plan_type.value,
+                target_gender=plan.target_gender.value,
+                duration_weeks=plan.duration_weeks,
+                difficulty_level=plan.difficulty_level,
+                is_premium=plan.is_premium,
+                is_active=plan.is_active,
+                created_at=plan.created_at
+            )
+            for plan in plans
+        ]
+    
+    async def admin_create_plan(self, data: AdminPhysicalPlanCreate) -> AdminPhysicalPlanResponse:
+        """Create a new physical plan (admin)."""
+        plan = PhysicalPlan(
+            title=data.title,
+            description=data.description,
+            plan_type=data.plan_type,
+            target_gender=data.target_gender,
+            duration_weeks=data.duration_weeks,
+            difficulty_level=data.difficulty_level,
+            exercises=json.dumps([e.model_dump() for e in data.exercises]) if data.exercises else None,
+            schedule=json.dumps(data.schedule) if data.schedule else None,
+            targets=json.dumps(data.targets) if data.targets else None,
+            is_premium=data.is_premium,
+            is_active=data.is_active
+        )
+        
+        self.db.add(plan)
+        await self.db.commit()
+        await self.db.refresh(plan)
+        
+        return AdminPhysicalPlanResponse(
+            id=plan.id,
+            title=plan.title,
+            description=plan.description,
+            plan_type=plan.plan_type.value,
+            target_gender=plan.target_gender.value,
+            duration_weeks=plan.duration_weeks,
+            difficulty_level=plan.difficulty_level,
+            exercises=data.exercises or [],
+            schedule=data.schedule,
+            targets=data.targets,
+            is_premium=plan.is_premium,
+            is_active=plan.is_active,
+            created_at=plan.created_at,
+            updated_at=plan.updated_at
+        )
+    
+    async def admin_get_plan_by_id(self, plan_id: UUID) -> Optional[AdminPhysicalPlanResponse]:
+        """Get a specific physical plan by ID for admin."""
+        result = await self.db.execute(
+            select(PhysicalPlan).where(PhysicalPlan.id == plan_id)
+        )
+        plan = result.scalar_one_or_none()
+        
+        if not plan:
+            return None
+        
+        # Parse exercises JSON
+        exercises = []
+        if plan.exercises:
+            try:
+                exercises_data = json.loads(plan.exercises)
+                for ex in exercises_data:
+                    exercises.append(ExerciseItem(**ex))
+            except (json.JSONDecodeError, ValueError):
+                pass
+        
+        # Parse schedule JSON
+        schedule = None
+        if plan.schedule:
+            try:
+                schedule = json.loads(plan.schedule)
+            except json.JSONDecodeError:
+                pass
+        
+        # Parse targets JSON
+        targets = None
+        if plan.targets:
+            try:
+                targets = json.loads(plan.targets)
+            except json.JSONDecodeError:
+                pass
+        
+        return AdminPhysicalPlanResponse(
+            id=plan.id,
+            title=plan.title,
+            description=plan.description,
+            plan_type=plan.plan_type.value,
+            target_gender=plan.target_gender.value,
+            duration_weeks=plan.duration_weeks,
+            difficulty_level=plan.difficulty_level,
+            exercises=exercises,
+            schedule=schedule,
+            targets=targets,
+            is_premium=plan.is_premium,
+            is_active=plan.is_active,
+            created_at=plan.created_at,
+            updated_at=plan.updated_at
+        )
+    
+    async def admin_update_plan(
+        self,
+        plan_id: UUID,
+        data: AdminPhysicalPlanUpdate
+    ) -> Optional[AdminPhysicalPlanResponse]:
+        """Update a physical plan (admin)."""
+        result = await self.db.execute(
+            select(PhysicalPlan).where(PhysicalPlan.id == plan_id)
+        )
+        plan = result.scalar_one_or_none()
+        
+        if not plan:
+            return None
+        
+        # Update fields if provided
+        if data.title is not None:
+            plan.title = data.title
+        if data.description is not None:
+            plan.description = data.description
+        if data.plan_type is not None:
+            plan.plan_type = data.plan_type
+        if data.target_gender is not None:
+            plan.target_gender = data.target_gender
+        if data.duration_weeks is not None:
+            plan.duration_weeks = data.duration_weeks
+        if data.difficulty_level is not None:
+            plan.difficulty_level = data.difficulty_level
+        if data.exercises is not None:
+            plan.exercises = json.dumps([e.model_dump() for e in data.exercises])
+        if data.schedule is not None:
+            plan.schedule = json.dumps(data.schedule)
+        if data.targets is not None:
+            plan.targets = json.dumps(data.targets)
+        if data.is_premium is not None:
+            plan.is_premium = data.is_premium
+        if data.is_active is not None:
+            plan.is_active = data.is_active
+        
+        await self.db.commit()
+        await self.db.refresh(plan)
+        
+        # Parse exercises JSON
+        exercises = []
+        if plan.exercises:
+            try:
+                exercises_data = json.loads(plan.exercises)
+                for ex in exercises_data:
+                    exercises.append(ExerciseItem(**ex))
+            except (json.JSONDecodeError, ValueError):
+                pass
+        
+        # Parse schedule JSON
+        schedule = None
+        if plan.schedule:
+            try:
+                schedule = json.loads(plan.schedule)
+            except json.JSONDecodeError:
+                pass
+        
+        # Parse targets JSON
+        targets = None
+        if plan.targets:
+            try:
+                targets = json.loads(plan.targets)
+            except json.JSONDecodeError:
+                pass
+        
+        return AdminPhysicalPlanResponse(
+            id=plan.id,
+            title=plan.title,
+            description=plan.description,
+            plan_type=plan.plan_type.value,
+            target_gender=plan.target_gender.value,
+            duration_weeks=plan.duration_weeks,
+            difficulty_level=plan.difficulty_level,
+            exercises=exercises,
+            schedule=schedule,
+            targets=targets,
+            is_premium=plan.is_premium,
+            is_active=plan.is_active,
+            created_at=plan.created_at,
+            updated_at=plan.updated_at
+        )
+    
+    async def admin_delete_plan(self, plan_id: UUID) -> bool:
+        """Delete a physical plan (admin)."""
+        result = await self.db.execute(
+            select(PhysicalPlan).where(PhysicalPlan.id == plan_id)
+        )
+        plan = result.scalar_one_or_none()
+        
+        if not plan:
+            return False
+        
+        await self.db.delete(plan)
+        await self.db.commit()
+        return True
+    
+    # ============ Admin Compliance Monitoring ============
+    
+    async def admin_get_compliance_stats(self) -> PhysicalComplianceStats:
+        """Get overall physical compliance statistics for all users."""
+        from ..users.models import Profile, User
+        
+        # Total users with profiles
+        total_result = await self.db.execute(
+            select(func.count(Profile.user_id)).where(Profile.deleted_at.is_(None))
+        )
+        total_users = total_result.scalar() or 0
+        
+        # Count users with height measured (PST ready)
+        height_result = await self.db.execute(
+            select(func.count(Profile.user_id)).where(
+                and_(
+                    Profile.height_cm.isnot(None),
+                    Profile.height_cm > 0,
+                    Profile.deleted_at.is_(None)
+                )
+            )
+        )
+        pst_ready_count = height_result.scalar() or 0
+        
+        # Count users with physical progress logged (PET ready)
+        pet_result = await self.db.execute(
+            select(func.count(func.distinct(PhysicalProgressLog.user_id)))
+        )
+        pet_ready_count = pet_result.scalar() or 0
+        
+        # Fully ready = has height, weight, and has logged progress
+        fully_ready_result = await self.db.execute(
+            select(func.count(func.distinct(PhysicalProgressLog.user_id)))
+            .join(Profile, Profile.user_id == PhysicalProgressLog.user_id)
+            .where(
+                and_(
+                    Profile.height_cm.isnot(None),
+                    Profile.height_cm > 0,
+                    Profile.weight_kg.isnot(None),
+                    Profile.weight_kg > 0,
+                    Profile.deleted_at.is_(None)
+                )
+            )
+        )
+        fully_ready_count = fully_ready_result.scalar() or 0
+        
+        return PhysicalComplianceStats(
+            total_users=total_users,
+            pst_ready_count=pst_ready_count,
+            pet_ready_count=pet_ready_count,
+            fully_ready_count=fully_ready_count,
+            pst_ready_percentage=round((pst_ready_count / total_users) * 100, 1) if total_users > 0 else 0,
+            pet_ready_percentage=round((pet_ready_count / total_users) * 100, 1) if total_users > 0 else 0,
+            fully_ready_percentage=round((fully_ready_count / total_users) * 100, 1) if total_users > 0 else 0
+        )
+    
+    async def admin_get_compliance_by_gender(self) -> List[PhysicalComplianceByGender]:
+        """Get compliance statistics broken down by gender."""
+        from ..users.models import Profile
+        
+        genders = ["male", "female"]
+        results = []
+        
+        for gender in genders:
+            # Total users with this gender
+            total_result = await self.db.execute(
+                select(func.count(Profile.user_id)).where(
+                    and_(
+                        Profile.gender == gender,
+                        Profile.deleted_at.is_(None)
+                    )
+                )
+            )
+            total_users = total_result.scalar() or 0
+            
+            if total_users == 0:
+                continue
+            
+            # PST ready (height measured)
+            pst_result = await self.db.execute(
+                select(func.count(Profile.user_id)).where(
+                    and_(
+                        Profile.gender == gender,
+                        Profile.height_cm.isnot(None),
+                        Profile.height_cm > 0,
+                        Profile.deleted_at.is_(None)
+                    )
+                )
+            )
+            pst_ready_count = pst_result.scalar() or 0
+            
+            # PET ready (has progress logged)
+            pet_result = await self.db.execute(
+                select(func.count(func.distinct(PhysicalProgressLog.user_id)))
+                .join(Profile, Profile.user_id == PhysicalProgressLog.user_id)
+                .where(
+                    and_(
+                        Profile.gender == gender,
+                        Profile.deleted_at.is_(None)
+                    )
+                )
+            )
+            pet_ready_count = pet_result.scalar() or 0
+            
+            # Fully ready
+            fully_result = await self.db.execute(
+                select(func.count(func.distinct(PhysicalProgressLog.user_id)))
+                .join(Profile, Profile.user_id == PhysicalProgressLog.user_id)
+                .where(
+                    and_(
+                        Profile.gender == gender,
+                        Profile.height_cm.isnot(None),
+                        Profile.height_cm > 0,
+                        Profile.weight_kg.isnot(None),
+                        Profile.weight_kg > 0,
+                        Profile.deleted_at.is_(None)
+                    )
+                )
+            )
+            fully_ready_count = fully_result.scalar() or 0
+            
+            results.append(PhysicalComplianceByGender(
+                gender=gender,
+                total_users=total_users,
+                pst_ready_count=pst_ready_count,
+                pet_ready_count=pet_ready_count,
+                fully_ready_count=fully_ready_count,
+                pst_ready_percentage=round((pst_ready_count / total_users) * 100, 1),
+                pet_ready_percentage=round((pet_ready_count / total_users) * 100, 1),
+                fully_ready_percentage=round((fully_ready_count / total_users) * 100, 1)
+            ))
+        
+        return results

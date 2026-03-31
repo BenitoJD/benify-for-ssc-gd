@@ -212,3 +212,91 @@ class PETRequirementsResponse(BaseModel):
     run_time_seconds_max: int
     long_jump_m_min: float
     high_jump_m_min: float
+
+
+# ============ Admin Physical Plan Schemas ============
+
+class AdminPhysicalPlanCreate(BaseModel):
+    """Schema for creating a physical plan (admin)."""
+    title: str = Field(..., min_length=1, max_length=255)
+    description: Optional[str] = None
+    plan_type: PhysicalPlanType
+    target_gender: PhysicalGoalGender = PhysicalGoalGender.ALL
+    duration_weeks: int = Field(default=8, ge=1, le=52)
+    difficulty_level: Optional[str] = None
+    exercises: Optional[List[ExerciseItem]] = []
+    schedule: Optional[dict] = None
+    targets: Optional[dict] = None
+    is_premium: bool = False
+    is_active: bool = True
+
+
+class AdminPhysicalPlanUpdate(BaseModel):
+    """Schema for updating a physical plan (admin)."""
+    title: Optional[str] = Field(None, min_length=1, max_length=255)
+    description: Optional[str] = None
+    plan_type: Optional[PhysicalPlanType] = None
+    target_gender: Optional[PhysicalGoalGender] = None
+    duration_weeks: Optional[int] = Field(None, ge=1, le=52)
+    difficulty_level: Optional[str] = None
+    exercises: Optional[List[ExerciseItem]] = None
+    schedule: Optional[dict] = None
+    targets: Optional[dict] = None
+    is_premium: Optional[bool] = None
+    is_active: Optional[bool] = None
+
+
+class AdminPhysicalPlanResponse(PhysicalPlanBase):
+    """Response schema for admin physical plan."""
+    id: UUID
+    exercises: Optional[List[ExerciseItem]] = []
+    schedule: Optional[dict] = None
+    targets: Optional[dict] = None
+    is_active: bool = True
+    created_at: datetime
+    updated_at: datetime
+    
+    class Config:
+        from_attributes = True
+
+
+class AdminPhysicalPlanListItem(BaseModel):
+    """List item for admin physical plans."""
+    id: str
+    title: str
+    description: Optional[str] = None
+    plan_type: str
+    target_gender: str
+    duration_weeks: int
+    difficulty_level: Optional[str] = None
+    is_premium: bool
+    is_active: bool
+    created_at: datetime
+    
+    class Config:
+        from_attributes = True
+
+
+# ============ Admin Compliance & Statistics Schemas ============
+
+class PhysicalComplianceStats(BaseModel):
+    """Statistics for physical compliance monitoring."""
+    total_users: int
+    pst_ready_count: int
+    pet_ready_count: int
+    fully_ready_count: int
+    pst_ready_percentage: float
+    pet_ready_percentage: float
+    fully_ready_percentage: float
+
+
+class PhysicalComplianceByGender(BaseModel):
+    """Compliance breakdown by gender."""
+    gender: str
+    total_users: int
+    pst_ready_count: int
+    pet_ready_count: int
+    fully_ready_count: int
+    pst_ready_percentage: float
+    pet_ready_percentage: float
+    fully_ready_percentage: float

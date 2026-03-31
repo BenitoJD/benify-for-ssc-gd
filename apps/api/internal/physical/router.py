@@ -11,14 +11,16 @@ Provides endpoints for:
 - GET /api/v1/physical/requirements/pst - Get PST requirements
 - GET /api/v1/physical/requirements/pet - Get PET requirements
 - POST /api/v1/physical/mock-pet - Calculate mock PET results
+- Admin: CRUD for physical plans, compliance monitoring
 """
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Optional, List
 from uuid import UUID
+import json
 
 from ..database import get_db
-from ..auth.dependencies import get_current_user, TokenData
+from ..auth.dependencies import get_current_user, TokenData, require_admin
 from .schemas import (
     PhysicalPlanListResponse,
     PhysicalPlanDetailResponse,
@@ -32,6 +34,12 @@ from .schemas import (
     PETRequirementsResponse,
     MockPETRequest,
     MockPETResponse,
+    AdminPhysicalPlanCreate,
+    AdminPhysicalPlanUpdate,
+    AdminPhysicalPlanResponse,
+    AdminPhysicalPlanListItem,
+    PhysicalComplianceStats,
+    PhysicalComplianceByGender,
 )
 from .service import PhysicalService
 
@@ -241,3 +249,143 @@ async def calculate_mock_pet(
         user_id=UUID(current_user.user_id),
         data=data
     )
+
+
+# ============ Admin Physical Plan Management ============
+
+@router.get("/admin/physical/plans", response_model=List[AdminPhysicalPlanListItem])
+async def admin_list_physical_plans(
+    page: int = Query(1, ge=1, description="Page number"),
+    limit: int = Query(20, ge=1, le=100, description="Items per page"),
+    target_gender: Optional[str] = Query(None, description="Filter by gender"),
+    plan_type: Optional[str] = Query(None, description="Filter by type"),
+    is_active: Optional[bool] = Query(None, description="Filter by active status"),
+    search: Optional[str] = Query(None, description="Search by title"),
+    current_user: TokenData = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    """Get all physical plans for admin management."""
+    service = PhysicalService(db)
+    return await service.admin_get_plans(
+        page=page,
+        limit=limit,
+        target_gender=target_gender,
+        plan_type=plan_type,
+        is_active=is_active,
+        search=search
+    )
+
+
+@router.post("/admin/physical/plans", response_model=AdminPhysicalPlanResponse)
+async def admin_create_physical_plan(
+    data: AdminPhysicalPlanCreate,
+    current_user: TokenData = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    """Create a new physical training plan (admin only)."""
+    service = PhysicalService(db)
+    return await service.admin_create_plan(data)
+
+
+@router.get("/admin/physical/plans/{plan_id}", response_model=AdminPhysicalPlanResponse)
+async def admin_get_physical_plan(
+    plan_id: str,
+    current_user: TokenData = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    """Get a specific physical plan for admin."""
+    service = PhysicalService(db)
+    
+    try:
+        plan_uuid = UUID(plan_id)
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid plan ID format"
+        )
+    
+    plan = await service.admin_get_plan_by_id(plan_uuid)
+    if not plan:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Physical plan not found"
+        )
+    
+    return plan
+
+
+@router.put("/admin/physical/plans/{plan_id}", response_model=AdminPhysicalPlanResponse)
+async def admin_update_physical_plan(
+    plan_id: str,
+    data: AdminPhysicalPlanUpdate,
+    current_user: TokenData = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    """Update a physical training plan (admin only)."""
+    service = PhysicalService(db)
+    
+    try:
+        plan_uuid = UUID(plan_id)
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid plan ID format"
+        )
+    
+    plan = await service.admin_update_plan(plan_uuid, data)
+    if not plan:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Physical plan not found"
+        )
+    
+    return plan
+
+
+@router.delete("/admin/physical/plans/{plan_id}")
+async def admin_delete_physical_plan(
+    plan_id: str,
+    current_user: TokenData = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    """Delete a physical training plan (admin only)."""
+    service = PhysicalService(db)
+    
+    try:
+        plan_uuid = UUID(plan_id)
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid plan ID format"
+        )
+    
+    success = await service.admin_delete_plan(plan_uuid)
+    if not success:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Physical plan not found"
+        )
+    
+    return {"message": "Physical plan deleted successfully"}
+
+
+# ============ Admin Compliance Monitoring ============
+
+@router.get("/admin/physical/compliance", response_model=PhysicalComplianceStats)
+async def admin_get_physical_compliance(
+    current_user: TokenData = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    """Get physical compliance statistics for all users (admin only)."""
+    service = PhysicalService(db)
+    return await service.admin_get_compliance_stats()
+
+
+@router.get("/admin/physical/compliance/by-gender", response_model=List[PhysicalComplianceByGender])
+async def admin_get_physical_compliance_by_gender(
+    current_user: TokenData = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    """Get physical compliance statistics broken down by gender (admin only)."""
+    service = PhysicalService(db)
+    return await service.admin_get_compliance_by_gender()
