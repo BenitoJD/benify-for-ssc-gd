@@ -5,13 +5,12 @@ Handles all database operations for analytics.
 """
 from typing import Optional, List, Tuple
 from uuid import UUID
-import json
 from datetime import datetime, timedelta
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, and_, or_, desc, asc
+from sqlalchemy import select, func, and_, desc
 from sqlalchemy.orm import selectinload
 
-from .models import UserAnalytics, SubjectAnalytics, TopicAnalytics, RevisionRecommendation
+from .models import UserAnalytics
 from ..tests.models import MockAttempt, AttemptAnswer
 from ..questions.models import Question
 from ..syllabus.models import Subject, Topic
@@ -36,7 +35,7 @@ class AnalyticsRepository:
         query = select(MockAttempt).where(
             and_(
                 MockAttempt.user_id == user_id,
-                MockAttempt.is_completed == True
+                MockAttempt.is_completed
             )
         )
         
@@ -59,7 +58,7 @@ class AnalyticsRepository:
         query = select(func.count(MockAttempt.id)).where(
             and_(
                 MockAttempt.user_id == user_id,
-                MockAttempt.is_completed == True
+                MockAttempt.is_completed
             )
         )
         
@@ -231,7 +230,7 @@ class AnalyticsRepository:
             .where(
                 and_(
                     MockAttempt.test_series_id == test_series_id,
-                    MockAttempt.is_completed == True
+                    MockAttempt.is_completed
                 )
             )
         )
@@ -316,7 +315,7 @@ class AnalyticsRepository:
             .where(
                 and_(
                     MockAttempt.user_id == user_id,
-                    MockAttempt.is_completed == True
+                    MockAttempt.is_completed
                 )
             )
             .order_by(desc(MockAttempt.completed_at))

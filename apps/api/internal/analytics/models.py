@@ -3,7 +3,7 @@ SQLAlchemy models for analytics module.
 
 Analytics module provides performance tracking and insights.
 """
-from sqlalchemy import Column, String, DateTime, Integer, Float, ForeignKey, Text
+from sqlalchemy import Column, String, DateTime, Integer, Float, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from datetime import datetime

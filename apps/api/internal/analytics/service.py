@@ -8,6 +8,7 @@ from uuid import UUID
 from datetime import datetime, timedelta
 from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from .repository import AnalyticsRepository
 from .schemas import (
@@ -21,11 +22,9 @@ from .schemas import (
     WeakChapterDrilldown,
     AnalyticsResponse,
     DateRangeFilter,
-    OverallAnalytics,
 )
-from ..tests.models import MockAttempt, TestSeries
-from ..questions.models import Question
-from ..syllabus.models import Subject, Topic
+from ..tests.models import MockAttempt
+from ..syllabus.models import Topic
 
 
 class AnalyticsService:
@@ -38,14 +37,14 @@ class AnalyticsService:
     def _parse_json_field(self, value, expected_type=list):
         """Parse JSON field safely."""
         if value is None:
-            return expected_type() if expected_type == list else None
+            return expected_type() if expected_type is list else None
         if isinstance(value, str):
             try:
                 import json
                 parsed = json.loads(value)
                 return parsed if isinstance(parsed, expected_type) else expected_type()
             except (json.JSONDecodeError, ImportError):
-                return expected_type() if expected_type == list else None
+                return expected_type() if expected_type is list else None
         return value
     
     def _get_date_range(
@@ -164,7 +163,6 @@ class AnalyticsService:
         avg_percentile = (
             (sum(percentiles) / len(percentiles)) if percentiles else None
         )
-        best_percentile = max(percentiles) if percentiles else None
         
         # Calculate improvement (comparing recent vs older attempts)
         improvement = None
@@ -283,8 +281,6 @@ class AnalyticsService:
             )
             
             if stats["total_questions"] >= 3:  # Only include if attempted enough
-                is_weak = stats["accuracy"] < 60  # Below 60% accuracy
-                
                 weak_chapters.append(ChapterWeakness(
                     topic_id=topic.id,
                     topic_name=topic.name,

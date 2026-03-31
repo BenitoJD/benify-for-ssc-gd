@@ -3,7 +3,7 @@ Router for analytics API endpoints.
 """
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import Optional, List
+from typing import Optional
 from uuid import UUID
 from datetime import datetime
 
