@@ -13,7 +13,12 @@ import {
   Menu,
   X,
   LogOut,
-  Shield
+  Shield,
+  BookOpen,
+  List,
+  FileCheck,
+  HelpCircle,
+  ClipboardList
 } from 'lucide-react'
 
 interface AdminUser {
@@ -26,6 +31,18 @@ interface AdminUser {
 const navItems = [
   { href: '/admin', icon: LayoutDashboard, label: 'Dashboard', exact: true },
   { href: '/admin/users', icon: Users, label: 'Users', exact: false },
+]
+
+const contentNavItems = [
+  { href: '/admin/content', icon: BookOpen, label: 'Content', exact: true },
+  { href: '/admin/content/subjects', icon: FileText, label: 'Subjects', exact: false },
+  { href: '/admin/content/topics', icon: List, label: 'Topics', exact: false },
+  { href: '/admin/content/lessons', icon: FileCheck, label: 'Lessons', exact: false },
+  { href: '/admin/content/questions', icon: HelpCircle, label: 'Questions', exact: false },
+  { href: '/admin/content/test-series', icon: ClipboardList, label: 'Test Series', exact: false },
+]
+
+const adminNavItems = [
   { href: '/admin/analytics', icon: BarChart3, label: 'Analytics', exact: false },
   { href: '/admin/settings', icon: Settings, label: 'Settings', exact: false },
 ]
@@ -139,28 +156,84 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 p-4 space-y-1">
-            {navItems.map((item) => {
-              const Icon = item.icon
-              const active = isActive(item.href, item.exact)
+          <nav className="flex-1 p-4 space-y-6 overflow-y-auto">
+            {/* Main nav */}
+            <div className="space-y-1">
+              <p className="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Main</p>
+              {navItems.map((item) => {
+                const Icon = item.icon
+                const active = isActive(item.href, item.exact)
 
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => setIsMobileOpen(false)}
-                  className={clsx(
-                    'flex items-center gap-3 px-4 py-3 rounded-lg transition-colors',
-                    active
-                      ? 'bg-primary-600 text-white'
-                      : 'text-gray-300 hover:bg-gray-800 hover:text-white'
-                  )}
-                >
-                  <Icon className="w-5 h-5" />
-                  <span className="font-medium">{item.label}</span>
-                </Link>
-              )
-            })}
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setIsMobileOpen(false)}
+                    className={clsx(
+                      'flex items-center gap-3 px-4 py-3 rounded-lg transition-colors',
+                      active
+                        ? 'bg-primary-600 text-white'
+                        : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                    )}
+                  >
+                    <Icon className="w-5 h-5" />
+                    <span className="font-medium">{item.label}</span>
+                  </Link>
+                )
+              })}
+            </div>
+
+            {/* Content Management */}
+            <div className="space-y-1">
+              <p className="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Content</p>
+              {contentNavItems.map((item) => {
+                const Icon = item.icon
+                const active = isActive(item.href, item.exact)
+
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setIsMobileOpen(false)}
+                    className={clsx(
+                      'flex items-center gap-3 px-4 py-3 rounded-lg transition-colors',
+                      active
+                        ? 'bg-primary-600 text-white'
+                        : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                    )}
+                  >
+                    <Icon className="w-5 h-5" />
+                    <span className="font-medium">{item.label}</span>
+                  </Link>
+                )
+              })}
+            </div>
+
+            {/* Admin Tools */}
+            <div className="space-y-1">
+              <p className="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Admin</p>
+              {adminNavItems.map((item) => {
+                const Icon = item.icon
+                const active = isActive(item.href, item.exact)
+
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setIsMobileOpen(false)}
+                    className={clsx(
+                      'flex items-center gap-3 px-4 py-3 rounded-lg transition-colors',
+                      active
+                        ? 'bg-primary-600 text-white'
+                        : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                    )}
+                  >
+                    <Icon className="w-5 h-5" />
+                    <span className="font-medium">{item.label}</span>
+                  </Link>
+                )
+              })}
+            </div>
           </nav>
 
           {/* Footer */}
