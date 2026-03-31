@@ -261,3 +261,4 @@ class DiscussionFilters(BaseModel):
 
 # Update forward references
 DiscussionListResponse.model_rebuild()
+ReportListResponse.model_rebuild()
