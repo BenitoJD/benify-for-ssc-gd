@@ -1,0 +1,91 @@
+{
+  "milestone": "content",
+  "round": 1,
+  "status": "fail",
+  "validatorsRun": {
+    "test:frontend": {
+      "passed": false,
+      "command": "cd apps/web && npm run test",
+      "exitCode": 1,
+      "error": "Jest configuration missing - tests use vitest imports but Jest is not configured to handle TypeScript/ESM imports properly. Error: 'Cannot use import statement outside a module' in auth.test.ts"
+    },
+    "test:backend": {
+      "passed": false,
+      "command": "cd apps/api && python -m pytest",
+      "exitCode": 1,
+      "error": "Database connection failure - sqlalchemy.exc.ArgumentError: Could not parse SQLAlchemy URL from string ''. DATABASE_URL environment variable is empty. Also pydantic validation error: APP_URL is not a permitted field in Settings class (extra='forbid' by default in Pydantic v2)"
+    },
+    "typecheck": {
+      "passed": true,
+      "command": "cd apps/web && npx tsc --noEmit",
+      "exitCode": 0,
+      "error": null
+    },
+    "lint": {
+      "passed": true,
+      "command": "cd apps/web && npm run lint",
+      "exitCode": 0,
+      "error": "Warnings present but no errors (next/next/no-img-element, @typescript-eslint/no-unused-vars)"
+    }
+  },
+  "reviewsSummary": {
+    "total": 0,
+    "passed": 0,
+    "failed": 0,
+    "failedFeatures": [],
+    "reason": "Feature review skipped due to validator failures"
+  },
+  "blockingIssues": [
+    {
+      "featureId": "environment",
+      "severity": "blocking",
+      "description": "Backend tests fail: Database URL not configured. Tests require running PostgreSQL via Docker or test database setup.",
+      "suggestedFix": "Ensure DATABASE_URL environment variable is set and PostgreSQL is accessible. The services.yaml defines 'docker:up' command to start postgres."
+    },
+    {
+      "featureId": "environment",
+      "severity": "blocking",
+      "description": "Backend tests fail: Pydantic Settings validation error - 'APP_URL' is not permitted. This suggests APP_URL is in the environment but not defined in Settings class.",
+      "suggestedFix": "Either remove APP_URL from environment or add it to the Settings class in internal/config.py"
+    },
+    {
+      "featureId": "frontend-test-config",
+      "severity": "blocking",
+      "description": "Frontend tests fail: Jest is not configured to handle TypeScript/ESM imports. Tests in src/lib/auth.test.ts use 'vitest' imports but Jest is configured as the test runner.",
+      "suggestedFix": "Either configure Jest to handle ESM/TypeScript properly, or switch test files from vitest to Jest syntax, or add jest.config.js/ts with proper transformIgnorePatterns"
+    }
+  ],
+  "appliedUpdates": [],
+  "suggestedGuidanceUpdates": [
+    {
+      "target": "services.yaml",
+      "suggestion": "Add a 'test:setup' command that ensures Docker services are running and environment is configured before tests run",
+      "evidence": "test:backend fails immediately because DATABASE_URL is not set and postgres is not running",
+      "isSystemic": true
+    }
+  ],
+  "rejectedObservations": [],
+  "previousRound": null,
+  "completedContentFeatures": [
+    {
+      "id": "pyq-library",
+      "description": "Build Previous Year Questions library with year/subject/topic filtering, practice mode, exam simulation mode, bookmarking, and search",
+      "commitId": "36db8074-e880-4175-86b3-00e91f365270"
+    },
+    {
+      "id": "performance-analytics",
+      "description": "Build performance analytics dashboard: score trends, subject/chapter accuracy, weak area map, time analytics, revision recommendations with PYQ/study links",
+      "commitId": "9caa41f4-0259-4619-acd3-7499a1908896"
+    },
+    {
+      "id": "personalized-study-plans",
+      "description": "Build AI-powered personalized study plan: generates daily/weekly tasks based on exam date and weak areas, revision cycles, backlog recovery, streak tracking",
+      "commitId": "d97ce969-9e1a-4de8-9092-0d80854b30a5"
+    },
+    {
+      "id": "admin-content-management",
+      "description": "Build admin content management: create/edit subjects, topics, lessons, questions, test series. CMS for all content with rich text editor and file uploads",
+      "commitId": "68a4c6f7-2455-4b39-b6b8-5891c9b22b27"
+    }
+  ]
+}
