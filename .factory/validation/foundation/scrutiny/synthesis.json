@@ -1,6 +1,6 @@
 {
   "milestone": "foundation",
-  "round": 3,
+  "round": 4,
   "status": "fail",
   "validatorsRun": {
     "test:frontend": {
@@ -19,7 +19,7 @@
     },
     "typecheck:frontend": {
       "passed": true,
-      "command": "cd apps/web && npx tsc --noEmit",
+      "command": "cd apps/web && npm run typecheck",
       "exitCode": 0,
       "output": "No TypeScript errors"
     },
@@ -31,18 +31,34 @@
     }
   },
   "reviewsSummary": {
-    "total": 0,
-    "completed": 0,
-    "passed": 0,
-    "failed": 0,
-    "failedFeatures": [],
-    "passedFeatures": []
+    "total": 15,
+    "passed": 12,
+    "failed": 3,
+    "passedFeatures": [
+      "project-scaffold",
+      "auth-email-otp",
+      "auth-google-oauth",
+      "landing-page",
+      "student-dashboard",
+      "syllabus-module",
+      "seed-ssc-gd-content",
+      "basic-admin-panel",
+      "foundation-fix-1-orphans",
+      "foundation-fix-2-logout-response",
+      "foundation-fix-3-admin-endpoints",
+      "foundation-fix-4-onboarding-logic",
+      "foundation-fix-5-unique-constraints"
+    ],
+    "failedFeatures": [
+      "student-onboarding",
+      "mock-test-engine"
+    ]
   },
   "blockingIssues": [
     {
       "featureId": "foundation-fix-1-orphans",
       "severity": "blocking",
-      "description": "Orphaned Go source files STILL EXIST in apps/api/internal/. The feature foundation-fix-1-orphans was marked complete but the Go source files were never deleted. Same blocking issue as rounds 1 and 2.",
+      "description": "Orphaned Go source files STILL EXIST in apps/api/internal/. The foundation-fix-1-orphans review confirmed the fix was marked PASS but Go files were found remaining in prior synthesis. Current review shows Go files still present at apps/api/internal/httpapi/, apps/api/internal/auth/, apps/api/internal/config/.",
       "files": [
         "apps/api/internal/auth/google.go",
         "apps/api/internal/auth/service.go",
@@ -55,15 +71,45 @@
         "apps/api/internal/httpapi/server.go"
       ],
       "evidence": "find apps/api/internal -name '*.go' returns 9 files"
+    },
+    {
+      "featureId": "student-onboarding",
+      "severity": "blocking",
+      "description": "Missing translation keys for fitness step validation cause runtime crashes. Translation key 'onboarding.steps.fitness.genderRequired' at page.tsx:159 and 'onboarding.steps.fitness.levelRequired' at page.tsx:163 are used but not defined in i18n.ts.",
+      "location": "apps/web/src/app/onboarding/page.tsx:159,163"
+    },
+    {
+      "featureId": "mock-test-engine",
+      "severity": "blocking",
+      "description": "Bug in get_attempt_rank function. When user_score falls between two scores in the sorted attempts list, the loop doesn't break early and rank gets incorrectly incremented. Example: attempts=[100,80,60], user_score=70 should give rank 3 but loop produces rank=4.",
+      "location": "apps/api/internal/tests/repository.py:371-400"
+    },
+    {
+      "featureId": "basic-admin-panel",
+      "severity": "blocking",
+      "description": "Dashboard stats (reports_count, total_lessons_completed, total_tests_taken) are hardcoded to 0 instead of querying actual database tables. Admin panel shows fake data.",
+      "location": "apps/api/internal/admin/service.py:107"
     }
   ],
   "appliedUpdates": [],
   "suggestedGuidanceUpdates": [
     {
       "target": "AGENTS.md",
-      "suggestion": "Add boundary rule: ALL orphaned files from a previous implementation approach (Go files in this case) must be deleted atomically when switching languages. Not just module files (go.mod, go.sum) but ALL source files.",
-      "evidence": "foundation-fix-1-orphans was marked complete but 9 Go source files still exist. The fix was incomplete.",
+      "suggestion": "Add boundary rule: ALL orphaned files from a previous implementation approach (Go files in this case) must be deleted atomically when switching languages. Not just module files (go.mod, go.sum) but ALL source files. Workers must verify deletion with 'find apps/api/internal -name \"*.go\"' before marking complete.",
+      "evidence": "foundation-fix-1-orphans was marked complete but 9 Go source files still exist. The fix was incomplete - only go.mod/go.sum were removed, not the source .go files.",
       "isSystemic": true
+    },
+    {
+      "target": "AGENTS.md",
+      "suggestion": "Add validation step that workers must run the application with actual user flows and verify no runtime crashes occur. Missing translation keys could be caught by starting the dev server and attempting the actual user flow.",
+      "evidence": "student-onboarding missing translation keys (genderRequired, levelRequired) - these would cause runtime crashes when user tries to proceed past step 5. Typecheck/lint don't catch missing i18n keys.",
+      "isSystemic": true
+    },
+    {
+      "target": "skills/frontend-worker",
+      "suggestion": "Add requirement to run 'npm run dev' and attempt the actual user flow in agent-browser before marking feature complete. Typecheck/lint alone don't catch runtime issues like missing translation keys.",
+      "evidence": "student-onboarding passed typecheck and lint but has runtime crashes due to missing translation keys. Worker did not use agent-browser to test the actual UI flow.",
+      "isSystemic": false
     }
   ],
   "rejectedObservations": [],
@@ -71,5 +117,5 @@
     "frontend": "Test files use vitest imports but project uses Jest. auth.test.ts imports from 'vitest', dashboard.test.tsx/onboarding.test.tsx use 'vi' from 'jest' (should be jest.fn()). TypeScript type annotations in mock functions cause parse errors. Pre-existing configuration issue requiring jest.config.ts setup with TypeScript/vitest support.",
     "backend": "Test fixtures in test_admin_users.py don't create required tables before tests run. 83 of 90 tests pass. 7 admin user tests fail due to fixture setup issue (no such table: users). Pre-existing test fixture issue."
   },
-  "previousRound": ".factory/validation/foundation/scrutiny/synthesis.json (round 2)"
+  "previousRound": ".factory/validation/foundation/scrutiny/synthesis.json (round 3)"
 }
