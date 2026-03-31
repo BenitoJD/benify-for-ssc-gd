@@ -24,9 +24,14 @@ class TestStudyPlanSchemas:
     """Test Pydantic schemas for study plans."""
     
     def test_study_plan_create_defaults(self):
-        """Test StudyPlanCreate with defaults."""
-        plan = StudyPlanCreate()
-        assert plan.title is None
+        """Test StudyPlanCreate with title required."""
+        # title is required, so creating without it should fail
+        with pytest.raises(Exception):
+            StudyPlanCreate()
+        
+        # Create with required title
+        plan = StudyPlanCreate(title="My Study Plan")
+        assert plan.title == "My Study Plan"
         assert plan.description is None
         assert plan.daily_study_hours_goal is None
         assert plan.exam_date is None
