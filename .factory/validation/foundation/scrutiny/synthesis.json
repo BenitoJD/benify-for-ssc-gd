@@ -1,19 +1,19 @@
 {
   "milestone": "foundation",
-  "round": 2,
+  "round": 3,
   "status": "fail",
   "validatorsRun": {
     "test:frontend": {
       "passed": false,
       "command": "cd apps/web && npm run test",
       "exitCode": 1,
-      "error": "Pre-existing configuration issue: Test files use vitest imports but project uses Jest. auth.test.ts imports from 'vitest', dashboard.test.tsx/onboarding.test.tsx use 'vi' from 'jest' (should be jest.fn()). TypeScript type annotations in mock functions cause parse errors. This is a pre-existing test configuration issue, not introduced by any feature."
+      "error": "Pre-existing configuration issue: Test files use vitest imports but project uses Jest. auth.test.ts imports from 'vitest', dashboard.test.tsx/onboarding.test.tsx use 'vi' from 'jest' (should be jest.fn()). This is a pre-existing test configuration issue, not introduced by any feature."
     },
     "test:backend": {
       "passed": false,
       "command": "cd apps/api && DATABASE_URL='sqlite+aiosqlite:///:memory:' python3 -m pytest tests/ -v",
       "exitCode": 1,
-      "error": "83 tests pass, 7 errors due to pre-existing fixture setup issue in test_admin_users.py (tables not created in fixtures). Backend database.py was fixed to handle SQLite (pool args issue resolved). Remaining errors are pre-existing test fixture issues, not code issues.",
+      "error": "83 tests pass, 7 errors due to pre-existing fixture setup issue in test_admin_users.py (tables not created in fixtures). This is a pre-existing test fixture issue.",
       "passedTests": 83,
       "errorTests": 7
     },
@@ -31,23 +31,18 @@
     }
   },
   "reviewsSummary": {
-    "total": 5,
-    "completed": 5,
-    "passed": 4,
-    "failed": 1,
-    "failedFeatures": ["foundation-fix-1-orphans"],
-    "passedFeatures": [
-      "foundation-fix-2-logout-response",
-      "foundation-fix-3-admin-endpoints",
-      "foundation-fix-4-onboarding-logic",
-      "foundation-fix-5-unique-constraints"
-    ]
+    "total": 0,
+    "completed": 0,
+    "passed": 0,
+    "failed": 0,
+    "failedFeatures": [],
+    "passedFeatures": []
   },
   "blockingIssues": [
     {
       "featureId": "foundation-fix-1-orphans",
       "severity": "blocking",
-      "description": "Orphaned Go source files still exist in apps/api/internal/. Commit e9ee4f7 only removed go.mod, go.sum, cmd/server/main.go, and vite.config.ts but did NOT remove the Go source files in internal/ directories.",
+      "description": "Orphaned Go source files STILL EXIST in apps/api/internal/. The feature foundation-fix-1-orphans was marked complete but the Go source files were never deleted. Same blocking issue as rounds 1 and 2.",
       "files": [
         "apps/api/internal/auth/google.go",
         "apps/api/internal/auth/service.go",
@@ -58,53 +53,23 @@
         "apps/api/internal/httpapi/auth_adapter.go",
         "apps/api/internal/httpapi/handler_test.go",
         "apps/api/internal/httpapi/server.go"
-      ]
+      ],
+      "evidence": "find apps/api/internal -name '*.go' returns 9 files"
     }
   ],
-  "appliedUpdates": [
-    {
-      "target": "apps/api/internal/database.py",
-      "description": "Fixed SQLite handling - pool_size/max_overflow args now conditional based on database type",
-      "sourceFeature": "validator-fix",
-      "reason": "Backend tests now runnable with SQLite. Without this fix, database.py crashes on SQLite URL."
-    }
-  ],
+  "appliedUpdates": [],
   "suggestedGuidanceUpdates": [
     {
       "target": "AGENTS.md",
-      "suggestion": "Document the API response envelope convention: when should endpoints return {success: true, data: {...}, error: null} vs direct response format? The inconsistency between auth-google-oauth logout and other endpoints caused a blocking bug.",
-      "evidence": "auth-google-oauth review found logout() uses readEnvelope but fetchCurrentUser() and signInWithGoogle() don't. No documentation exists.",
+      "suggestion": "Add boundary rule: ALL orphaned files from a previous implementation approach (Go files in this case) must be deleted atomically when switching languages. Not just module files (go.mod, go.sum) but ALL source files.",
+      "evidence": "foundation-fix-1-orphans was marked complete but 9 Go source files still exist. The fix was incomplete.",
       "isSystemic": true
-    },
-    {
-      "target": "AGENTS.md",
-      "suggestion": "Add boundary rule: when switching implementation languages (e.g., Go to Python) mid-project, ALL orphaned files from the previous approach must be deleted, not just module files (go.mod, go.sum). The fix feature foundation-fix-1-orphans only removed go.mod/go.sum but left Go source files.",
-      "evidence": "foundation-fix-1-orphans review shows only go.mod/go.sum were removed but 9 Go source files in internal/ directories still exist.",
-      "isSystemic": true
-    },
-    {
-      "target": "AGENTS.md",
-      "suggestion": "Document that admin tokens should follow same httpOnly cookie convention as user JWT tokens, or explicitly document why localStorage is acceptable for admin.",
-      "evidence": "basic-admin-panel stores admin token in localStorage contrary to AGENTS.md 'JWT tokens in httpOnly cookies (not localStorage)' guidance.",
-      "isSystemic": false
-    },
-    {
-      "target": "services.yaml",
-      "suggestion": "Add test:api command that sets DATABASE_URL=sqlite+aiosqlite:///:memory: and runs pytest with proper SQLite configuration.",
-      "evidence": "Backend tests require DATABASE_URL to be set. database.py now handles SQLite properly after fix.",
-      "isSystemic": false
-    },
-    {
-      "target": "services.yaml",
-      "suggestion": "Add dev:setup command that runs docker compose up -d postgres redis and pip install in one step.",
-      "evidence": "Workers had to discover setup steps individually.",
-      "isSystemic": false
     }
   ],
   "rejectedObservations": [],
   "testConfigurationIssues": {
-    "frontend": "Test files use vitest imports but project uses Jest. auth.test.ts imports from 'vitest', dashboard.test.tsx/onboarding.test.tsx use 'vi' from 'jest' (should be jest.fn()). TypeScript type annotations in mock functions cause parse errors. This is a pre-existing configuration issue requiring jest.config.ts setup with TypeScript support.",
-    "backend": "Test fixtures in test_admin_users.py don't create required tables before tests run. 83 of 90 tests pass. 7 admin user tests fail due to fixture setup issue (no such table: users). This is a pre-existing test fixture issue."
+    "frontend": "Test files use vitest imports but project uses Jest. auth.test.ts imports from 'vitest', dashboard.test.tsx/onboarding.test.tsx use 'vi' from 'jest' (should be jest.fn()). TypeScript type annotations in mock functions cause parse errors. Pre-existing configuration issue requiring jest.config.ts setup with TypeScript/vitest support.",
+    "backend": "Test fixtures in test_admin_users.py don't create required tables before tests run. 83 of 90 tests pass. 7 admin user tests fail due to fixture setup issue (no such table: users). Pre-existing test fixture issue."
   },
-  "previousRound": ".factory/validation/foundation/scrutiny/synthesis.json (round 1)"
+  "previousRound": ".factory/validation/foundation/scrutiny/synthesis.json (round 2)"
 }
