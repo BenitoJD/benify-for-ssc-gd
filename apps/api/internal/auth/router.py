@@ -235,7 +235,7 @@ async def logout(
     
     response.delete_cookie(key="refresh_token")
     
-    return {"message": "Logged out successfully"}
+    return {"success": True, "data": {"success": True}}
 
 
 @router.get("/me", response_model=UserResponse)
