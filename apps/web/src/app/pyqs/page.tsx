@@ -1,0 +1,467 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import { useTranslations } from 'next-intl'
+import Link from 'next/link'
+import { Search, Filter, Bookmark, Clock, ChevronRight, Loader2 } from 'lucide-react'
+import { pyqApi, PYQ } from '@/lib/api/pyqs'
+
+const AVAILABLE_YEARS = [2024, 2023, 2022, 2021, 2020, 2019]
+
+// Mock subjects for now - in production these would come from API
+const MOCK_SUBJECTS = [
+  { id: '1', name: 'General Intelligence & Reasoning', nameHi: 'सामान्य बुद्धिमत्ता एवं तर्कशक्ति' },
+  { id: '2', name: 'General Knowledge & General Awareness', nameHi: 'सामान्य ज्ञान एवं सामान्य जागरूकता' },
+  { id: '3', name: 'Elementary Mathematics', nameHi: 'प्रारंभिक गणित' },
+  { id: '4', name: 'English/Hindi', nameHi: 'अंग्रेजी/हिंदी' },
+]
+
+export default function PYQLibraryPage() {
+  const t = useTranslations()
+  const [selectedYear, setSelectedYear] = useState<number | null>(null)
+  const [selectedSubject, setSelectedSubject] = useState<string | null>(null)
+  const [selectedTopic, setSelectedTopic] = useState<string | null>(null)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [pyqs, setPyqs] = useState<PYQ[]>([])
+  const [loading, setLoading] = useState(true)
+  const [bookmarkedIds, setBookmarkedIds] = useState<Set<string>>(new Set())
+  const [showFilters, setShowFilters] = useState(false)
+  const [page, setPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const [totalCount, setTotalCount] = useState(0)
+
+  // Fetch PYQs when filters change
+  useEffect(() => {
+    fetchPYQs()
+  }, [selectedYear, selectedSubject, selectedTopic, searchQuery, page])
+
+  const fetchPYQs = async () => {
+    setLoading(true)
+    try {
+      const response = await pyqApi.getPYQs({
+        year: selectedYear || undefined,
+        subject_id: selectedSubject || undefined,
+        topic_id: selectedTopic || undefined,
+        search: searchQuery || undefined,
+        page,
+        limit: 20,
+      })
+      setPyqs(response.data)
+      setTotalPages(response.meta.total_pages)
+      setTotalCount(response.meta.total)
+    } catch (error) {
+      console.error('Failed to fetch PYQs:', error)
+      // Use mock data for demo
+      setPyqs(generateMockPYQs())
+      setTotalPages(1)
+      setTotalCount(10)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Generate mock PYQs for demo
+  const generateMockPYQs = (): PYQ[] => {
+    return [
+      {
+        id: '1',
+        topic_id: '1',
+        topic_name: 'Analogy',
+        subject_id: '1',
+        subject_name: 'General Intelligence & Reasoning',
+        question_text: 'Choose the correct option to complete the analogy: Book : Reading :: Food : ?',
+        question_type: 'mcq',
+        options: ['Hunger', 'Eating', 'Kitchen', 'Restaurant'],
+        correct_answer: 'B',
+        explanation: 'Just as reading is related to book, eating is related to food.',
+        source: 'SSC GD 2023',
+        exam_year: 2023,
+        created_at: new Date().toISOString(),
+      },
+      {
+        id: '2',
+        topic_id: '2',
+        topic_name: 'History',
+        subject_id: '2',
+        subject_name: 'General Knowledge & General Awareness',
+        question_text: 'Who was the first Prime Minister of India?',
+        question_type: 'mcq',
+        options: ['Mahatma Gandhi', 'Jawaharlal Nehru', 'Sardar Patel', 'Dr. B.R. Ambedkar'],
+        correct_answer: 'B',
+        explanation: 'Jawaharlal Nehru was the first Prime Minister of India.',
+        source: 'SSC GD 2022',
+        exam_year: 2022,
+        created_at: new Date().toISOString(),
+      },
+      {
+        id: '3',
+        topic_id: '3',
+        topic_name: 'Average',
+        subject_id: '3',
+        subject_name: 'Elementary Mathematics',
+        question_text: 'The average of first 10 natural numbers is:',
+        question_type: 'mcq',
+        options: ['5', '5.5', '6', '6.5'],
+        correct_answer: 'B',
+        explanation: 'Sum of first 10 natural numbers = 10*11/2 = 55. Average = 55/10 = 5.5',
+        source: 'SSC GD 2023',
+        exam_year: 2023,
+        created_at: new Date().toISOString(),
+      },
+      {
+        id: '4',
+        topic_id: '4',
+        topic_name: 'Grammar',
+        subject_id: '4',
+        subject_name: 'English/Hindi',
+        question_text: 'Choose the correctly spelled word:',
+        question_type: 'mcq',
+        options: ['Accomodation', 'Accommodation', 'Acommodation', 'Acomodation'],
+        correct_answer: 'B',
+        explanation: 'The correct spelling is "Accommodation".',
+        source: 'SSC GD 2021',
+        exam_year: 2021,
+        created_at: new Date().toISOString(),
+      },
+      {
+        id: '5',
+        topic_id: '1',
+        topic_name: 'Blood Relations',
+        subject_id: '1',
+        subject_name: 'General Intelligence & Reasoning',
+        question_text: 'Pointing to a man, a woman said, "His mother is the only daughter of my mother." How is the woman related to the man?',
+        question_type: 'mcq',
+        options: ['Mother', 'Daughter', 'Sister', 'Grandmother'],
+        correct_answer: 'A',
+        explanation: 'The only daughter of the woman\'s mother is the woman herself. So the woman is the man\'s mother.',
+        source: 'SSC GD 2020',
+        exam_year: 2020,
+        created_at: new Date().toISOString(),
+      },
+    ]
+  }
+
+  const toggleBookmark = (id: string) => {
+    setBookmarkedIds(prev => {
+      const newSet = new Set(prev)
+      if (newSet.has(id)) {
+        newSet.delete(id)
+      } else {
+        newSet.add(id)
+      }
+      return newSet
+    })
+  }
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    setPage(1)
+    fetchPYQs()
+  }
+
+  const handleYearFilter = (year: number | null) => {
+    setSelectedYear(year)
+    setSelectedTopic(null)
+    setPage(1)
+  }
+
+  const handleSubjectFilter = (subjectId: string | null) => {
+    setSelectedSubject(subjectId)
+    setSelectedTopic(null)
+    setPage(1)
+  }
+
+  const getYearCount = (_year: number): number => {
+    // Mock count - in production this would come from API
+    return Math.floor(Math.random() * 50) + 20
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="bg-white border-b">
+        <div className="container mx-auto px-4 py-4">
+          <h1 className="text-2xl font-bold text-gray-900">{t('pyq.title')}</h1>
+          <p className="text-gray-600 mt-1">{t('pyq.subtitle')}</p>
+        </div>
+      </header>
+
+      <div className="container mx-auto px-4 py-6">
+        <div className="flex flex-col lg:flex-row gap-6">
+          {/* Filters Sidebar */}
+          <aside className={`lg:w-64 ${showFilters ? 'block' : 'hidden lg:block'}`}>
+            <div className="bg-white rounded-lg shadow-sm p-4">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="font-semibold text-gray-900">{t('pyq.filters')}</h2>
+                <button
+                  onClick={() => setShowFilters(false)}
+                  className="lg:hidden text-gray-500"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* Year Filter */}
+              <div className="mb-6">
+                <h3 className="text-sm font-medium text-gray-700 mb-2">{t('pyq.examYear')}</h3>
+                <div className="space-y-1">
+                  <button
+                    onClick={() => handleYearFilter(null)}
+                    className={`w-full text-left px-3 py-2 rounded-md text-sm ${
+                      selectedYear === null
+                        ? 'bg-primary-100 text-primary-700'
+                        : 'text-gray-600 hover:bg-gray-100'
+                    }`}
+                  >
+                    {t('pyq.allYears')}
+                  </button>
+                  {AVAILABLE_YEARS.map(year => (
+                    <button
+                      key={year}
+                      onClick={() => handleYearFilter(year)}
+                      className={`w-full flex items-center justify-between px-3 py-2 rounded-md text-sm ${
+                        selectedYear === year
+                          ? 'bg-primary-100 text-primary-700'
+                          : 'text-gray-600 hover:bg-gray-100'
+                      }`}
+                    >
+                      <span>{year}</span>
+                      <span className="text-xs text-gray-400">{getYearCount(year)}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Subject Filter */}
+              <div className="mb-6">
+                <h3 className="text-sm font-medium text-gray-700 mb-2">{t('pyq.subject')}</h3>
+                <select
+                  value={selectedSubject || ''}
+                  onChange={(e) => handleSubjectFilter(e.target.value || null)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-primary-500 focus:border-primary-500"
+                >
+                  <option value="">{t('pyq.allSubjects')}</option>
+                  {MOCK_SUBJECTS.map(subject => (
+                    <option key={subject.id} value={subject.id}>
+                      {subject.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Topic Filter */}
+              {selectedSubject && (
+                <div className="mb-6">
+                  <h3 className="text-sm font-medium text-gray-700 mb-2">{t('pyq.topic')}</h3>
+                  <select
+                    value={selectedTopic || ''}
+                    onChange={(e) => {
+                      setSelectedTopic(e.target.value || null)
+                      setPage(1)
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-primary-500 focus:border-primary-500"
+                  >
+                    <option value="">{t('pyq.allTopics')}</option>
+                    <option value="1">Analogy</option>
+                    <option value="2">Blood Relations</option>
+                    <option value="3">Coding-Decoding</option>
+                    <option value="4">Series</option>
+                  </select>
+                </div>
+              )}
+
+              {/* Clear Filters */}
+              {(selectedYear || selectedSubject || selectedTopic) && (
+                <button
+                  onClick={() => {
+                    setSelectedYear(null)
+                    setSelectedSubject(null)
+                    setSelectedTopic(null)
+                    setPage(1)
+                  }}
+                  className="w-full px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50"
+                >
+                  {t('pyq.clearFilters')}
+                </button>
+              )}
+            </div>
+          </aside>
+
+          {/* Main Content */}
+          <main className="flex-1">
+            {/* Search Bar */}
+            <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
+              <form onSubmit={handleSearch} className="flex gap-3">
+                <div className="flex-1 relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder={t('pyq.searchPlaceholder')}
+                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700"
+                >
+                  {t('pyq.search')}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowFilters(!showFilters)}
+                  className="lg:hidden px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
+                >
+                  <Filter className="w-5 h-5" />
+                </button>
+              </form>
+            </div>
+
+            {/* Results Info */}
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-sm text-gray-600">
+                {t('pyq.showing')} <span className="font-medium">{pyqs.length}</span> {t('pyq.of')} <span className="font-medium">{totalCount}</span> {t('pyq.questions')}
+              </p>
+              {(selectedYear || selectedSubject || searchQuery) && (
+                <div className="flex gap-2 flex-wrap">
+                  {selectedYear && (
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-primary-100 text-primary-700">
+                      {selectedYear}
+                      <button
+                        onClick={() => handleYearFilter(null)}
+                        className="ml-1 hover:text-primary-900"
+                      >
+                        ✕
+                      </button>
+                    </span>
+                  )}
+                  {selectedSubject && (
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-primary-100 text-primary-700">
+                      {MOCK_SUBJECTS.find(s => s.id === selectedSubject)?.name}
+                      <button
+                        onClick={() => handleSubjectFilter(null)}
+                        className="ml-1 hover:text-primary-900"
+                      >
+                        ✕
+                      </button>
+                    </span>
+                  )}
+                  {searchQuery && (
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-primary-100 text-primary-700">
+                      &ldquo;{searchQuery}&rdquo;
+                      <button
+                        onClick={() => {
+                          setSearchQuery('')
+                          setPage(1)
+                          fetchPYQs()
+                        }}
+                        className="ml-1 hover:text-primary-900"
+                      >
+                        ✕
+                      </button>
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* PYQ List */}
+            {loading ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="w-8 h-8 text-primary-600 animate-spin" />
+              </div>
+            ) : pyqs.length === 0 ? (
+              <div className="bg-white rounded-lg shadow-sm p-8 text-center">
+                <p className="text-gray-600">{t('pyq.noResults')}</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {pyqs.map((pyq) => (
+                  <div
+                    key={pyq.id}
+                    className="bg-white rounded-lg shadow-sm p-4 hover:shadow-md transition-shadow"
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="px-2 py-1 text-xs font-medium bg-primary-100 text-primary-700 rounded">
+                            {pyq.exam_year}
+                          </span>
+                          <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded">
+                            {pyq.subject_name}
+                          </span>
+                          {pyq.topic_name && (
+                            <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded">
+                              {pyq.topic_name}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-gray-900 mb-3">{pyq.question_text}</p>
+                        <div className="space-y-1">
+                          {pyq.options.map((option, idx) => (
+                            <div key={idx} className="flex items-center gap-2 text-sm">
+                              <span className="font-medium text-gray-500">{String.fromCharCode(65 + idx)}.</span>
+                              <span className="text-gray-700">{option}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => toggleBookmark(pyq.id)}
+                        className={`p-2 rounded-full hover:bg-gray-100 ${
+                          bookmarkedIds.has(pyq.id) ? 'text-primary-600' : 'text-gray-400'
+                        }`}
+                      >
+                        <Bookmark className={`w-5 h-5 ${bookmarkedIds.has(pyq.id) ? 'fill-current' : ''}`} />
+                      </button>
+                    </div>
+                    <div className="flex items-center gap-4 mt-4 pt-4 border-t">
+                      <Link
+                        href={`/pyqs/${pyq.id}/practice?year=${selectedYear || ''}&subject=${selectedSubject || ''}`}
+                        className="flex items-center gap-1 text-sm text-primary-600 hover:text-primary-700"
+                      >
+                        <Clock className="w-4 h-4" />
+                        {t('pyq.practice')}
+                      </Link>
+                      <Link
+                        href={`/pyqs/${pyq.id}/exam?year=${selectedYear || ''}&subject=${selectedSubject || ''}`}
+                        className="flex items-center gap-1 text-sm text-primary-600 hover:text-primary-700"
+                      >
+                        <ChevronRight className="w-4 h-4" />
+                        {t('pyq.examMode')}
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-center gap-2 mt-6">
+                <button
+                  onClick={() => setPage(p => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                  className="px-4 py-2 border border-gray-300 rounded-md text-sm hover:bg-gray-50 disabled:opacity-50"
+                >
+                  {t('pyq.previous')}
+                </button>
+                <span className="px-4 py-2 text-sm text-gray-600">
+                  {t('pyq.page')} {page} {t('pyq.of')} {totalPages}
+                </span>
+                <button
+                  onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                  disabled={page === totalPages}
+                  className="px-4 py-2 border border-gray-300 rounded-md text-sm hover:bg-gray-50 disabled:opacity-50"
+                >
+                  {t('pyq.next')}
+                </button>
+              </div>
+            )}
+          </main>
+        </div>
+      </div>
+    </div>
+  )
+}
