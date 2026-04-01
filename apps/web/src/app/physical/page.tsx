@@ -19,8 +19,6 @@ import {
   Heart,
 } from 'lucide-react'
 import { Sidebar } from '@/components/ui/Sidebar'
-import { LanguageToggle } from '@/components/ui/LanguageToggle'
-import { PremiumGate } from '@/components/ui/PremiumGate'
 import { fetchCurrentUser } from '@/lib/auth'
 import { getProfile } from '@/lib/api/users'
 import {
@@ -64,7 +62,7 @@ export default function PhysicalPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(true)
   const [userGender, setUserGender] = useState<'male' | 'female'>('male')
-  const [locale, setLocale] = useState<'en' | 'hi'>('en')
+  const locale: 'en' = 'en'
   const [activeTab, setActiveTab] = useState<TabType>('overview')
   
   // Data states
@@ -109,9 +107,6 @@ export default function PhysicalPage() {
           const profile = await getProfile()
           if (profile.gender === 'male' || profile.gender === 'female') {
             setUserGender(profile.gender)
-          }
-          if (profile.language_preference) {
-            setLocale(profile.language_preference as 'en' | 'hi')
           }
         } catch {
           // Use default gender
@@ -257,7 +252,6 @@ export default function PhysicalPage() {
               {t('physical.title')}
             </div>
           </div>
-          <LanguageToggle />
         </div>
       </header>
 
@@ -469,11 +463,9 @@ export default function PhysicalPage() {
                           <p className="text-sm text-gray-500">{plan.description}</p>
                         </div>
                         {plan.is_premium && (
-                          <PremiumGate showUpgradeWall={false}>
-                            <span className="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded">
-                              {t('common.premium')}
-                            </span>
-                          </PremiumGate>
+                          <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">
+                            Free Access
+                          </span>
                         )}
                       </div>
                       <div className="flex gap-4 text-sm text-gray-600 mb-4">

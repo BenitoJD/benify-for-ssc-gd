@@ -10,18 +10,16 @@ import { TodaysTasks, Task } from '@/components/ui/TodaysTasks'
 import { WeakAreasWidget, WeakArea } from '@/components/ui/WeakAreasWidget'
 import { RecentActivity, Activity } from '@/components/ui/RecentActivity'
 import { StreakCounter } from '@/components/ui/StreakCounter'
-import { SubscriptionWidget } from '@/components/ui/SubscriptionWidget'
 import { OfflineIndicator } from '@/components/ui/OfflineIndicator'
 import { NotificationPermissionPrompt } from '@/components/ui/NotificationPermissionPrompt'
 import { fetchCurrentUser } from '@/lib/auth'
-import { getProfile } from '@/lib/api/users'
 
 export default function DashboardPage() {
   const t = useTranslations()
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(true)
   const [userName, setUserName] = useState<string>('')
-  const [locale, setLocale] = useState<'en' | 'hi'>('en')
+  const locale: 'en' = 'en'
 
   // Mock data for demonstration - in production, this would come from API
   const mockSubjects: SubjectProgress[] = [
@@ -158,16 +156,6 @@ export default function DashboardPage() {
         }
 
         setUserName(user.name || user.email?.split('@')[0] || 'Student')
-
-        // Get user profile for locale preference
-        try {
-          const profile = await getProfile()
-          if (profile.language_preference) {
-            setLocale(profile.language_preference as 'en' | 'hi')
-          }
-        } catch {
-          // Use default locale
-        }
       } catch {
         router.push('/login')
         return
@@ -205,18 +193,24 @@ export default function DashboardPage() {
               </h1>
             </div>
 
-            {/* Top Row: Exam Countdown + Subscription Widget */}
+            {/* Top Row: Exam Countdown + Access Status */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-2">
                 <ExamCountdown targetDate={examDate} />
               </div>
-              <div>
-                <SubscriptionWidget 
-                  planName="monthly"
-                  renewalDate={new Date(Date.now() + 1000 * 60 * 60 * 24 * 15)}
-                  locale={locale}
-                  isPremium={true}
-                />
+              <div className="rounded-2xl bg-white p-6 shadow-sm border border-gray-100">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-100 text-green-700">
+                    <span className="text-lg font-bold">F</span>
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-semibold text-gray-900">Full Access Enabled</h2>
+                    <p className="text-sm text-gray-500">All study tools are currently free to use.</p>
+                  </div>
+                </div>
+                <p className="text-sm text-gray-600">
+                  Practice questions, physical training, documents, and community features are available without a paid plan.
+                </p>
               </div>
             </div>
 

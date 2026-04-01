@@ -5,7 +5,7 @@ Handles business logic for document checklists, user document status,
 medical guidelines, compliance monitoring, and announcements.
 """
 from typing import Optional, List
-from uuid import UUID
+from uuid import UUID, uuid4
 from datetime import datetime
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, and_, or_
@@ -149,7 +149,7 @@ class DocumentService:
                 ))
             else:
                 responses.append(UserDocumentStatusResponse(
-                    id=str(UUID.uuid4()),  # Placeholder
+                    id=str(uuid4()),  # Placeholder
                     checklist_item_id=str(cl.id),
                     status="pending",
                     checklist_item=DocumentChecklistListResponse(

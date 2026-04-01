@@ -1,5 +1,6 @@
 // Auth utilities for Next.js
 // Note: This file replaces the old Vite-based auth.ts
+import { clearStudentSession, getStudentAccessToken, storeStudentTokens } from './session'
 
 // Backend API response types
 export interface ApiUser {
@@ -67,11 +68,20 @@ async function readEnvelope<T>(response: Response): Promise<T> {
 }
 
 export async function fetchCurrentUser(): Promise<User | null> {
+  const accessToken = getStudentAccessToken()
+  if (!accessToken) {
+    return null
+  }
+
   const response = await fetch(createApiUrl('/api/v1/auth/me'), {
     credentials: 'include',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
   })
 
   if (response.status === 401) {
+    clearStudentSession()
     return null
   }
 
@@ -100,6 +110,9 @@ export async function signInWithGoogle(credential: string): Promise<User> {
     throw new Error(payload.detail || 'Google sign-in failed')
   }
 
+  const tokens = (await response.json()) as ApiTokenResponse
+  storeStudentTokens(tokens.access_token, tokens.refresh_token)
+
   // After successful Google auth, fetch the user info
   const user = await fetchCurrentUser()
   if (!user) {
@@ -109,10 +122,14 @@ export async function signInWithGoogle(credential: string): Promise<User> {
 }
 
 export async function logout(): Promise<{ status: string }> {
+  const accessToken = getStudentAccessToken()
   const response = await fetch(createApiUrl('/api/v1/auth/logout'), {
     method: 'POST',
     credentials: 'include',
+    headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
   })
+
+  clearStudentSession()
 
   return readEnvelope<{ status: string }>(response)
 }

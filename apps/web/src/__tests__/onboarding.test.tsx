@@ -42,36 +42,26 @@ describe('OnboardingProgress', () => {
 })
 
 describe('LanguageSelector', () => {
-  it('renders both language options', () => {
+  it('renders only the English option', () => {
     render(<LanguageSelector value={null} onChange={vi.fn()} />)
     
     expect(screen.getByText('English')).toBeTruthy()
-    expect(screen.getByText('हिंदी')).toBeTruthy()
   })
 
-  it('calls onChange when language is selected', () => {
+  it('calls onChange when English is selected', () => {
     const handleChange = vi.fn()
     render(<LanguageSelector value={null} onChange={handleChange} />)
     
     fireEvent.click(screen.getByText('English'))
     expect(handleChange).toHaveBeenCalledWith('en')
-    
-    fireEvent.click(screen.getByText('हिंदी'))
-    expect(handleChange).toHaveBeenCalledWith('hi')
   })
 
   it('applies selected style when value is set', () => {
-    const { rerender } = render(<LanguageSelector value="en" onChange={vi.fn()} />)
+    render(<LanguageSelector value="en" onChange={vi.fn()} />)
     
     // English should have selected style
     const englishButton = screen.getByText('English').closest('button')
     expect(englishButton?.className).toContain('border-primary-600')
-    
-    rerender(<LanguageSelector value="hi" onChange={vi.fn()} />)
-    
-    // Hindi should now have selected style
-    const hindiButton = screen.getByText('हिंदी').closest('button')
-    expect(hindiButton?.className).toContain('border-primary-600')
   })
 })
 

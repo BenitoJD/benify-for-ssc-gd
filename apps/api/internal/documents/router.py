@@ -19,6 +19,7 @@ from .schemas import (
     DocumentChecklistListResponse,
     UserDocumentStatusResponse,
     DocumentReadinessSummary,
+    UserDocumentsResponse,
     MedicalGuidelineListResponse,
     AdminDocumentChecklistCreate,
     AdminDocumentChecklistUpdate,
@@ -54,14 +55,20 @@ async def get_document_checklists(
     return await service.get_checklists(stage=stage)
 
 
-@router.get("/documents/me", response_model=List[UserDocumentStatusResponse])
+@router.get("/documents/me", response_model=UserDocumentsResponse)
 async def get_my_documents(
     current_user: TokenData = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     """Get current user's document status for all items."""
     service = DocumentService(db)
-    return await service.get_user_documents(UUID(current_user.user_id))
+    user_id = UUID(current_user.user_id)
+    documents = await service.get_user_documents(user_id)
+    readiness_summary = await service.get_user_readiness(user_id)
+    return UserDocumentsResponse(
+        documents=documents,
+        readiness_summary=readiness_summary,
+    )
 
 
 @router.get("/documents/readiness", response_model=List[DocumentReadinessSummary])

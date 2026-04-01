@@ -1,14 +1,12 @@
 import { MetadataRoute } from 'next'
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://benify.app'
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3101'
 
 // Static pages that don't require authentication
 const staticPages = [
   { url: '', priority: 1.0, changeFrequency: 'weekly' as const },
-  { url: '/pricing', priority: 0.9, changeFrequency: 'weekly' as const },
   { url: '/faq', priority: 0.8, changeFrequency: 'monthly' as const },
   { url: '/login', priority: 0.6, changeFrequency: 'monthly' as const },
-  { url: '/signup', priority: 0.7, changeFrequency: 'monthly' as const },
 ]
 
 // Protected pages (still indexable but require auth to access fully)
@@ -35,7 +33,6 @@ const adminPages = [
   { url: '/admin/content', priority: 0.4, changeFrequency: 'weekly' as const },
   { url: '/admin/physical', priority: 0.4, changeFrequency: 'weekly' as const },
   { url: '/admin/documents', priority: 0.4, changeFrequency: 'weekly' as const },
-  { url: '/admin/subscriptions', priority: 0.4, changeFrequency: 'weekly' as const },
   { url: '/admin/analytics', priority: 0.4, changeFrequency: 'daily' as const },
   { url: '/admin/announcements', priority: 0.4, changeFrequency: 'weekly' as const },
 ]

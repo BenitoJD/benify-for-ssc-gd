@@ -1,37 +1,33 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { adminApi } from '@/lib/api/admin'
+import { useRouter } from 'next/navigation'
+import { authApi } from '@/lib/api/auth'
+import { storeStudentTokens } from '@/lib/session'
 
-export default function AdminLoginPage() {
+export default function LoginPage() {
   const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
     setError('')
     setIsLoading(true)
 
     try {
-      const response = await adminApi.login({ email, password })
-      
-      // Store the admin access token
-      localStorage.setItem('admin_access_token', response.access_token)
-      localStorage.setItem('admin_user', JSON.stringify(response.user))
-      
-      // Redirect to admin dashboard
-      router.push('/admin')
+      const response = await authApi.login({ email, password })
+      storeStudentTokens(response.access_token, response.refresh_token)
+      router.push('/dashboard')
     } catch (err: unknown) {
       if (err && typeof err === 'object' && 'response' in err) {
         const axiosError = err as { response?: { data?: { detail?: string } } }
         setError(axiosError.response?.data?.detail || 'Invalid credentials')
       } else {
-        setError('Login failed. Please try again.')
+        setError('Sign in failed. Please try again.')
       }
     } finally {
       setIsLoading(false)
@@ -42,8 +38,8 @@ export default function AdminLoginPage() {
     <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
       <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-8">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Admin Portal</h1>
-          <p className="text-gray-600 mt-2">Sign in to access the admin dashboard</p>
+          <h1 className="text-3xl font-bold text-gray-900">Student Login</h1>
+          <p className="text-gray-600 mt-2">Use your email and password to access the app</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -61,9 +57,9 @@ export default function AdminLoginPage() {
               id="email"
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(event) => setEmail(event.target.value)}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition"
-              placeholder="admin@example.com"
+              placeholder="you@example.com"
               required
             />
           </div>
@@ -76,7 +72,7 @@ export default function AdminLoginPage() {
               id="password"
               type="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(event) => setPassword(event.target.value)}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition"
               placeholder="••••••••"
               required
@@ -92,10 +88,19 @@ export default function AdminLoginPage() {
           </button>
         </form>
 
-        <div className="mt-6 text-center">
-          <Link href="/login" className="text-sm text-gray-600 hover:text-primary-600">
-            ← Student login
-          </Link>
+        <div className="mt-6 text-center text-sm text-gray-600 space-y-2">
+          <p>
+            Need an account?{' '}
+            <Link href="/signup" className="text-primary-600 hover:text-primary-700 font-medium">
+              Create one
+            </Link>
+          </p>
+          <p>
+            Admin access?{' '}
+            <Link href="/admin/login" className="text-primary-600 hover:text-primary-700 font-medium">
+              Open admin portal
+            </Link>
+          </p>
         </div>
       </div>
     </div>

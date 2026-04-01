@@ -106,6 +106,12 @@ class DocumentReadinessSummary(BaseModel):
     completion_percentage: float
 
 
+class UserDocumentsResponse(BaseModel):
+    """Combined response for a user's documents page."""
+    documents: List[UserDocumentStatusResponse]
+    readiness_summary: List[DocumentReadinessSummary]
+
+
 # ============ Medical Guidelines Schemas ============
 
 class MedicalGuidelineCategory(str, Enum):

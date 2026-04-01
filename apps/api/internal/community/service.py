@@ -22,21 +22,9 @@ class DiscussionService:
     def __init__(self, db: AsyncSession):
         self.db = db
         self.repo = DiscussionRepository(db)
-    
-    async def create_discussion(
-        self,
-        user_id: UUID,
-        data: DiscussionCreate
-    ) -> DiscussionResponse:
-        """Create a new discussion."""
-        discussion = await self.repo.create(
-            user_id=user_id,
-            title=data.title,
-            content=data.content,
-            topic_tag=data.topic_tag
-        )
-        await self.db.commit()
-        
+
+    @staticmethod
+    def _to_discussion_response(discussion: Discussion, has_upvoted: bool) -> DiscussionResponse:
         return DiscussionResponse(
             id=discussion.id,
             user_id=discussion.user_id,
@@ -54,8 +42,27 @@ class DiscussionService:
             updated_at=discussion.updated_at,
             user_name=getattr(discussion.user, 'name', None),
             user_avatar=getattr(discussion.user, 'avatar_url', None),
-            has_upvoted=False
+            has_upvoted=has_upvoted,
         )
+    
+    async def create_discussion(
+        self,
+        user_id: UUID,
+        data: DiscussionCreate
+    ) -> DiscussionResponse:
+        """Create a new discussion."""
+        discussion = await self.repo.create(
+            user_id=user_id,
+            title=data.title,
+            content=data.content,
+            topic_tag=data.topic_tag
+        )
+        await self.db.commit()
+        created_discussion = await self.repo.get_by_id(discussion.id)
+        if not created_discussion:
+            raise ValueError("Discussion was created but could not be reloaded")
+
+        return self._to_discussion_response(created_discussion, has_upvoted=False)
     
     async def get_discussion(
         self,
@@ -77,25 +84,7 @@ class DiscussionService:
             upvote_repo = UpvoteRepository(self.db)
             has_upvoted = await upvote_repo.has_discussion_upvoted(user_id, discussion_id)
         
-        return DiscussionResponse(
-            id=discussion.id,
-            user_id=discussion.user_id,
-            title=discussion.title,
-            content=discussion.content,
-            topic_tag=discussion.topic_tag,
-            upvotes=discussion.upvotes,
-            reply_count=discussion.reply_count,
-            view_count=discussion.view_count,
-            is_answered=discussion.is_answered,
-            is_pinned=discussion.is_pinned,
-            is_hidden=discussion.is_hidden,
-            accepted_reply_id=discussion.accepted_reply_id,
-            created_at=discussion.created_at,
-            updated_at=discussion.updated_at,
-            user_name=getattr(discussion.user, 'name', None),
-            user_avatar=getattr(discussion.user, 'avatar_url', None),
-            has_upvoted=has_upvoted
-        )
+        return self._to_discussion_response(discussion, has_upvoted=has_upvoted)
     
     async def list_discussions(
         self,
@@ -127,25 +116,7 @@ class DiscussionService:
             if user_id:
                 has_upvoted = await upvote_repo.has_discussion_upvoted(user_id, d.id)
             
-            response_list.append(DiscussionResponse(
-                id=d.id,
-                user_id=d.user_id,
-                title=d.title,
-                content=d.content,
-                topic_tag=d.topic_tag,
-                upvotes=d.upvotes,
-                reply_count=d.reply_count,
-                view_count=d.view_count,
-                is_answered=d.is_answered,
-                is_pinned=d.is_pinned,
-                is_hidden=d.is_hidden,
-                accepted_reply_id=d.accepted_reply_id,
-                created_at=d.created_at,
-                updated_at=d.updated_at,
-                user_name=getattr(d.user, 'name', None),
-                user_avatar=getattr(d.user, 'avatar_url', None),
-                has_upvoted=has_upvoted
-            ))
+            response_list.append(self._to_discussion_response(d, has_upvoted=has_upvoted))
         
         pages = (total + limit - 1) // limit if limit > 0 else 0
         meta = PaginationMeta(
@@ -181,26 +152,11 @@ class DiscussionService:
         
         await self.repo.update(discussion)
         await self.db.commit()
-        
-        return DiscussionResponse(
-            id=discussion.id,
-            user_id=discussion.user_id,
-            title=discussion.title,
-            content=discussion.content,
-            topic_tag=discussion.topic_tag,
-            upvotes=discussion.upvotes,
-            reply_count=discussion.reply_count,
-            view_count=discussion.view_count,
-            is_answered=discussion.is_answered,
-            is_pinned=discussion.is_pinned,
-            is_hidden=discussion.is_hidden,
-            accepted_reply_id=discussion.accepted_reply_id,
-            created_at=discussion.created_at,
-            updated_at=discussion.updated_at,
-            user_name=getattr(discussion.user, 'name', None),
-            user_avatar=getattr(discussion.user, 'avatar_url', None),
-            has_upvoted=False
-        )
+        updated_discussion = await self.repo.get_by_id(discussion_id)
+        if not updated_discussion:
+            return None
+
+        return self._to_discussion_response(updated_discussion, has_upvoted=False)
     
     async def delete_discussion(self, discussion_id: UUID, user_id: UUID, is_moderator: bool = False) -> DeleteDiscussionResponse:
         """Delete a discussion (author or moderator)."""
@@ -256,6 +212,22 @@ class ReplyService:
         self.db = db
         self.repo = ReplyRepository(db)
         self.discussion_repo = DiscussionRepository(db)
+
+    @staticmethod
+    def _to_reply_response(reply: DiscussionReply, has_upvoted: bool) -> ReplyResponse:
+        return ReplyResponse(
+            id=reply.id,
+            discussion_id=reply.discussion_id,
+            user_id=reply.user_id,
+            content=reply.content,
+            upvotes=reply.upvotes,
+            is_accepted_answer=reply.is_accepted_answer,
+            created_at=reply.created_at,
+            updated_at=reply.updated_at,
+            user_name=getattr(reply.user, 'name', None),
+            user_avatar=getattr(reply.user, 'avatar_url', None),
+            has_upvoted=has_upvoted,
+        )
     
     async def create_reply(
         self,
@@ -275,20 +247,11 @@ class ReplyService:
             content=data.content
         )
         await self.db.commit()
-        
-        return ReplyResponse(
-            id=reply.id,
-            discussion_id=reply.discussion_id,
-            user_id=reply.user_id,
-            content=reply.content,
-            upvotes=reply.upvotes,
-            is_accepted_answer=reply.is_accepted_answer,
-            created_at=reply.created_at,
-            updated_at=reply.updated_at,
-            user_name=getattr(reply.user, 'name', None),
-            user_avatar=getattr(reply.user, 'avatar_url', None),
-            has_upvoted=False
-        )
+        created_reply = await self.repo.get_by_id(reply.id)
+        if not created_reply:
+            raise ValueError("Reply was created but could not be reloaded")
+
+        return self._to_reply_response(created_reply, has_upvoted=False)
     
     async def get_replies(self, discussion_id: UUID, user_id: Optional[UUID] = None) -> List[ReplyResponse]:
         """Get all replies for a discussion."""
@@ -302,19 +265,7 @@ class ReplyService:
             if user_id:
                 has_upvoted = await upvote_repo.has_reply_upvoted(user_id, r.id)
             
-            response_list.append(ReplyResponse(
-                id=r.id,
-                discussion_id=r.discussion_id,
-                user_id=r.user_id,
-                content=r.content,
-                upvotes=r.upvotes,
-                is_accepted_answer=r.is_accepted_answer,
-                created_at=r.created_at,
-                updated_at=r.updated_at,
-                user_name=getattr(r.user, 'name', None),
-                user_avatar=getattr(r.user, 'avatar_url', None),
-                has_upvoted=has_upvoted
-            ))
+            response_list.append(self._to_reply_response(r, has_upvoted=has_upvoted))
         
         return response_list
     

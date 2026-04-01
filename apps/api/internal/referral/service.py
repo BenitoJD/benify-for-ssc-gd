@@ -20,6 +20,7 @@ from .schemas import (
 from ..subscriptions.service import SubscriptionService
 from ..subscriptions.repository import SubscriptionRepository
 from ..auth.models import User
+from ..config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -31,8 +32,8 @@ MAX_REFERRAL_CODE_LENGTH = 12
 
 def generate_referral_code(user_id: UUID) -> str:
     """Generate a unique referral code for a user."""
-    # Format: BENIFY + random alphanumeric
-    prefix = "BENIFY"
+    # Format: OLLI + random alphanumeric
+    prefix = "OLLI"
     random_part = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
     return f"{prefix}{random_part}"
 
@@ -297,8 +298,9 @@ class ReferralService:
         logger.info(f"Extended subscription for user {user_id} by 30 days")
         return True, "Subscription extended by 30 days"
     
-    async def get_referral_dashboard(self, user_id: UUID, base_url: str = "https://benify.app") -> ReferralDashboardResponse:
+    async def get_referral_dashboard(self, user_id: UUID, base_url: Optional[str] = None) -> ReferralDashboardResponse:
         """Get complete referral dashboard data for a user."""
+        resolved_base_url = base_url or settings.APP_URL
         # Get or create referral code
         code = await self.get_or_create_referral_code(user_id)
         
@@ -356,7 +358,7 @@ class ReferralService:
             discount_available = True
         
         # Generate share URL
-        share_url = f"{base_url}/signup?ref={code}"
+        share_url = f"{resolved_base_url}/signup?ref={code}"
         
         return ReferralDashboardResponse(
             referral_code=code,

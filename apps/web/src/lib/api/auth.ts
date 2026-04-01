@@ -25,7 +25,7 @@ export interface User {
   role: 'student' | 'instructor' | 'admin' | 'super_admin'
   phone?: string
   avatar_url?: string
-  language_preference: 'en' | 'hi'
+  language_preference: 'en'
   subscription_status: 'free' | 'premium' | 'cancelled'
   created_at: string
 }

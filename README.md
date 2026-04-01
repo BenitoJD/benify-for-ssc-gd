@@ -1,6 +1,6 @@
-# Benify
+# OLLI Academy(SSC GD)
 
-**Benify** is a comprehensive ed-tech platform designed for SSC GD exam preparation. The platform provides structured learning, practice tests, analytics, and gamification to help aspirants achieve their goals.
+**OLLI Academy(SSC GD)** is a focused SSC GD preparation platform with practice flows, PYQs, onboarding, analytics, community discussion, physical training support, and document-readiness tools.
 
 ## 📋 Table of Contents
 
@@ -18,7 +18,7 @@
 
 ## Overview
 
-Benify is a full-stack ed-tech platform built with modern technologies to deliver an immersive learning experience for government job exam preparation. The platform offers:
+OLLI Academy(SSC GD) is a full-stack SSC GD preparation platform built to support the core student journey from signup to practice, progress tracking, fitness readiness, and community help. The platform offers:
 
 - **Adaptive Learning**: Personalized study plans based on performance
 - **Practice Tests**: Comprehensive test series with PYQs (Previous Year Questions)
@@ -27,14 +27,14 @@ Benify is a full-stack ed-tech platform built with modern technologies to delive
 - **Community**: Discussion forums and peer support
 - **Physical Training**: Special section for physical exam preparation
 - **Document Management**: Access to important documents and resources
-- **Referral System**: Earn rewards by referring friends
+- **Free Access**: Core learner workflows are available without subscription gating
 
 ---
 
 ## Tech Stack
 
 ### Frontend
-- **Framework**: Next.js 14 (React)
+- **Framework**: Next.js 16 (React)
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS
 - **State Management**: TanStack React Query
@@ -76,8 +76,7 @@ Benify is a full-stack ed-tech platform built with modern technologies to delive
 ### Administrative
 - 👨‍💼 **Admin Dashboard**: User and content management
 - 📁 **Document Management**: Upload and share documents
-- 💰 **Subscription Management**: Plan-based access control
-- 📧 **Referral System**: Rewards for user referrals
+- 📣 **Announcements and Content Ops**: Manage platform updates and internal workflows
 
 ### Physical Training
 - 🏃 **Physical Training Module**: Videos and guides for physical exam
@@ -97,8 +96,8 @@ Benify is a full-stack ed-tech platform built with modern technologies to delive
 ### Clone the Repository
 
 ```bash
-git clone https://github.com/your-org/benify.git
-cd benify
+git clone https://github.com/your-org/olli-academy-ssc-gd.git
+cd olli-academy-ssc-gd
 ```
 
 ### Environment Configuration
@@ -109,7 +108,7 @@ Create a `.env` file in the project root with the following variables:
 # Database
 DB_USER=postgres
 DB_PASSWORD=postgres
-DB_NAME=benify
+DB_NAME=olli_academy_ssc_gd
 
 # Redis
 REDIS_URL=redis://localhost:6379/0
@@ -117,7 +116,7 @@ REDIS_URL=redis://localhost:6379/0
 # MinIO (S3-compatible storage)
 MINIO_ACCESS_KEY=minioadmin
 MINIO_SECRET_KEY=minioadmin
-MINIO_BUCKET=benify
+MINIO_BUCKET=olli-academy-ssc-gd
 MINIO_SECURE=false
 
 # JWT Authentication (REQUIRED in production - generate a secure random string)
@@ -149,6 +148,7 @@ docker compose up --build -d
 | Web Application | http://localhost:3100 |
 | API (through nginx) | http://localhost:3100/api |
 | API (direct) | http://localhost:3101 |
+| Web (direct container) | http://localhost:3102 |
 | API Documentation | http://localhost:3101/docs |
 | MinIO Console | http://localhost:9001 |
 
@@ -159,7 +159,7 @@ docker compose up --build -d
 ### Project Structure
 
 ```
-benify/
+olli-academy-ssc-gd/
 ├── apps/
 │   ├── api/                    # FastAPI Backend
 │   │   ├── internal/            # Application code
@@ -177,7 +177,6 @@ benify/
 │   │   │   ├── referral/        # Referral system
 │   │   │   ├── storage/         # File storage utilities
 │   │   │   ├── study_plans/     # Study plan module
-│   │   │   ├── subscriptions/   # Subscription management
 │   │   │   ├── syllabus/        # Syllabus module
 │   │   │   ├── tests/           # Test module
 │   │   │   ├── users/           # User management
@@ -212,7 +211,6 @@ benify/
 User
 ├── Authentication (JWT-based)
 ├── Profile
-├── Subscriptions
 ├── Study Plans
 ├── Test Attempts
 ├── Gamification Profile (XP, badges, streaks)
@@ -250,7 +248,6 @@ The API follows RESTful conventions with versioning (`/api/v1/`).
 - `/api/v1/pyqs` - Previous year questions
 - `/api/v1/analytics` - Performance analytics
 - `/api/v1/study-plans` - Study plan management
-- `/api/v1/subscriptions` - Subscription management
 - `/api/v1/notifications` - Push notifications
 - `/api/v1/community` - Community posts
 - `/api/v1/physical` - Physical training

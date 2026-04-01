@@ -15,7 +15,7 @@ import {
 } from '@/lib/fcm'
 
 interface NotificationSettingsProps {
-  locale: 'en' | 'hi'
+  locale: 'en'
   userId: string
 }
 

@@ -44,6 +44,9 @@ class Profile(Base):
     # Timestamps
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+    # Relationships
+    user = relationship("User", back_populates="profile", lazy="selectin")
     
     def __repr__(self):
         return f"<Profile {self.user_id}>"
@@ -74,6 +77,9 @@ class UserStats(Base):
     # Timestamps
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+    # Relationships
+    user = relationship("User", back_populates="stats", lazy="selectin")
     
     def __repr__(self):
         return f"<UserStats {self.user_id}>"

@@ -39,6 +39,10 @@ class UserRepository:
             select(Profile).where(Profile.user_id == user_id)
         )
         return result.scalar_one_or_none()
+
+    async def get_profile_by_user_id(self, user_id: UUID) -> Optional[Profile]:
+        """Backward-compatible alias for getting a user's profile."""
+        return await self.get_profile(user_id)
     
     async def create_profile(self, user_id: UUID) -> Profile:
         """Create a new profile for a user."""
@@ -52,7 +56,7 @@ class UserRepository:
         """Update user profile."""
         profile = await self.get_profile(user_id)
         if not profile:
-            return None
+            profile = await self.create_profile(user_id)
         
         for key, value in data.items():
             if hasattr(profile, key) and value is not None:

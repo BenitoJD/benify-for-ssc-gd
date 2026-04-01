@@ -1,6 +1,5 @@
 import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
-import { LanguageToggle } from '@/components/ui/LanguageToggle'
 
 export default async function HomePage() {
   const t = await getTranslations()
@@ -12,12 +11,11 @@ export default async function HomePage() {
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="text-2xl font-bold text-primary-600">{t('common.appName')}</div>
           <nav className="hidden md:flex items-center gap-6">
-            <Link href="/features" className="text-gray-600 hover:text-gray-900">{t('nav.features')}</Link>
-            <Link href="/pricing" className="text-gray-600 hover:text-gray-900">{t('nav.pricing')}</Link>
-            <Link href="/faq" className="text-gray-600 hover:text-gray-900">{t('nav.faq')}</Link>
+            <Link href="#features" className="text-gray-600 hover:text-gray-900">{t('nav.features')}</Link>
+            <Link href="/dashboard" className="text-gray-600 hover:text-gray-900">{t('nav.dashboard')}</Link>
+            <Link href="#faq" className="text-gray-600 hover:text-gray-900">{t('nav.faq')}</Link>
           </nav>
           <div className="flex items-center gap-4">
-            <LanguageToggle />
             <Link href="/login" className="text-gray-600 hover:text-gray-900">{t('nav.login')}</Link>
             <Link href="/signup" className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition">
               {t('nav.signup')}
@@ -36,19 +34,22 @@ export default async function HomePage() {
             <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
               {t('landing.hero.subtitle')}
             </p>
+            <p className="text-sm font-medium uppercase tracking-[0.2em] text-green-700 mb-8">
+              100% free access right now
+            </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/signup" className="bg-primary-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-primary-700 transition">
-                {t('landing.hero.ctaStart')}
+                Start Studying
               </Link>
-              <Link href="/demo" className="border border-gray-300 text-gray-700 px-8 py-4 rounded-lg text-lg font-semibold hover:bg-gray-50 transition">
-                {t('landing.hero.ctaDemo')}
+              <Link href="/login" className="border border-gray-300 text-gray-700 px-8 py-4 rounded-lg text-lg font-semibold hover:bg-gray-50 transition">
+                Sign In
               </Link>
             </div>
           </div>
         </section>
 
         {/* Features Section */}
-        <section className="py-16 bg-gray-50">
+        <section id="features" className="py-16 bg-gray-50 scroll-mt-24">
           <div className="container mx-auto px-4">
             <h2 className="text-3xl font-bold text-center mb-12">{t('landing.features.title')}</h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -92,107 +93,32 @@ export default async function HomePage() {
           </div>
         </section>
 
-        {/* Pricing Preview */}
         <section className="py-16">
           <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold text-center mb-4">{t('landing.pricing.title')}</h2>
-            <p className="text-gray-600 text-center mb-12 max-w-xl mx-auto">{t('landing.pricing.subtitle')}</p>
-            <div className="grid md:grid-cols-4 gap-6 max-w-6xl mx-auto">
-              {/* Free Plan */}
-              <div className="border rounded-xl p-6">
-                <h3 className="text-xl font-semibold mb-2">{t('landing.pricing.free.title')}</h3>
-                <div className="text-3xl font-bold mb-4">{t('landing.pricing.free.price')}<span className="text-lg font-normal text-gray-500">{t('landing.pricing.free.period')}</span></div>
-                <ul className="space-y-3 mb-6 text-sm">
-                  <li className="flex items-center gap-2">
-                    <svg className="w-4 h-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-                    {t('landing.pricing.free.featureBasic')}
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <svg className="w-4 h-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-                    {t('landing.pricing.free.featureTests')}
-                  </li>
-                  <li className="flex items-center gap-2 text-gray-400">
-                    <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-                    {t('landing.pricing.free.featurePhysical')}
-                  </li>
-                </ul>
-                <Link href="/signup" className="block text-center border border-primary-600 text-primary-600 px-4 py-2 rounded-lg hover:bg-primary-50 transition text-sm font-medium">
-                  {t('landing.pricing.free.cta')}
+            <h2 className="text-3xl font-bold text-center mb-4">Everything is unlocked</h2>
+            <p className="text-gray-600 text-center mb-12 max-w-2xl mx-auto">
+              OLLI Academy(SSC GD) is currently free for all learners. Every major workflow in the app is available without plans, trials, or payment steps.
+            </p>
+            <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+              <div className="border rounded-xl p-6 bg-white">
+                <h3 className="text-xl font-semibold mb-3">Written Prep</h3>
+                <p className="text-gray-600 mb-4">Use previous year questions, topic practice, and mock-style flows without a paywall.</p>
+                <Link href="/pyqs" className="block text-center border border-primary-600 text-primary-600 px-4 py-2 rounded-lg hover:bg-primary-50 transition text-sm font-medium">
+                  Open Practice
                 </Link>
               </div>
-              {/* Monthly Plan */}
-              <div className="border-2 border-primary-600 rounded-xl p-6 relative">
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary-600 text-white px-3 py-1 rounded-full text-xs font-medium">{t('landing.pricing.popular')}</div>
-                <h3 className="text-xl font-semibold mb-2">{t('landing.pricing.monthly.title')}</h3>
-                <div className="text-3xl font-bold mb-4">{t('landing.pricing.monthly.price')}<span className="text-lg font-normal text-gray-500">{t('landing.pricing.monthly.period')}</span></div>
-                <ul className="space-y-3 mb-6 text-sm">
-                  <li className="flex items-center gap-2">
-                    <svg className="w-4 h-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-                    {t('landing.pricing.monthly.featureAll')}
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <svg className="w-4 h-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-                    {t('landing.pricing.monthly.featureUnlimited')}
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <svg className="w-4 h-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-                    {t('landing.pricing.monthly.featurePlans')}
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <svg className="w-4 h-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-                    {t('landing.pricing.monthly.featureAi')}
-                  </li>
-                </ul>
-                <Link href="/signup?plan=monthly" className="block text-center bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition text-sm font-medium">
-                  {t('landing.pricing.monthly.cta')}
+              <div className="border rounded-xl p-6 bg-white">
+                <h3 className="text-xl font-semibold mb-3">Physical Training</h3>
+                <p className="text-gray-600 mb-4">Access fitness readiness, plans, progress tracking, and mock PET tools freely.</p>
+                <Link href="/physical" className="block text-center border border-primary-600 text-primary-600 px-4 py-2 rounded-lg hover:bg-primary-50 transition text-sm font-medium">
+                  Open Training
                 </Link>
               </div>
-              {/* Quarterly Plan */}
-              <div className="border rounded-xl p-6">
-                <h3 className="text-xl font-semibold mb-2">{t('landing.pricing.quarterly.title')}</h3>
-                <div className="text-3xl font-bold mb-4">{t('landing.pricing.quarterly.price')}<span className="text-lg font-normal text-gray-500">{t('landing.pricing.quarterly.period')}</span></div>
-                <ul className="space-y-3 mb-6 text-sm">
-                  <li className="flex items-center gap-2">
-                    <svg className="w-4 h-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-                    {t('landing.pricing.quarterly.featureAll')}
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <svg className="w-4 h-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-                    {t('landing.pricing.quarterly.featureSave')}
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <svg className="w-4 h-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-                    {t('landing.pricing.quarterly.featurePriority')}
-                  </li>
-                </ul>
-                <Link href="/signup?plan=quarterly" className="block text-center border border-primary-600 text-primary-600 px-4 py-2 rounded-lg hover:bg-primary-50 transition text-sm font-medium">
-                  {t('landing.pricing.quarterly.cta')}
-                </Link>
-              </div>
-              {/* Yearly Plan */}
-              <div className="border rounded-xl p-6">
-                <h3 className="text-xl font-semibold mb-2">{t('landing.pricing.yearly.title')}</h3>
-                <div className="text-3xl font-bold mb-4">{t('landing.pricing.yearly.price')}<span className="text-lg font-normal text-gray-500">{t('landing.pricing.yearly.period')}</span></div>
-                <ul className="space-y-3 mb-6 text-sm">
-                  <li className="flex items-center gap-2">
-                    <svg className="w-4 h-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-                    {t('landing.pricing.yearly.featureAll')}
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <svg className="w-4 h-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-                    {t('landing.pricing.yearly.featureSave')}
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <svg className="w-4 h-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-                    {t('landing.pricing.yearly.featureExclusive')}
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <svg className="w-4 h-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-                    {t('landing.pricing.yearly.featureBadges')}
-                  </li>
-                </ul>
-                <Link href="/signup?plan=yearly" className="block text-center border border-primary-600 text-primary-600 px-4 py-2 rounded-lg hover:bg-primary-50 transition text-sm font-medium">
-                  {t('landing.pricing.yearly.cta')}
+              <div className="border rounded-xl p-6 bg-white">
+                <h3 className="text-xl font-semibold mb-3">Community and Docs</h3>
+                <p className="text-gray-600 mb-4">Use discussion features, onboarding, and document-readiness tools without billing blockers.</p>
+                <Link href="/dashboard" className="block text-center bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition text-sm font-medium">
+                  Open Dashboard
                 </Link>
               </div>
             </div>
@@ -200,7 +126,7 @@ export default async function HomePage() {
         </section>
 
         {/* FAQ Section */}
-        <section className="py-16 bg-gray-50">
+        <section id="faq" className="py-16 bg-gray-50 scroll-mt-24">
           <div className="container mx-auto px-4">
             <h2 className="text-3xl font-bold text-center mb-12">{t('landing.faq.title')}</h2>
             <div className="max-w-3xl mx-auto space-y-4">
@@ -265,19 +191,19 @@ export default async function HomePage() {
             <div>
               <h4 className="font-semibold mb-4">{t('landing.footer.platform')}</h4>
               <ul className="space-y-2 text-gray-600">
-                <li><Link href="/study" className="hover:text-gray-900">{t('landing.footer.studyMaterials')}</Link></li>
-                <li><Link href="/tests" className="hover:text-gray-900">{t('landing.footer.mockTests')}</Link></li>
+                <li><Link href="/pyqs" className="hover:text-gray-900">{t('landing.footer.studyMaterials')}</Link></li>
+                <li><Link href="/pyqs" className="hover:text-gray-900">{t('landing.footer.mockTests')}</Link></li>
                 <li><Link href="/physical" className="hover:text-gray-900">{t('landing.footer.physicalTraining')}</Link></li>
-                <li><Link href="/analytics" className="hover:text-gray-900">{t('landing.footer.analytics')}</Link></li>
+                <li><Link href="/dashboard" className="hover:text-gray-900">{t('landing.footer.analytics')}</Link></li>
               </ul>
             </div>
             <div>
               <h4 className="font-semibold mb-4">{t('landing.footer.company')}</h4>
               <ul className="space-y-2 text-gray-600">
-                <li><Link href="/about" className="hover:text-gray-900">{t('landing.footer.aboutUs')}</Link></li>
-                <li><Link href="/contact" className="hover:text-gray-900">{t('landing.footer.contact')}</Link></li>
-                <li><Link href="/privacy" className="hover:text-gray-900">{t('landing.footer.privacy')}</Link></li>
-                <li><Link href="/terms" className="hover:text-gray-900">{t('landing.footer.terms')}</Link></li>
+                <li><Link href="/" className="hover:text-gray-900">{t('landing.footer.aboutUs')}</Link></li>
+                <li><Link href="/" className="hover:text-gray-900">{t('landing.footer.contact')}</Link></li>
+                <li><Link href="/" className="hover:text-gray-900">{t('landing.footer.privacy')}</Link></li>
+                <li><Link href="/" className="hover:text-gray-900">{t('landing.footer.terms')}</Link></li>
               </ul>
             </div>
             <div>

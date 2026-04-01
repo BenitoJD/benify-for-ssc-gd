@@ -20,18 +20,18 @@ import {
 } from 'lucide-react'
 
 interface SidebarProps {
-  locale: 'en' | 'hi'
+  locale: 'en'
 }
 
 const navItems = [
-  { href: '/dashboard', icon: LayoutDashboard, labelKey: 'nav.dashboard' },
-  { href: '/study', icon: BookOpen, labelKey: 'nav.study' },
-  { href: '/tests', icon: FileText, labelKey: 'nav.tests' },
-  { href: '/physical', icon: Activity, labelKey: 'nav.physical' },
-  { href: '/documents', icon: FileCheck, labelKey: 'nav.documents' },
-  { href: '/analytics', icon: BarChart3, labelKey: 'nav.analytics' },
-  { href: '/community', icon: Users, labelKey: 'nav.community' },
-  { href: '/profile', icon: User, labelKey: 'nav.profile' },
+  { id: 'dashboard', href: '/dashboard', icon: LayoutDashboard, labelKey: 'nav.dashboard' },
+  { id: 'study', href: '/pyqs', icon: BookOpen, labelKey: 'nav.study' },
+  { id: 'tests', href: '/pyqs', icon: FileText, labelKey: 'nav.tests' },
+  { id: 'physical', href: '/physical', icon: Activity, labelKey: 'nav.physical' },
+  { id: 'documents', href: '/documents', icon: FileCheck, labelKey: 'nav.documents' },
+  { id: 'analytics', href: '/dashboard', icon: BarChart3, labelKey: 'nav.analytics' },
+  { id: 'community', href: '/community', icon: Users, labelKey: 'nav.community' },
+  { id: 'profile', href: '/dashboard', icon: User, labelKey: 'nav.profile' },
 ]
 
 export function Sidebar({ locale }: SidebarProps) {
@@ -96,8 +96,8 @@ export function Sidebar({ locale }: SidebarProps) {
               
               return (
                 <Link
-                  key={item.href}
-                  href={`/${locale}${item.href}`}
+                  key={item.id}
+                  href={item.href}
                   onClick={() => setIsMobileOpen(false)}
                   className={clsx(
                     'flex items-center gap-3 px-4 py-3 rounded-lg transition-colors',
@@ -116,7 +116,7 @@ export function Sidebar({ locale }: SidebarProps) {
           {/* Footer */}
           <div className="p-4 border-t">
             <Link
-              href="/logout"
+              href="/"
               className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
             >
               <span className="text-lg font-medium">{t('nav.logout')}</span>

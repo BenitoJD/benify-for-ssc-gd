@@ -16,7 +16,7 @@ export interface WeakArea {
 
 interface WeakAreasWidgetProps {
   weakAreas: WeakArea[]
-  locale: 'en' | 'hi'
+  locale: 'en'
 }
 
 export function WeakAreasWidget({ weakAreas, locale }: WeakAreasWidgetProps) {
@@ -38,7 +38,7 @@ export function WeakAreasWidget({ weakAreas, locale }: WeakAreasWidgetProps) {
           <h2 className="text-lg font-semibold text-gray-900">{t('weakAreas')}</h2>
         </div>
         <Link
-          href={`/${locale}/analytics`}
+          href="/dashboard"
           className="text-sm text-primary-600 hover:text-primary-700 font-medium"
         >
           {t('viewAll')}
@@ -80,7 +80,7 @@ export function WeakAreasWidget({ weakAreas, locale }: WeakAreasWidgetProps) {
 
               {/* Practice CTA */}
               <Link
-                href={`/${locale}/study/topic/${area.id}/practice`}
+                href="/pyqs"
                 className="flex-shrink-0 flex items-center gap-1 px-3 py-2 bg-red-50 text-red-600 text-sm font-medium rounded-lg hover:bg-red-100 transition-colors"
               >
                 {t('practiceNow')}

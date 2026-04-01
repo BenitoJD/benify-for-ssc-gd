@@ -4,7 +4,7 @@ services:
   # ================
   nginx:
     image: nginx:1.27-alpine
-    container_name: benify-nginx
+    container_name: olli-academy-ssc-gd-nginx
     restart: unless-stopped
     ports:
       - "3100:80"
@@ -30,7 +30,7 @@ services:
           cpus: '0.25'
           memory: 128M
     networks:
-      - benify-network
+      - olli-academy-ssc-gd-network
     logging:
       driver: json-file
       options:
@@ -43,19 +43,19 @@ services:
   # ================
   postgres:
     image: postgres:16-alpine
-    container_name: benify-postgres
+    container_name: olli-academy-ssc-gd-postgres
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${DB_USER:-postgres}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
-      POSTGRES_DB: ${DB_NAME:-benify}
+      POSTGRES_DB: ${DB_NAME:-olli_academy_ssc_gd}
       POSTGRES_INITDB_ARGS: "--encoding=UTF8"
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-benify}"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-olli_academy_ssc_gd}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -69,7 +69,7 @@ services:
           cpus: '0.5'
           memory: 256M
     networks:
-      - benify-network
+      - olli-academy-ssc-gd-network
     logging:
       driver: json-file
       options:
@@ -82,7 +82,7 @@ services:
   # ================
   redis:
     image: redis:7-alpine
-    container_name: benify-redis
+    container_name: olli-academy-ssc-gd-redis
     restart: unless-stopped
     command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
     ports:
@@ -104,7 +104,7 @@ services:
           cpus: '0.25'
           memory: 128M
     networks:
-      - benify-network
+      - olli-academy-ssc-gd-network
     logging:
       driver: json-file
       options:
@@ -117,7 +117,7 @@ services:
   # ================
   minio:
     image: minio/minio:latest
-    container_name: benify-minio
+    container_name: olli-academy-ssc-gd-minio
     restart: unless-stopped
     command: server /data --console-address ":9001"
     environment:
@@ -143,7 +143,7 @@ services:
           cpus: '0.5'
           memory: 256M
     networks:
-      - benify-network
+      - olli-academy-ssc-gd-network
     logging:
       driver: json-file
       options:
@@ -158,11 +158,11 @@ services:
     build:
       context: .
       dockerfile: apps/api/Dockerfile
-    container_name: benify-api
+    container_name: olli-academy-ssc-gd-api
     restart: unless-stopped
     environment:
       # App
-      APP_NAME: "Benify API"
+      APP_NAME: "OLLI Academy(SSC GD) API"
       APP_VERSION: "1.0.0"
       DEBUG: "${DEBUG:-false}"
       # Database - use env vars for credentials
@@ -170,14 +170,14 @@ services:
       DB_PASSWORD: ${DB_PASSWORD:-postgres}
       DB_HOST: postgres
       DB_PORT: "5432"
-      DB_NAME: ${DB_NAME:-benify}
+      DB_NAME: ${DB_NAME:-olli_academy_ssc_gd}
       # Redis
       REDIS_URL: redis://redis:6379/0
       # MinIO
       MINIO_ENDPOINT: minio:9000
       MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-minioadmin}
       MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-minioadmin}
-      MINIO_BUCKET: benify
+      MINIO_BUCKET: olli-academy-ssc-gd
       MINIO_SECURE: "false"
       # JWT - REQUIRED IN PRODUCTION
       JWT_SECRET_KEY: ${JWT_SECRET_KEY:?JWT_SECRET_KEY must be set in production}
@@ -212,7 +212,7 @@ services:
           cpus: '0.5'
           memory: 256M
     networks:
-      - benify-network
+      - olli-academy-ssc-gd-network
     logging:
       driver: json-file
       options:
@@ -227,7 +227,7 @@ services:
     build:
       context: .
       dockerfile: apps/web/Dockerfile
-    container_name: benify-web
+    container_name: olli-academy-ssc-gd-web
     restart: unless-stopped
     environment:
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://nginx/api}
@@ -252,7 +252,7 @@ services:
           cpus: '0.5'
           memory: 256M
     networks:
-      - benify-network
+      - olli-academy-ssc-gd-network
     logging:
       driver: json-file
       options:
@@ -275,7 +275,7 @@ volumes:
 # Networks
 # ================
 networks:
-  benify-network:
+  olli-academy-ssc-gd-network:
     driver: bridge
     ipam:
       config:

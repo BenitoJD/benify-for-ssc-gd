@@ -15,7 +15,6 @@ from .admin.router import router as admin_router
 from .pyqs.router import router as pyqs_router
 from .analytics.router import router as analytics_router
 from .study_plans.router import router as study_plans_router
-from .subscriptions.router import router as subscriptions_router, payments_router
 from .notifications.router import router as notifications_router
 from .community.router import router as community_router, reports_router as community_reports_router
 from .physical.router import router as physical_router
@@ -36,7 +35,7 @@ logger = logging.getLogger(__name__)
 async def lifespan(app: FastAPI):
     """Application lifespan handler for startup and shutdown."""
     # Startup
-    logger.info("Starting up Benify API...")
+    logger.info("Starting up OLLI Academy(SSC GD) API...")
     
     try:
         # Initialize database
@@ -55,7 +54,7 @@ async def lifespan(app: FastAPI):
     yield
     
     # Shutdown
-    logger.info("Shutting down Benify API...")
+    logger.info("Shutting down OLLI Academy(SSC GD) API...")
     
     try:
         await close_redis()
@@ -107,8 +106,6 @@ app.include_router(admin_router, prefix="/api/v1")
 app.include_router(pyqs_router, prefix="/api/v1")
 app.include_router(analytics_router, prefix="/api/v1")
 app.include_router(study_plans_router, prefix="/api/v1")
-app.include_router(subscriptions_router, prefix="/api/v1")
-app.include_router(payments_router, prefix="/api/v1")
 app.include_router(notifications_router, prefix="/api/v1")
 app.include_router(community_router, prefix="/api/v1")
 app.include_router(community_reports_router, prefix="/api/v1")
@@ -124,6 +121,6 @@ app.include_router(referral_router, prefix="/api/v1")
 async def root():
     """Root endpoint."""
     return {
-        "message": "Welcome to Benify API",
+        "message": "Welcome to OLLI Academy(SSC GD) API",
         "docs": "/docs" if settings.DEBUG else "Disabled in production",
     }

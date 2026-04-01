@@ -22,9 +22,7 @@ import {
   Check,
 } from 'lucide-react'
 import { Sidebar } from '@/components/ui/Sidebar'
-import { LanguageToggle } from '@/components/ui/LanguageToggle'
 import { fetchCurrentUser } from '@/lib/auth'
-import { getProfile } from '@/lib/api/users'
 import {
   type DocumentStage,
   type DocumentStatus,
@@ -61,9 +59,10 @@ interface UploadFormState {
 
 export default function DocumentsPage() {
   const t = useTranslations()
+  const documentsT = useTranslations('documents')
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(true)
-  const [locale, setLocale] = useState<'en' | 'hi'>('en')
+  const locale: 'en' = 'en'
   const [activeTab, setActiveTab] = useState<TabType>('checklist')
   
   // Document states
@@ -109,16 +108,6 @@ export default function DocumentsPage() {
         if (!user) {
           router.push('/login')
           return
-        }
-
-        // Get user profile for language preference
-        try {
-          const profile = await getProfile()
-          if (profile.language_preference) {
-            setLocale(profile.language_preference as 'en' | 'hi')
-          }
-        } catch {
-          // Use default language
         }
       } catch {
         router.push('/login')
@@ -178,9 +167,9 @@ export default function DocumentsPage() {
   }, [isLoading, activeTab])
 
   const stages: { id: DocumentStage; label: string }[] = [
-    { id: 'new_application', label: t('documents.stages.newApplication') },
-    { id: 'admit_card_released', label: t('documents.stages.admitCardReleased') },
-    { id: 'dv_scheduled', label: t('documents.stages.dvScheduled') },
+    { id: 'new_application', label: documentsT('stages.newApplication') },
+    { id: 'admit_card_released', label: documentsT('stages.admitCardReleased') },
+    { id: 'dv_scheduled', label: documentsT('stages.dvScheduled') },
   ]
 
   const getStatusColor = (status: DocumentStatus) => {
@@ -376,7 +365,6 @@ export default function DocumentsPage() {
               {t('documents.title')}
             </div>
           </div>
-          <LanguageToggle />
         </div>
       </header>
 

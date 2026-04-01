@@ -1,4 +1,10 @@
 import axios from 'axios'
+import {
+  clearStudentSession,
+  getStudentAccessToken,
+  getStudentRefreshToken,
+  storeStudentTokens,
+} from '@/lib/session'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3100'
 
@@ -21,6 +27,12 @@ apiClient.interceptors.request.use(
       if (adminToken) {
         config.headers.Authorization = `Bearer ${adminToken}`
       }
+      return config
+    }
+
+    const studentToken = getStudentAccessToken()
+    if (studentToken) {
+      config.headers.Authorization = `Bearer ${studentToken}`
     }
     return config
   },
@@ -32,16 +44,36 @@ apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config
+    const requestUrl = originalRequest?.url || ''
+    const shouldSkipRefresh =
+      requestUrl.startsWith('/auth/login') ||
+      requestUrl.startsWith('/auth/register') ||
+      requestUrl.startsWith('/auth/refresh') ||
+      requestUrl.startsWith('/admin')
 
     // If 401 and not already retrying, try to refresh token
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (error.response?.status === 401 && !originalRequest._retry && !shouldSkipRefresh) {
       originalRequest._retry = true
 
       try {
-        await apiClient.post('/auth/refresh')
+        const refreshToken = getStudentRefreshToken()
+        if (!refreshToken) {
+          throw new Error('Missing refresh token')
+        }
+
+        const refreshResponse = await axios.post(`${API_BASE_URL}/api/v1/auth/refresh`, {
+          refresh_token: refreshToken,
+        })
+
+        storeStudentTokens(
+          refreshResponse.data.access_token,
+          refreshResponse.data.refresh_token
+        )
+
+        originalRequest.headers.Authorization = `Bearer ${refreshResponse.data.access_token}`
         return apiClient(originalRequest)
       } catch (refreshError) {
-        // Refresh failed, redirect to login
+        clearStudentSession()
         if (typeof window !== 'undefined') {
           window.location.href = '/login'
         }

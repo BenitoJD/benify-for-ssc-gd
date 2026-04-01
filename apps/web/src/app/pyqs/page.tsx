@@ -7,6 +7,15 @@ import { Search, Filter, Bookmark, Clock, ChevronRight, Loader2 } from 'lucide-r
 import { pyqApi, PYQ } from '@/lib/api/pyqs'
 
 const AVAILABLE_YEARS = [2024, 2023, 2022, 2021, 2020, 2019]
+const MOCK_CREATED_AT = '2024-01-01T00:00:00.000Z'
+const YEAR_COUNTS: Record<number, number> = {
+  2024: 24,
+  2023: 31,
+  2022: 27,
+  2021: 22,
+  2020: 18,
+  2019: 15,
+}
 
 // Mock subjects for now - in production these would come from API
 const MOCK_SUBJECTS = [
@@ -15,6 +24,11 @@ const MOCK_SUBJECTS = [
   { id: '3', name: 'Elementary Mathematics', nameHi: 'प्रारंभिक गणित' },
   { id: '4', name: 'English/Hindi', nameHi: 'अंग्रेजी/हिंदी' },
 ]
+
+function isUuid(value: string | null): value is string {
+  if (!value) return false
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)
+}
 
 export default function PYQLibraryPage() {
   const t = useTranslations()
@@ -40,21 +54,29 @@ export default function PYQLibraryPage() {
     try {
       const response = await pyqApi.getPYQs({
         year: selectedYear || undefined,
-        subject_id: selectedSubject || undefined,
-        topic_id: selectedTopic || undefined,
+        subject_id: isUuid(selectedSubject) ? selectedSubject : undefined,
+        topic_id: isUuid(selectedTopic) ? selectedTopic : undefined,
         search: searchQuery || undefined,
         page,
         limit: 20,
       })
-      setPyqs(response.data)
-      setTotalPages(response.meta.total_pages)
-      setTotalCount(response.meta.total)
+      if (response.data.length === 0) {
+        const mockPyqs = generateMockPYQs()
+        setPyqs(mockPyqs)
+        setTotalPages(1)
+        setTotalCount(mockPyqs.length)
+      } else {
+        setPyqs(response.data)
+        setTotalPages(response.meta.total_pages)
+        setTotalCount(response.meta.total)
+      }
     } catch (error) {
       console.error('Failed to fetch PYQs:', error)
       // Use mock data for demo
-      setPyqs(generateMockPYQs())
+      const mockPyqs = generateMockPYQs()
+      setPyqs(mockPyqs)
       setTotalPages(1)
-      setTotalCount(10)
+      setTotalCount(mockPyqs.length)
     } finally {
       setLoading(false)
     }
@@ -76,7 +98,7 @@ export default function PYQLibraryPage() {
         explanation: 'Just as reading is related to book, eating is related to food.',
         source: 'SSC GD 2023',
         exam_year: 2023,
-        created_at: new Date().toISOString(),
+        created_at: MOCK_CREATED_AT,
       },
       {
         id: '2',
@@ -91,7 +113,7 @@ export default function PYQLibraryPage() {
         explanation: 'Jawaharlal Nehru was the first Prime Minister of India.',
         source: 'SSC GD 2022',
         exam_year: 2022,
-        created_at: new Date().toISOString(),
+        created_at: MOCK_CREATED_AT,
       },
       {
         id: '3',
@@ -106,7 +128,7 @@ export default function PYQLibraryPage() {
         explanation: 'Sum of first 10 natural numbers = 10*11/2 = 55. Average = 55/10 = 5.5',
         source: 'SSC GD 2023',
         exam_year: 2023,
-        created_at: new Date().toISOString(),
+        created_at: MOCK_CREATED_AT,
       },
       {
         id: '4',
@@ -121,7 +143,7 @@ export default function PYQLibraryPage() {
         explanation: 'The correct spelling is "Accommodation".',
         source: 'SSC GD 2021',
         exam_year: 2021,
-        created_at: new Date().toISOString(),
+        created_at: MOCK_CREATED_AT,
       },
       {
         id: '5',
@@ -136,7 +158,7 @@ export default function PYQLibraryPage() {
         explanation: 'The only daughter of the woman\'s mother is the woman herself. So the woman is the man\'s mother.',
         source: 'SSC GD 2020',
         exam_year: 2020,
-        created_at: new Date().toISOString(),
+        created_at: MOCK_CREATED_AT,
       },
     ]
   }
@@ -172,8 +194,7 @@ export default function PYQLibraryPage() {
   }
 
   const getYearCount = (_year: number): number => {
-    // Mock count - in production this would come from API
-    return Math.floor(Math.random() * 50) + 20
+    return YEAR_COUNTS[_year] ?? 0
   }
 
   return (

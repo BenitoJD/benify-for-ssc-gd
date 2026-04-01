@@ -17,7 +17,7 @@ export interface Task {
 
 interface TodaysTasksProps {
   tasks: Task[]
-  locale: 'en' | 'hi'
+  locale: 'en'
 }
 
 const taskTypeIcons = {
@@ -40,7 +40,7 @@ export function TodaysTasks({ tasks, locale }: TodaysTasksProps) {
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-lg font-semibold text-gray-900">{t('todayTasks')}</h2>
         <Link
-          href={`/${locale}/study-plan/today`}
+          href="/dashboard"
           className="text-sm text-primary-600 hover:text-primary-700 font-medium"
         >
           {t('viewAll')}
@@ -96,13 +96,7 @@ export function TodaysTasks({ tasks, locale }: TodaysTasksProps) {
                 {/* Action Button */}
                 {task.status !== 'completed' && (
                   <Link
-                    href={
-                      task.type === 'lesson'
-                        ? `/${locale}/study/lesson/${task.id}`
-                        : task.type === 'test'
-                        ? `/${locale}/tests/series/${task.id}/take`
-                        : `/${locale}/study/revision/${task.id}`
-                    }
+                    href="/pyqs"
                     className="flex-shrink-0 px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-700 transition-colors"
                   >
                     {task.status === 'in_progress' ? t('inProgress') : t('practiceNow')}

@@ -1,5 +1,5 @@
 """
-Notification models for the Benify platform.
+Notification models for the OLLI Academy(SSC GD) platform.
 """
 from sqlalchemy import Column, String, DateTime, Boolean, ForeignKey, Enum as SQLEnum, Text
 from sqlalchemy.dialects.postgresql import UUID

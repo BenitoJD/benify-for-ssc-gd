@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { OnboardingProgress } from '@/components/ui/OnboardingProgress'
-import { LanguageSelector } from '@/components/ui/LanguageSelector'
 import { YearSelector } from '@/components/ui/YearSelector'
 import { DiagnosticQuiz } from '@/components/ui/DiagnosticQuiz'
 import { StudyHoursSlider } from '@/components/ui/StudyHoursSlider'
@@ -14,10 +13,10 @@ import { updateProfile, getProfile } from '@/lib/api/users'
 import { fetchCurrentUser } from '@/lib/auth'
 import { clsx } from 'clsx'
 
-type Step = 'language' | 'year' | 'assessment' | 'studyHours' | 'fitness'
+type Step = 'year' | 'assessment' | 'studyHours' | 'fitness'
 
 interface OnboardingState {
-  language: 'en' | 'hi' | null
+  language: 'en'
   targetYear: number | null
   assessmentLevel: 'beginner' | 'intermediate' | 'advanced' | null
   dailyStudyHours: number
@@ -25,7 +24,7 @@ interface OnboardingState {
   fitnessLevel: 'beginner' | 'intermediate' | 'advanced' | null
 }
 
-const STEPS: Step[] = ['language', 'year', 'assessment', 'studyHours', 'fitness']
+const STEPS: Step[] = ['year', 'assessment', 'studyHours', 'fitness']
 
 export default function OnboardingPage() {
   const t = useTranslations()
@@ -35,7 +34,7 @@ export default function OnboardingPage() {
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [profile, setProfile] = useState<OnboardingState>({
-    language: null,
+    language: 'en',
     targetYear: null,
     assessmentLevel: null,
     dailyStudyHours: 2,
@@ -44,7 +43,6 @@ export default function OnboardingPage() {
   })
 
   const stepLabels = [
-    t('onboarding.steps.language.title'),
     t('onboarding.steps.year.title'),
     t('onboarding.steps.assessment.title'),
     t('onboarding.steps.studyHours.title'),
@@ -64,12 +62,6 @@ export default function OnboardingPage() {
         // Try to load existing profile data
         try {
           const profileData = await getProfile()
-          if (profileData.language_preference) {
-            setProfile((prev) => ({
-              ...prev,
-              language: profileData.language_preference as 'en' | 'hi',
-            }))
-          }
           if (profileData.target_exam_year !== undefined) {
             setProfile((prev) => ({
               ...prev,
@@ -141,10 +133,6 @@ export default function OnboardingPage() {
     const currentStepName = STEPS[currentStep]
     
     // Validate current step
-    if (currentStepName === 'language' && !profile.language) {
-      setError(t('onboarding.steps.language.error'))
-      return
-    }
     if (currentStepName === 'year' && !profile.targetYear) {
       setError(t('onboarding.steps.year.error'))
       return
@@ -241,24 +229,6 @@ export default function OnboardingPage() {
             {currentStep === 0 && (
               <div>
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                  {t('onboarding.steps.language.title')}
-                </h2>
-                <p className="text-gray-600 mb-6">
-                  {t('onboarding.steps.language.subtitle')}
-                </p>
-                <LanguageSelector
-                  value={profile.language}
-                  onChange={(value) => {
-                    setProfile((prev) => ({ ...prev, language: value }))
-                    setError(null)
-                  }}
-                />
-              </div>
-            )}
-
-            {currentStep === 1 && (
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">
                   {t('onboarding.steps.year.title')}
                 </h2>
                 <p className="text-gray-600 mb-6">
@@ -274,7 +244,7 @@ export default function OnboardingPage() {
               </div>
             )}
 
-            {currentStep === 2 && (
+            {currentStep === 1 && (
               <div>
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">
                   {t('onboarding.steps.assessment.title')}
@@ -286,7 +256,7 @@ export default function OnboardingPage() {
               </div>
             )}
 
-            {currentStep === 3 && (
+            {currentStep === 2 && (
               <div>
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">
                   {t('onboarding.steps.studyHours.title')}
@@ -301,7 +271,7 @@ export default function OnboardingPage() {
               </div>
             )}
 
-            {currentStep === 4 && (
+            {currentStep === 3 && (
               <div>
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">
                   {t('onboarding.steps.fitness.title')}

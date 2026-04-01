@@ -16,7 +16,7 @@ export default function CommunityPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(true)
   const [discussions, setDiscussions] = useState<Discussion[]>([])
-  const [locale, setLocale] = useState<'en' | 'hi'>('en')
+  const locale: 'en' = 'en'
   
   // Filters
   const [searchQuery, setSearchQuery] = useState('')
@@ -92,13 +92,13 @@ export default function CommunityPage() {
     const diffDays = Math.floor(diffHours / 24)
     
     if (diffHours < 1) {
-      return `${Math.floor(diffMs / (1000 * 60))} ${locale === 'hi' ? 'मिनट पहले' : 'min ago'}`
+      return `${Math.floor(diffMs / (1000 * 60))} min ago`
     } else if (diffHours < 24) {
-      return `${diffHours} ${locale === 'hi' ? 'घंटे पहले' : 'hrs ago'}`
+      return `${diffHours} hrs ago`
     } else if (diffDays < 7) {
-      return `${diffDays} ${locale === 'hi' ? 'दिन पहले' : 'days ago'}`
+      return `${diffDays} days ago`
     } else {
-      return date.toLocaleDateString(locale === 'hi' ? 'hi-IN' : 'en-US', {
+      return date.toLocaleDateString('en-US', {
         day: 'numeric',
         month: 'short',
         year: 'numeric'
@@ -125,20 +125,14 @@ export default function CommunityPage() {
             {/* Header */}
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">
-                  {locale === 'hi' ? 'समुदाय' : 'Community'}
-                </h1>
-                <p className="text-gray-600 mt-1">
-                  {locale === 'hi' 
-                    ? 'अपने सवाल पूछें और दूसरों की मदद करें'
-                    : 'Ask questions and help others'}
-                </p>
+                <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">Community</h1>
+                <p className="text-gray-600 mt-1">Ask questions and help others</p>
               </div>
               <button
                 onClick={() => router.push('/community/ask')}
                 className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
               >
-                {locale === 'hi' ? '+ नया सवाल' : '+ Ask Question'}
+                + Ask Question
               </button>
             </div>
 
@@ -148,7 +142,7 @@ export default function CommunityPage() {
               <div className="relative">
                 <input
                   type="text"
-                  placeholder={locale === 'hi' ? 'सवाल खोजें...' : 'Search questions...'}
+                  placeholder="Search questions..."
                   value={searchQuery}
                   onChange={(e) => {
                     setSearchQuery(e.target.value)
@@ -177,7 +171,7 @@ export default function CommunityPage() {
                   }}
                   className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                 >
-                  <option value="">{locale === 'hi' ? 'सभी विषय' : 'All Topics'}</option>
+                  <option value="">All Topics</option>
                   {TOPIC_TAGS.map((tag) => (
                     <option key={tag} value={tag}>
                       {tag}
@@ -194,9 +188,9 @@ export default function CommunityPage() {
                   }}
                   className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                 >
-                  <option value="">{locale === 'hi' ? 'सभी सवाल' : 'All Questions'}</option>
-                  <option value="answered">{locale === 'hi' ? 'उत्तर दिए गए' : 'Answered'}</option>
-                  <option value="unanswered">{locale === 'hi' ? 'बिना उत्तर' : 'Unanswered'}</option>
+                  <option value="">All Questions</option>
+                  <option value="answered">Answered</option>
+                  <option value="unanswered">Unanswered</option>
                 </select>
 
                 {/* Sort */}
@@ -208,9 +202,9 @@ export default function CommunityPage() {
                   }}
                   className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                 >
-                  <option value="created_at">{locale === 'hi' ? 'नए सबसे पहले' : 'Newest First'}</option>
-                  <option value="upvotes">{locale === 'hi' ? 'सबसे ज्यादा upvotes' : 'Most Upvoted'}</option>
-                  <option value="reply_count">{locale === 'hi' ? 'सबसे ज्यादा replies' : 'Most Replies'}</option>
+                  <option value="created_at">Newest First</option>
+                  <option value="upvotes">Most Upvoted</option>
+                  <option value="reply_count">Most Replies</option>
                 </select>
               </div>
             </div>
@@ -220,9 +214,7 @@ export default function CommunityPage() {
               {discussions.length === 0 ? (
                 <div className="bg-white rounded-lg shadow-sm p-8 text-center">
                   <p className="text-gray-500">
-                    {locale === 'hi' 
-                      ? 'कोई सवाल नहीं मिला। पहला सवाल पूछें!'
-                      : 'No questions found. Ask the first one!'}
+                    No questions found. Ask the first one!
                   </p>
                 </div>
               ) : (
@@ -260,12 +252,12 @@ export default function CommunityPage() {
                         <div className="flex items-center gap-2 mb-1">
                           {discussion.is_pinned && (
                             <span className="px-2 py-0.5 bg-primary-100 text-primary-700 text-xs rounded-full">
-                              {locale === 'hi' ? 'Pinned' : '📌 Pinned'}
+                              📌 Pinned
                             </span>
                           )}
                           {discussion.is_answered && (
                             <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
-                              {locale === 'hi' ? '✓ Answered' : '✓ Answered'}
+                              ✓ Answered
                             </span>
                           )}
                           {discussion.topic_tag && (
@@ -288,13 +280,9 @@ export default function CommunityPage() {
                           <span>•</span>
                           <span>{formatDate(discussion.created_at)}</span>
                           <span>•</span>
-                          <span>
-                            {discussion.reply_count} {locale === 'hi' ? 'replies' : 'replies'}
-                          </span>
+                          <span>{discussion.reply_count} replies</span>
                           <span>•</span>
-                          <span>
-                            {discussion.view_count} {locale === 'hi' ? 'views' : 'views'}
-                          </span>
+                          <span>{discussion.view_count} views</span>
                         </div>
                       </div>
                     </div>
@@ -311,19 +299,17 @@ export default function CommunityPage() {
                   disabled={page === 1}
                   className="px-3 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
                 >
-                  {locale === 'hi' ? 'पिछला' : 'Previous'}
+                  Previous
                 </button>
                 <span className="px-4 py-2 text-gray-600">
-                  {locale === 'hi' 
-                    ? `पेज ${page} का ${totalPages}`
-                    : `Page ${page} of ${totalPages}`}
+                  {`Page ${page} of ${totalPages}`}
                 </span>
                 <button
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                   disabled={page === totalPages}
                   className="px-3 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
                 >
-                  {locale === 'hi' ? 'अगला' : 'Next'}
+                  Next
                 </button>
               </div>
             )}

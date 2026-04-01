@@ -16,7 +16,6 @@ vi.mock('next-intl', () => ({
       'dashboard.streak': 'Current Streak',
       'dashboard.days': 'days',
       'dashboard.recentActivity': 'Recent Activity',
-      'dashboard.subscription': 'Subscription',
       'dashboard.practiceNow': 'Practice Now',
       'dashboard.viewAll': 'View All',
       'dashboard.noTasksToday': 'No tasks for today',
@@ -28,11 +27,6 @@ vi.mock('next-intl', () => ({
       'dashboard.lesson': 'Lesson',
       'dashboard.test': 'Test',
       'dashboard.revision': 'Revision',
-      'dashboard.upgradeToPremium': 'Upgrade to Premium',
-      'dashboard.currentPlan': 'Current Plan',
-      'dashboard.renewalDate': 'Renewal Date',
-      'dashboard.freePlan': 'Free',
-      'dashboard.premiumPlan': 'Premium',
       'dashboard.streakFlame': 'Keep your streak going!',
       'dashboard.streakLost': 'Start a new streak today!',
       'dashboard.today': 'Today',
@@ -41,7 +35,7 @@ vi.mock('next-intl', () => ({
       'dashboard.completedLesson': 'Completed lesson',
       'dashboard.completedTest': 'Completed test',
       'dashboard.startedStreak': 'Started a {days}-day streak',
-      'common.appName': 'Benify',
+      'common.appName': 'OLLI Academy(SSC GD)',
       'nav.dashboard': 'Dashboard',
       'nav.study': 'Study',
       'nav.tests': 'Tests',
@@ -77,7 +71,6 @@ import { TodaysTasks } from '@/components/ui/TodaysTasks'
 import { WeakAreasWidget } from '@/components/ui/WeakAreasWidget'
 import { RecentActivity } from '@/components/ui/RecentActivity'
 import { StreakCounter } from '@/components/ui/StreakCounter'
-import { SubscriptionWidget } from '@/components/ui/SubscriptionWidget'
 import { OfflineIndicator } from '@/components/ui/OfflineIndicator'
 
 describe('ExamCountdown', () => {
@@ -236,31 +229,6 @@ describe('StreakCounter', () => {
     render(<StreakCounter currentStreak={0} longestStreak={5} isActive={false} />)
     
     expect(screen.getByText('Start a new streak today!')).toBeTruthy()
-  })
-})
-
-describe('SubscriptionWidget', () => {
-  it('renders free plan', () => {
-    render(<SubscriptionWidget 
-      planName="free" 
-      locale="en" 
-      isPremium={false}
-    />)
-    
-    expect(screen.getByText('Current Plan')).toBeTruthy()
-    expect(screen.getByText('Free')).toBeTruthy()
-    expect(screen.getByText('Upgrade to Premium')).toBeTruthy()
-  })
-
-  it('renders premium plan', () => {
-    render(<SubscriptionWidget 
-      planName="monthly"
-      renewalDate={new Date()}
-      locale="en"
-      isPremium={true}
-    />)
-    
-    expect(screen.getByText('Premium')).toBeTruthy()
   })
 })
 

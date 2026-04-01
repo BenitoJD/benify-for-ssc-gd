@@ -1,5 +1,6 @@
 from sqlalchemy import Column, String, DateTime, Enum as SQLEnum
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import relationship
 from datetime import datetime
 import uuid
 
@@ -32,6 +33,10 @@ class User(Base):
     
     # Soft delete
     deleted_at = Column(DateTime, nullable=True)
+
+    # Relationships
+    profile = relationship("Profile", back_populates="user", uselist=False, lazy="selectin")
+    stats = relationship("UserStats", back_populates="user", uselist=False, lazy="selectin")
     
     def __repr__(self):
         return f"<User {self.email}>"

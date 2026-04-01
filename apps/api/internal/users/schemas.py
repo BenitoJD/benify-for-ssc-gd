@@ -2,6 +2,7 @@ from pydantic import BaseModel, Field
 from typing import Optional, List
 from datetime import datetime
 from enum import Enum
+from uuid import UUID
 
 from ..auth.schemas import UserRole, SubscriptionStatus
 
@@ -26,6 +27,8 @@ class ProfileBase(BaseModel):
     daily_study_hours: Optional[float] = Field(None, ge=0, le=24)
     phone: Optional[str] = None
     avatar_url: Optional[str] = None
+    gender: Optional[str] = None
+    fitness_level: Optional[Level] = None
 
 
 class ProfileUpdate(ProfileBase):
@@ -35,8 +38,8 @@ class ProfileUpdate(ProfileBase):
 
 class ProfileResponse(ProfileBase):
     """Full profile response."""
-    id: str
-    user_id: str
+    id: UUID
+    user_id: UUID
     onboarding_complete: bool = False
     phone_verified: bool = False
     created_at: datetime
@@ -53,6 +56,8 @@ class OnboardingRequest(BaseModel):
     current_level: Optional[Level] = None
     daily_study_hours: Optional[float] = Field(None, ge=1, le=24)
     phone: Optional[str] = None
+    gender: Optional[str] = None
+    fitness_level: Optional[Level] = None
 
 
 class UserStats(BaseModel):
@@ -64,6 +69,9 @@ class UserStats(BaseModel):
     longest_streak: int = 0
     overall_progress: float = 0  # percentage
     weak_areas_count: int = 0
+
+    class Config:
+        from_attributes = True
 
 
 class UsersListResponse(BaseModel):

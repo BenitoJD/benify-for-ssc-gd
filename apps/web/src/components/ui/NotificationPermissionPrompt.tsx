@@ -15,7 +15,7 @@ import {
 } from '@/lib/fcm'
 
 interface NotificationPermissionPromptProps {
-  locale: 'en' | 'hi'
+  locale: 'en'
   onSubscriptionChange?: (subscribed: boolean) => void
 }
 

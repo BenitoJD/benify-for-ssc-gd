@@ -1,7 +1,7 @@
 import { getRequestConfig } from 'next-intl/server'
 import { cookies } from 'next/headers'
 
-export const locales = ['en', 'hi'] as const
+export const locales = ['en'] as const
 export type Locale = (typeof locales)[number]
 
 export const defaultLocale: Locale = 'en'
@@ -9,7 +9,7 @@ export const defaultLocale: Locale = 'en'
 const messages = {
   en: {
     common: {
-      appName: 'Benify',
+      appName: 'OLLI Academy(SSC GD)',
       loading: 'Loading...',
       error: 'An error occurred',
       save: 'Save',
@@ -191,7 +191,7 @@ const messages = {
       },
     },
     onboarding: {
-      title: 'Welcome to Benify',
+      title: 'Welcome to OLLI Academy(SSC GD)',
       subtitle: "Let's set up your personalized preparation plan",
       complete: 'Complete Setup',
       requiredFields: 'Fields marked with * are required',
@@ -251,11 +251,13 @@ const messages = {
           title: 'Physical Fitness Baseline',
           subtitle: 'This helps us customize your PST/PET training plan',
           gender: 'Select your gender',
+          genderRequired: 'Please select your gender',
           male: 'Male',
           female: 'Female',
           maleRequirement: '1.5km run, Long Jump, High Jump',
           femaleRequirement: '800m run, Long Jump, High Jump',
           currentLevel: 'Your current fitness level',
+          levelRequired: 'Please select your current fitness level',
           levels: {
             beginner: 'Beginner',
             beginnerDesc: 'Just starting with physical activities',
@@ -375,7 +377,7 @@ const messages = {
         privacy: 'Privacy Policy',
         terms: 'Terms of Service',
         tagline: 'Your complete SSC GD preparation companion.',
-        copyright: '© 2025 Benify. All rights reserved.',
+        copyright: '© 2025 OLLI Academy(SSC GD). All rights reserved.',
       },
     },
     pyq: {
@@ -425,8 +427,7 @@ const messages = {
       unflag: 'Unflag',
       flagForReview: 'Flag for Review',
     },
-  },
-  community: {
+    community: {
     title: 'Community',
     subtitle: 'Ask questions and help others',
     askQuestion: 'Ask Question',
@@ -475,8 +476,8 @@ const messages = {
     delete: 'Delete',
     backToCommunity: 'Back to Community',
     discussionNotFound: 'Discussion not found',
-  },
-  documents: {
+    },
+    documents: {
     title: 'Document Readiness',
     overallProgress: 'Overall Progress',
     tabs: {
@@ -591,8 +592,8 @@ const messages = {
       setSuccess: 'Reminder set successfully!',
       deleteSuccess: 'Reminder deleted!',
     },
-  },
-  notifications: {
+    },
+    notifications: {
     promptTitle: 'Stay Updated!',
     promptSubtitle: 'Get important reminders and alerts',
     close: 'Close',
@@ -637,6 +638,7 @@ const messages = {
       upvoteMilestoneDesc: 'When your post reaches 10 upvotes',
       announcements: 'Announcements',
       announcementsDesc: 'Important platform announcements and updates',
+    },
     },
   },
   hi: {
@@ -882,11 +884,13 @@ const messages = {
           title: 'शारीरिक फिटनेस बेसलाइन',
           subtitle: 'यह हमें आपकी PST/PET ट्रेनिंग योजना को अनुकूलित करने में मदद करता है',
           gender: 'अपना लिंग चुनें',
+          genderRequired: 'कृपया अपना लिंग चुनें',
           male: 'पुरुष',
           female: 'महिला',
           maleRequirement: '1.5 किमी दौड़, लंबी कूद, ऊंची कूद',
           femaleRequirement: '800 मीटर दौड़, लंबी कूद, ऊंची कूद',
           currentLevel: 'आपका वर्तमान फिटनेस स्तर',
+          levelRequired: 'कृपया अपना वर्तमान फिटनेस स्तर चुनें',
           levels: {
             beginner: 'शुरुआती',
             beginnerDesc: 'शारीरिक गतिविधियों के साथ बस शुरू कर रहे हैं',
@@ -1274,7 +1278,8 @@ const messages = {
 
 export default getRequestConfig(async () => {
   const cookieStore = await cookies()
-  const locale = (cookieStore.get('locale')?.value as Locale) || defaultLocale
+  const cookieLocale = cookieStore.get('locale')?.value
+  const locale = cookieLocale === 'en' ? cookieLocale : defaultLocale
 
   return {
     locale,

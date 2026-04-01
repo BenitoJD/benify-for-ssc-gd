@@ -34,6 +34,10 @@ class UserService:
         # Handle language_preference enum conversion
         if "language_preference" in update_data and update_data["language_preference"]:
             update_data["language_preference"] = update_data["language_preference"].value
+        if "current_level" in update_data and update_data["current_level"]:
+            update_data["current_level"] = update_data["current_level"].value
+        if "fitness_level" in update_data and update_data["fitness_level"]:
+            update_data["physical_fitness_baseline"] = update_data.pop("fitness_level").value
         
         profile = await self.repo.update_profile(user_id, update_data)
         if not profile:
@@ -54,6 +58,8 @@ class UserService:
             update_data["language_preference"] = update_data["language_preference"].value
         if "current_level" in update_data and update_data["current_level"]:
             update_data["current_level"] = update_data["current_level"].value
+        if "fitness_level" in update_data and update_data["fitness_level"]:
+            update_data["physical_fitness_baseline"] = update_data.pop("fitness_level").value
         
         update_data["onboarding_complete"] = True
         

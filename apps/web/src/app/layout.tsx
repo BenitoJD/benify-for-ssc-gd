@@ -7,7 +7,7 @@ import { getMessages } from 'next-intl/server'
 
 const inter = Inter({ subsets: ['latin'] })
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://benify.app'
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3101'
 
 // FAQ structured data for JSON-LD
 const faqStructuredData = {
@@ -32,10 +32,10 @@ const faqStructuredData = {
     },
     {
       '@type': 'Question',
-      name: 'What does the subscription include?',
+      name: 'Is OLLI Academy(SSC GD) free to use?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Premium subscriptions include unlimited mock tests, all study materials, AI-powered recommendations, physical training plans, document checklists, and priority support.'
+        text: 'Yes. OLLI Academy(SSC GD) is currently free to use, including study materials, practice flows, physical training tools, community features, and document-readiness support.'
       }
     },
     {
@@ -48,10 +48,10 @@ const faqStructuredData = {
     },
     {
       '@type': 'Question',
-      name: 'Is the content available in Hindi?',
+      name: 'What language is OLLI Academy(SSC GD) currently focused on?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Yes, we support both English and Hindi languages. You can switch between languages anytime from your profile settings.'
+        text: 'OLLI Academy(SSC GD) is currently focused on English-only product flows while the core study and preparation experience is being refined.'
       }
     }
   ]
@@ -62,10 +62,10 @@ const courseStructuredData = {
   '@context': 'https://schema.org',
   '@type': 'Course',
   name: 'SSC GD Complete Preparation',
-  description: 'Comprehensive SSC GD exam preparation including written exam study materials, mock tests, physical training plans, and document readiness tracking.',
+  description: 'Comprehensive SSC GD exam preparation including written exam study materials, mock tests, physical training plans, and document readiness tracking with free access to the full platform.',
   provider: {
     '@type': 'Organization',
-    name: 'Benify',
+    name: 'OLLI Academy(SSC GD)',
     url: BASE_URL
   },
   hasCourseInstance: [
@@ -93,30 +93,26 @@ const courseStructuredData = {
 const organizationStructuredData = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
-  name: 'Benify',
+  name: 'OLLI Academy(SSC GD)',
   url: BASE_URL,
-  logo: `${BASE_URL}/benify_logo.png`,
-  description: 'Your complete SSC GD preparation companion with AI-powered guidance, comprehensive study materials, mock tests, and physical training tracking.',
-  sameAs: [
-    'https://twitter.com/benifyapp',
-    'https://github.com/benifyapp',
-    'https://instagram.com/benifyapp'
-  ],
+  logo: `${BASE_URL}/olli-academy-ssc-gd-logo.png`,
+  description: 'Your complete SSC GD preparation companion with comprehensive study materials, mock tests, and physical training tracking.',
+  sameAs: [],
   contactPoint: {
     '@type': 'ContactPoint',
     contactType: 'customer support',
-    availableLanguage: ['en', 'hi']
+    availableLanguage: ['en']
   }
 }
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
   title: {
-    default: 'Benify - SSC GD Complete Preparation | Study Materials, Mock Tests & Physical Training',
-    template: '%s | Benify - SSC GD Preparation',
-    absolute: 'Benify - SSC GD Complete Preparation | Ace Your Exam'
+    default: 'OLLI Academy(SSC GD) - Complete Preparation | Study Materials, Mock Tests & Physical Training',
+    template: '%s | OLLI Academy(SSC GD)',
+    absolute: 'OLLI Academy(SSC GD) - Complete Preparation | Ace Your Exam'
   },
-  description: 'Prepare for SSC GD exam with Benify - Access comprehensive study materials, unlimited mock tests, AI-powered recommendations, PST/PET training plans, and document readiness tracking. Start your free trial today!',
+  description: 'Prepare for SSC GD exam with OLLI Academy(SSC GD) - Access comprehensive study materials, mock tests, PST/PET training plans, and document readiness tracking with full free access.',
   keywords: [
     'SSC GD preparation',
     'SSC GD study material',
@@ -140,9 +136,9 @@ export const metadata: Metadata = {
     'SSC GD online preparation',
     'SSC GD practice app'
   ],
-  authors: [{ name: 'Benify', url: BASE_URL }],
-  creator: 'Benify',
-  publisher: 'Benify',
+  authors: [{ name: 'OLLI Academy(SSC GD)', url: BASE_URL }],
+  creator: 'OLLI Academy(SSC GD)',
+  publisher: 'OLLI Academy(SSC GD)',
   formatDetection: {
     email: false,
     address: false,
@@ -151,30 +147,29 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_IN',
-    alternateLocale: ['hi_IN'],
     url: BASE_URL,
-    siteName: 'Benify - SSC GD Preparation',
-    title: 'Benify - SSC GD Complete Preparation | Study Materials, Mock Tests & Physical Training',
-    description: 'Prepare for SSC GD exam with Benify - Access comprehensive study materials, unlimited mock tests, AI-powered recommendations, PST/PET training plans, and document readiness tracking.',
+    siteName: 'OLLI Academy(SSC GD)',
+    title: 'OLLI Academy(SSC GD) - Complete Preparation | Study Materials, Mock Tests & Physical Training',
+    description: 'Prepare for SSC GD exam with OLLI Academy(SSC GD) - Access comprehensive study materials, mock tests, PST/PET training plans, and document readiness tracking with full free access.',
     images: [
       {
-        url: '/benify_logo.png',
+        url: '/olli-academy-ssc-gd-logo.png',
         width: 800,
         height: 600,
-        alt: 'Benify - SSC GD Complete Preparation Platform',
+        alt: 'OLLI Academy(SSC GD) - SSC GD Complete Preparation Platform',
         type: 'image/png'
       },
       {
-        url: '/benify_og_image.jpg',
+        url: '/olli-academy-ssc-gd-og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'Benify - Prepare for SSC GD with AI-powered guidance',
+        alt: 'OLLI Academy(SSC GD) - Prepare for SSC GD with guided support',
         type: 'image/jpeg'
       }
     ],
     videos: [
       {
-        url: `${BASE_URL}/benify_demo.mp4`,
+        url: `${BASE_URL}/olli-academy-ssc-gd-demo.mp4`,
         width: 1280,
         height: 720
       }
@@ -182,9 +177,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Benify - SSC GD Complete Preparation',
-    description: 'Prepare for SSC GD exam with comprehensive study materials, mock tests, AI recommendations & physical training.',
-    images: ['/benify_logo.png'],
+    title: 'OLLI Academy(SSC GD) - SSC GD Complete Preparation',
+    description: 'Prepare for SSC GD exam with comprehensive study materials, mock tests, and physical training.',
+    images: ['/olli-academy-ssc-gd-logo.png'],
   },
   robots: {
     index: true,
@@ -204,8 +199,7 @@ export const metadata: Metadata = {
   alternates: {
     canonical: BASE_URL,
     languages: {
-      'en': `${BASE_URL}/en`,
-      'hi': `${BASE_URL}/hi`,
+      'en': BASE_URL,
     },
     types: {
       'application/rss+xml': `${BASE_URL}/rss.xml`,

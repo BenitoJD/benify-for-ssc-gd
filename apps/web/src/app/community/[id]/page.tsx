@@ -26,7 +26,7 @@ export default function DiscussionDetailPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [discussion, setDiscussion] = useState<Discussion | null>(null)
   const [replies, setReplies] = useState<Reply[]>([])
-  const [locale, setLocale] = useState<'en' | 'hi'>('en')
+  const locale: 'en' = 'en'
   const [currentUserId, setCurrentUserId] = useState<string | null>(null)
   const [currentUserRole, setCurrentUserRole] = useState<string | null>(null)
   
@@ -81,7 +81,7 @@ export default function DiscussionDetailPage() {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
-    return date.toLocaleDateString(locale === 'hi' ? 'hi-IN' : 'en-US', {
+    return date.toLocaleDateString('en-US', {
       day: 'numeric',
       month: 'short',
       year: 'numeric',
@@ -150,7 +150,7 @@ export default function DiscussionDetailPage() {
   }
 
   const handleDelete = async () => {
-    if (!confirm(locale === 'hi' ? 'क्या आप वाकई इस सवाल को हटाना चाहते हैं?' : 'Are you sure you want to delete this question?')) {
+    if (!confirm('Are you sure you want to delete this question?')) {
       return
     }
     
@@ -166,9 +166,7 @@ export default function DiscussionDetailPage() {
     e.preventDefault()
     
     if (replyContent.trim().length < 10) {
-      setReplyError(locale === 'hi' 
-        ? 'Reply must be at least 10 characters'
-        : 'Reply must be at least 10 characters')
+      setReplyError('Reply must be at least 10 characters')
       return
     }
     
@@ -185,9 +183,7 @@ export default function DiscussionDetailPage() {
       })
     } catch (error) {
       console.error('Failed to submit reply:', error)
-      setReplyError(locale === 'hi' 
-        ? 'Failed to submit reply'
-        : 'Failed to submit reply')
+      setReplyError('Failed to submit reply')
     } finally {
       setIsSubmittingReply(false)
     }
@@ -220,7 +216,7 @@ export default function DiscussionDetailPage() {
               <svg className="h-5 w-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
-              {locale === 'hi' ? 'वापस समुदाय' : 'Back to Community'}
+              Back to Community
             </button>
 
             {/* Discussion */}
@@ -250,12 +246,12 @@ export default function DiscussionDetailPage() {
                   <div className="flex items-center gap-2 mb-2">
                     {discussion.is_pinned && (
                       <span className="px-2 py-0.5 bg-primary-100 text-primary-700 text-xs rounded-full">
-                        📌 {locale === 'hi' ? 'Pinned' : 'Pinned'}
+                        📌 Pinned
                       </span>
                     )}
                     {discussion.is_answered && (
                       <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
-                        ✓ {locale === 'hi' ? 'Answered' : 'Answered'}
+                        ✓ Answered
                       </span>
                     )}
                     {discussion.topic_tag && (
@@ -274,7 +270,7 @@ export default function DiscussionDetailPage() {
                     <span>•</span>
                     <span>{formatDate(discussion.created_at)}</span>
                     <span>•</span>
-                    <span>{discussion.view_count} {locale === 'hi' ? 'views' : 'views'}</span>
+                    <span>{discussion.view_count} views</span>
                   </div>
                   
                   <div className="prose max-w-none text-gray-700 whitespace-pre-wrap">
@@ -287,9 +283,7 @@ export default function DiscussionDetailPage() {
               <div className="flex items-center justify-between border-t pt-4 mt-4">
                 <div className="flex items-center gap-4">
                   {/* Report button */}
-                  <button className="text-sm text-gray-500 hover:text-gray-700">
-                    {locale === 'hi' ? 'Report' : 'Report'}
-                  </button>
+                  <button className="text-sm text-gray-500 hover:text-gray-700">Report</button>
                   
                   {/* Delete (author or moderator) */}
                   {(isAuthor || isModerator) && (
@@ -297,7 +291,7 @@ export default function DiscussionDetailPage() {
                       onClick={handleDelete}
                       className="text-sm text-red-500 hover:text-red-700"
                     >
-                      {locale === 'hi' ? 'Delete' : 'Delete'}
+                      Delete
                     </button>
                   )}
                 </div>
@@ -307,14 +301,12 @@ export default function DiscussionDetailPage() {
             {/* Replies */}
             <div className="space-y-4">
               <h2 className="text-lg font-semibold text-gray-900">
-                {discussion.reply_count} {locale === 'hi' ? 'Replies' : 'Replies'}
+                {discussion.reply_count} Replies
               </h2>
               
               {replies.length === 0 ? (
                 <div className="bg-white rounded-lg shadow-sm p-6 text-center text-gray-500">
-                  {locale === 'hi' 
-                    ? 'अभी तक कोई reply नहीं। पहला reply दें!'
-                    : 'No replies yet. Be the first to answer!'}
+                  No replies yet. Be the first to answer!
                 </div>
               ) : (
                 replies.map((reply) => (
@@ -347,7 +339,7 @@ export default function DiscussionDetailPage() {
                       <div className="flex-1">
                         {reply.is_accepted_answer && (
                           <span className="inline-flex items-center px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full mb-2">
-                            ✓ {locale === 'hi' ? 'Accepted Answer' : 'Accepted Answer'}
+                            ✓ Accepted Answer
                           </span>
                         )}
                         
@@ -368,7 +360,7 @@ export default function DiscussionDetailPage() {
                               onClick={() => handleAcceptAnswer(reply.id)}
                               className="text-sm text-green-600 hover:text-green-800"
                             >
-                              {locale === 'hi' ? '✓ Mark as Answer' : '✓ Mark as Answer'}
+                              ✓ Mark as Answer
                             </button>
                           )}
                         </div>
@@ -382,7 +374,7 @@ export default function DiscussionDetailPage() {
             {/* Reply Form */}
             <div className="bg-white rounded-lg shadow-sm p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                {locale === 'hi' ? 'अपना जवाब दें' : 'Your Answer'}
+                Your Answer
               </h3>
               
               <form onSubmit={handleSubmitReply}>
@@ -390,9 +382,7 @@ export default function DiscussionDetailPage() {
                   value={replyContent}
                   onChange={(e) => setReplyContent(e.target.value)}
                   rows={6}
-                  placeholder={locale === 'hi'
-                    ? 'अपना जवाब विस्तार से लिखें...'
-                    : 'Write your answer in detail...'}
+                  placeholder="Write your answer in detail..."
                   className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
                     replyError ? 'border-red-500' : 'border-gray-300'
                   }`}
@@ -403,9 +393,7 @@ export default function DiscussionDetailPage() {
                 )}
                 
                 <p className="mt-1 text-sm text-gray-500">
-                  {locale === 'hi'
-                    ? `${replyContent.length} अक्षर (कम से कम 10 अक्षर)`
-                    : `${replyContent.length} characters (minimum 10)`}
+                  {`${replyContent.length} characters (minimum 10)`}
                 </p>
                 
                 <div className="mt-4 flex justify-end">
@@ -415,9 +403,9 @@ export default function DiscussionDetailPage() {
                     className="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isSubmittingReply ? (
-                      locale === 'hi' ? 'Submitting...' : 'Submitting...'
+                      'Submitting...'
                     ) : (
-                      locale === 'hi' ? 'Reply' : 'Submit Reply'
+                      'Submit Reply'
                     )}
                   </button>
                 </div>
