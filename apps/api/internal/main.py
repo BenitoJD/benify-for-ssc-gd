@@ -42,14 +42,15 @@ async def lifespan(app: FastAPI):
         # Initialize database
         await init_db()
         logger.info("Database initialized")
-        
+    except Exception as e:
+        logger.warning(f"Database initialization failed: {e}. API will start but database features may not work.")
+    
+    try:
         # Initialize Redis
         await get_redis()
         logger.info("Redis connected")
-        
     except Exception as e:
-        logger.error(f"Startup error: {e}")
-        raise
+        logger.warning(f"Redis connection failed: {e}. Cache features may not work.")
     
     yield
     

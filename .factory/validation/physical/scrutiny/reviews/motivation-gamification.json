@@ -1,24 +1,24 @@
 {
   "featureId": "motivation-gamification",
-  "reviewedAt": "2026-03-31T20:54:26.831Z",
+  "reviewedAt": "2026-04-01T07:45:00.000Z",
   "commitId": "cb85d71",
   "transcriptSkeletonReviewed": true,
   "diffReviewed": true,
   "status": "fail",
   "codeReview": {
-    "summary": "The motivation-gamification feature implements streaks, badges, achievements, Pomodoro timer, and daily missions. However, there are two blocking bugs that will cause incorrect behavior at runtime. The first is a streak calculation bug in update_streak_on_activity that resets the streak instead of incrementing it when bonus points are awarded. The second is a response model mismatch in the streak freeze endpoint that will cause a validation error.",
+    "summary": "Reviewing the fix for round 1 blocking issues. Both prior blocking issues remain UNFIXED. Issue 1 (streak calculation) still sets current_streak to '1 + bonus_points' instead of incrementing from existing value. Issue 2 (response model mismatch) still returns dict instead of StreakFreezeResponse.",
     "issues": [
       {
         "file": "apps/api/internal/gamification/repository.py",
-        "line": 523,
+        "line": 518,
         "severity": "blocking",
-        "description": "Streak calculation bug in update_streak_on_activity: When user completes a mission on a consecutive day (days_diff==1), the code sets current_streak to '1 + bonus_points + (1 if bonus_points == 0 else 0)' instead of incrementing from existing value. This resets the streak to 1 instead of adding to it. For example, if current_streak=5 and bonus_points=2, the streak becomes 6 instead of 8 (5+1+2)."
+        "description": "FIX NOT APPLIED - Streak calculation bug in update_streak_on_activity: When user completes a mission on a consecutive day (days_diff==1), the code sets current_streak to '1 + bonus_points + (1 if bonus_points == 0 else 0)' which REPLACES the existing streak value instead of incrementing from it. For example, if current_streak=5 and bonus_points=2, the streak becomes 5 (not 8 = 5+1+2). The correct formula should be: stats.current_streak += 1 + bonus_points"
       },
       {
         "file": "apps/api/internal/gamification/router.py",
-        "line": 100,
+        "line": 107,
         "severity": "blocking",
-        "description": "Streak freeze endpoint response model mismatch: POST /streaks/freeze declares response_model=StreakFreezeResponse (expects id, freeze_date, used_at) but returns {\"success\": True, \"message\": \"...\"}. This will cause a Pydantic validation error at runtime. Additionally, the service.use_streak_freeze() returns True/False instead of the created StreakFreeze record."
+        "description": "FIX NOT APPLIED - Streak freeze endpoint response model mismatch: POST /streaks/freeze declares response_model=StreakFreezeResponse (expects id: UUID, freeze_date: datetime, used_at: datetime) but returns {\"success\": True, \"message\": \"...\"}. This will cause a Pydantic validation error at runtime. The endpoint should return a StreakFreezeResponse instance, not a dict."
       },
       {
         "file": "apps/api/internal/gamification/service.py",
@@ -34,22 +34,22 @@
       },
       {
         "file": "apps/api/internal/gamification/repository.py",
-        "line": 524,
+        "line": 519,
         "severity": "non_blocking",
-        "description": "Logic error: When days_diff==1 (consecutive day), the code adds 1 twice when bonus_points > 0: first in the assignment (1 + bonus_points + 1) and then again in the if block (current_streak += bonus_points). This double-counts bonus_points."
+        "description": "Logic error: When days_diff==1 (consecutive day) and bonus_points > 0, the code adds bonus_points twice: first in the assignment (1 + bonus_points + 0) and then again in the if block (current_streak += bonus_points). This double-counts bonus_points."
       }
     ]
   },
   "sharedStateObservations": [
     {
       "area": "conventions",
-      "observation": "The router POST /streaks/freeze endpoint returns a dict but declares response_model=StreakFreezeResponse. The codebase convention appears to be using response_model for all endpoints. AGENTS.md doesn't explicitly document this pattern.",
-      "evidence": "router.py:100 - returns {\"success\": True, \"message\": \"...\"} but response_model=StreakFreezeResponse"
+      "observation": "The router POST /streaks/freeze endpoint returns a dict but declares response_model=StreakFreezeResponse. This was flagged in round 1 but not fixed.",
+      "evidence": "router.py:107 - returns {\"success\": True, \"message\": \"...\"} but response_model=StreakFreezeResponse"
     },
     {
       "area": "conventions",
       "observation": "The GamificationRepository.update_streak_on_activity has complex conditional logic for streak updates that is difficult to follow. The comment structure doesn't clearly document all edge cases (same day, consecutive day, 2-day gap with freeze, >2 day gap).",
-      "evidence": "repository.py:480-540 - 60+ lines of streak update logic with nested conditionals"
+      "evidence": "repository.py:500-540 - streak update logic with nested conditionals still buggy"
     },
     {
       "area": "skills",
@@ -63,5 +63,5 @@
     }
   ],
   "addressesFailureFrom": null,
-  "summary": "The motivation-gamification feature implementation is mostly complete with proper structure (models, repository, service, router layers). However, two blocking bugs were identified: 1) A streak calculation bug in update_streak_on_activity that incorrectly calculates streaks when bonus points are awarded on consecutive days, and 2) A response model mismatch in the streak freeze endpoint that will cause runtime validation errors. These must be fixed before user testing can proceed. Additionally, notification service integration may silently fail if not properly injected."
+  "summary": "Both round 1 blocking issues remain UNFIXED. Issue 1: The streak calculation in update_streak_on_activity still replaces the existing streak value instead of incrementing from it. Issue 2: The streak freeze endpoint still returns a dict {\"success\": True, \"message\": \"...\"} instead of StreakFreezeResponse. These will cause incorrect behavior and validation errors at runtime respectively. No new blocking issues identified."
 }

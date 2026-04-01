@@ -5,14 +5,15 @@ from typing import AsyncGenerator
 from .config import settings
 
 # Create async engine - SQLite doesn't support pool_size/max_overflow
-if settings.DATABASE_URL and "sqlite" in settings.DATABASE_URL:
+db_url = settings.computed_database_url
+if "sqlite" in db_url:
     engine = create_async_engine(
-        settings.DATABASE_URL,
+        db_url,
         echo=settings.DEBUG,
     )
 else:
     engine = create_async_engine(
-        settings.DATABASE_URL,
+        db_url,
         pool_size=settings.DATABASE_POOL_SIZE,
         max_overflow=settings.DATABASE_MAX_OVERFLOW,
         echo=settings.DEBUG,

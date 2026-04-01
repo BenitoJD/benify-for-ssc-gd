@@ -1,7 +1,7 @@
 """
 Notification models for the Benify platform.
 """
-from sqlalchemy import Column, String, DateTime, Boolean, ForeignKey, Enum as SQLEnum
+from sqlalchemy import Column, String, DateTime, Boolean, ForeignKey, Enum as SQLEnum, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from datetime import datetime
@@ -19,6 +19,9 @@ class NotificationType(str, enum.Enum):
     BADGE_EARNED = "badge_earned"
     STREAK_REMINDER = "streak_reminder"
     ANNOUNCEMENT = "announcement"
+    STUDY_REMINDER = "study_reminder"
+    EXAM_ALERT = "exam_alert"
+    DOCUMENT_DEADLINE = "document_deadline"
 
 
 class Notification(Base):
@@ -56,6 +59,9 @@ class NotificationPreference(Base):
     upvote_milestone_enabled = Column(Boolean, default=True, nullable=False)
     badge_earned_enabled = Column(Boolean, default=True, nullable=False)
     streak_reminder_enabled = Column(Boolean, default=True, nullable=False)
+    study_reminder_enabled = Column(Boolean, default=True, nullable=False)
+    exam_alert_enabled = Column(Boolean, default=True, nullable=False)
+    document_deadline_enabled = Column(Boolean, default=True, nullable=False)
     announcement_enabled = Column(Boolean, default=True, nullable=False)
     
     # Timestamps
@@ -64,3 +70,26 @@ class NotificationPreference(Base):
     
     def __repr__(self):
         return f"<NotificationPreference {self.user_id}>"
+
+
+class PushToken(Base):
+    """FCM push token for web push notifications."""
+    
+    __tablename__ = "push_tokens"
+    
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, index=True)
+    token = Column(Text, nullable=False)
+    device_type = Column(String(20), default="web", nullable=False)  # web, ios, android
+    is_active = Column(Boolean, default=True, nullable=False)
+    
+    # Subscription details
+    subscription_info = Column(Text, nullable=True)  # JSON string with endpoint and keys
+    
+    # Timestamps
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    last_used_at = Column(DateTime, nullable=True)
+    
+    def __repr__(self):
+        return f"<PushToken {self.id} - {self.device_type}>"

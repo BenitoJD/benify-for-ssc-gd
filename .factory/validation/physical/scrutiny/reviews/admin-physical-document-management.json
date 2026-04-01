@@ -1,63 +1,94 @@
 {
   "featureId": "admin-physical-document-management",
-  "reviewedAt": "2026-03-31T21:45:00Z",
+  "reviewedAt": "2026-04-01T00:00:00.000Z",
   "commitId": "7ea9b5b",
-  "transcriptSkeletonReviewed": true,
+  "transcriptSkeletonReviewed": false,
   "diffReviewed": true,
   "status": "fail",
   "codeReview": {
-    "summary": "Implementation has critical blocking issues. Medical guidelines and announcements CRUD are completely fake - they use hardcoded static data or placeholder UUIDs without actual database operations. Document compliance stats return mock data. Additionally, there's a bug that will cause TypeError at runtime.",
+    "summary": "All 5 prior blocking issues remain unfixed. Medical guidelines CRUD, announcements CRUD, broadcast_announcement(), and document compliance stats are completely fake with placeholder data. UUID.uuid4() is still used incorrectly. No actual database operations are performed for these features.",
     "issues": [
       {
         "file": "apps/api/internal/documents/service.py",
-        "line": 149,
+        "line": 152,
         "severity": "blocking",
-        "description": "Bug: `UUID.uuid4()` is incorrect usage. The import is `from uuid import UUID` which is a class, not a module. `uuid4()` is a function in the uuid module, not a class method. This will cause `TypeError: 'UUID' object is not callable` at runtime when a user has no documents and the else branch is hit."
+        "description": "UUID.uuid4() is incorrect usage. uuid4() is a function in the uuid module, not a class method of UUID. Should import uuid4 directly: `from uuid import UUID, uuid4` and use `str(uuid4())` instead of `str(UUID.uuid4())`."
       },
       {
         "file": "apps/api/internal/documents/service.py",
-        "line": 103,
+        "line": 544,
         "severity": "blocking",
-        "description": "Medical guidelines CRUD operations return hardcoded static data instead of real database queries. The `get_medical_guidelines()` method returns static mock guidelines, and `admin_create_medical_guideline()` uses placeholder UUID `44444444-4444-4444-4444-444444444444`. No actual medical_guidelines table is queried or written to."
+        "description": "admin_create_medical_guideline() returns hardcoded placeholder UUID 44444444-4444-4444-4444-444444444444 instead of creating a real database record. Comment says 'In a full implementation, this would save to a database'."
       },
       {
         "file": "apps/api/internal/documents/service.py",
-        "line": 380,
+        "line": 549-558,
         "severity": "blocking",
-        "description": "Announcements CRUD is completely fake. `admin_get_announcements()` returns empty list `[]`. `admin_create_announcement()` uses placeholder UUID `55555555-5555-5555-5555-555555555555`. No actual announcements table operations exist."
+        "description": "admin_update_medical_guideline() returns hardcoded placeholder data instead of updating a real database record."
       },
       {
         "file": "apps/api/internal/documents/service.py",
-        "line": 400,
+        "line": 561-571,
         "severity": "blocking",
-        "description": "`broadcast_announcement()` method is not implemented - only contains `pass`. This means announcements are created but never actually broadcast to users."
+        "description": "admin_delete_medical_guideline() just returns True without deleting anything from the database."
       },
       {
         "file": "apps/api/internal/documents/service.py",
-        "line": 355,
+        "line": 649,
         "severity": "blocking",
-        "description": "Document compliance stats return hardcoded placeholder data. `admin_get_compliance_stats()` returns `pst_complete_percentage=60.0`, `pet_complete_percentage=50.0`, etc. These are fake percentages, not real calculations from the database."
+        "description": "admin_get_announcements() returns empty list [] instead of querying a real announcements table. Comment says 'In a full implementation, query announcements table'."
       },
       {
         "file": "apps/api/internal/documents/service.py",
-        "line": 368,
+        "line": 661,
         "severity": "blocking",
-        "description": "`admin_get_compliance_by_gender()` also returns hardcoded placeholder data with fake percentages instead of real database queries."
+        "description": "admin_create_announcement() returns hardcoded placeholder UUID 55555555-5555-5555-5555-555555555555 instead of creating a real database record."
+      },
+      {
+        "file": "apps/api/internal/documents/service.py",
+        "line": 671-685,
+        "severity": "blocking",
+        "description": "admin_update_announcement() returns hardcoded placeholder data instead of updating a real database record."
+      },
+      {
+        "file": "apps/api/internal/documents/service.py",
+        "line": 699-701,
+        "severity": "blocking",
+        "description": "admin_delete_announcement() just returns True without deleting anything from the database."
+      },
+      {
+        "file": "apps/api/internal/documents/service.py",
+        "line": 703-712,
+        "severity": "blocking",
+        "description": "broadcast_announcement() only contains `pass` statement. No actual implementation to create notifications for target users. Comment acknowledges this is a placeholder."
+      },
+      {
+        "file": "apps/api/internal/documents/service.py",
+        "line": 577-596,
+        "severity": "blocking",
+        "description": "admin_get_compliance_stats() returns hardcoded placeholder percentages (60.0%, 50.0%, 40.0%, 30.0%, 25.0%) instead of real database calculations based on actual user document completion status."
+      },
+      {
+        "file": "apps/api/internal/documents/service.py",
+        "line": 598-637,
+        "severity": "blocking",
+        "description": "admin_get_compliance_by_gender() returns hardcoded placeholder percentages instead of real database calculations."
+      },
+      {
+        "file": "apps/api/internal/physical/service.py",
+        "line": 812-814,
+        "severity": "non_blocking",
+        "description": "admin_get_compliance_stats() PET ready count query selects from PhysicalProgressLog without any WHERE clause filtering deleted users. The query `select(func.count(func.distinct(PhysicalProgressLog.user_id)))` could include users whose profiles have been soft-deleted. Compare to total_users query which correctly filters by `Profile.deleted_at.is_(None)`."
       }
     ]
   },
   "sharedStateObservations": [
     {
-      "area": "skills",
-      "observation": "Worker reported skillFeedback.followedProcedure=true and no deviations, but the implementation shows medical guidelines and announcements are stubbed with fake data. This suggests either the skill procedure doesn't require real database implementations for new entities, or the worker took shortcuts that weren't flagged.",
-      "evidence": "Skill says to implement full CRUD with business logic, but medical guidelines and announcements use placeholder UUIDs and return fake data. Handoff shows verification commands passed but only syntax/build checks were run, not functional verification."
-    },
-    {
       "area": "conventions",
-      "observation": "The architecture.md specifies a Repository pattern for database access, but the new documents module directly uses SQLAlchemy queries in the service layer instead of through repository classes. This inconsistency isn't documented as a violation in AGENTS.md.",
-      "evidence": "Other modules like users, content use repository classes. The documents service directly uses `select()`, `func.count()`, etc. without a DocumentRepository."
+      "observation": "Worker implemented CRUD for MedicalGuideline and Announcement entities without first creating the database models. The documents/models.py file only contains DocumentChecklist and UserDocumentChecklist models. No MedicalGuideline or Announcement models exist. AGENTS.md doesn't explicitly state that database models must be created before implementing CRUD operations.",
+      "evidence": "documents/models.py only has DocumentChecklist and UserDocumentChecklist. Service methods admin_create_medical_guideline, admin_update_announcement, etc. all acknowledge in comments they would save to database 'in a full implementation'."
     }
   ],
   "addressesFailureFrom": null,
-  "summary": "FAIL - The feature has 6 blocking issues. Medical guidelines and announcements CRUD operations are completely stubbed with hardcoded static data and placeholder UUIDs, not actual database operations. Document compliance statistics return mock percentages instead of real queries. There's a runtime bug with incorrect UUID usage. While the backend endpoints and frontend pages were created with proper structure, the actual data persistence and retrieval for medical guidelines, announcements, and compliance stats are fake/stubbed implementations that will not work in production."
+  "summary": "Review of admin-physical-document-management (commit 7ea9b5b) reveals ALL 5 prior blocking issues remain unfixed: (1) UUID.uuid4() still incorrectly used at documents/service.py:152, (2) Medical guidelines CRUD still uses placeholder UUID 44444444..., (3) Announcements CRUD completely fake - returns empty list and placeholder UUID 55555555..., (4) broadcast_announcement() only has `pass`, (5) Document compliance stats return hardcoded percentages. Physical compliance query also has potential bug missing deleted_at filter. No database models exist for MedicalGuideline or Announcement entities, yet CRUD was implemented anyway with fake data."
 }

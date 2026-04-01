@@ -15,6 +15,9 @@ class NotificationType(str, Enum):
     UPVOTE_MILESTONE = "upvote_milestone"
     BADGE_EARNED = "badge_earned"
     STREAK_REMINDER = "streak_reminder"
+    STUDY_REMINDER = "study_reminder"
+    EXAM_ALERT = "exam_alert"
+    DOCUMENT_DEADLINE = "document_deadline"
     ANNOUNCEMENT = "announcement"
 
 
@@ -83,6 +86,9 @@ class NotificationPreferenceBase(BaseModel):
     upvote_milestone_enabled: bool = True
     badge_earned_enabled: bool = True
     streak_reminder_enabled: bool = True
+    study_reminder_enabled: bool = True
+    exam_alert_enabled: bool = True
+    document_deadline_enabled: bool = True
     announcement_enabled: bool = True
 
 
@@ -100,3 +106,47 @@ class NotificationPreferenceResponse(NotificationPreferenceBase):
     
     class Config:
         from_attributes = True
+    
+    @property
+    def preferences(self) -> dict:
+        """Return preferences as a dictionary for API compatibility."""
+        return {
+            "streak_reminder": self.streak_reminder_enabled,
+            "study_reminder": self.study_reminder_enabled,
+            "exam_alert": self.exam_alert_enabled,
+            "document_deadline": self.document_deadline_enabled,
+            "badge_earned": self.badge_earned_enabled,
+            "reply_received": self.replies_enabled,
+            "answer_accepted": self.answer_accepted_enabled,
+            "upvote_milestone": self.upvote_milestone_enabled,
+            "announcement": self.announcement_enabled,
+        }
+
+
+# ============================================================================
+# Push Token Schemas
+# ============================================================================
+
+class PushTokenCreate(BaseModel):
+    """Schema for registering a push token."""
+    fcm_token: str = Field(..., min_length=1, description="FCM registration token")
+    subscription_info: Optional[dict] = Field(
+        None,
+        description="Push subscription info (endpoint, keys, etc.)"
+    )
+
+
+class PushTokenResponse(BaseModel):
+    """Schema for push token response."""
+    success: bool
+    message: str
+    token_id: Optional[UUID] = None
+    
+    class Config:
+        from_attributes = True
+
+
+class PushTokenDeleteResponse(BaseModel):
+    """Schema for deleting a push token."""
+    success: bool
+    message: str

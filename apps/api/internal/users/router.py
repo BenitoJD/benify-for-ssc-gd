@@ -19,6 +19,9 @@ from ..shared.pagination import get_pagination_meta, PaginatedResponse
 from ..notifications.schemas import (
     NotificationPreferenceUpdate,
     NotificationPreferenceResponse,
+    PushTokenCreate,
+    PushTokenResponse,
+    PushTokenDeleteResponse,
 )
 from ..notifications.service import NotificationService
 
@@ -193,6 +196,45 @@ async def update_user_notification_preferences(
     
     service = NotificationService(db)
     return await service.update_preferences(user_uuid, preferences)
+
+
+# ============================================================================
+# Push Token Management (FCM)
+# ============================================================================
+
+@router.post("/me/push-token", response_model=PushTokenResponse)
+async def store_push_token(
+    token_data: PushTokenCreate,
+    current_user: TokenData = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Store or update FCM push token for the current user.
+    This is called when the user enables push notifications.
+    """
+    service = NotificationService(db)
+    return await service.store_push_token(
+        user_id=uuid.UUID(current_user.user_id),
+        fcm_token=token_data.fcm_token,
+        subscription_info=token_data.subscription_info
+    )
+
+
+@router.delete("/me/push-token", response_model=PushTokenDeleteResponse)
+async def remove_push_token(
+    token_data: PushTokenCreate,
+    current_user: TokenData = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Remove FCM push token for the current user.
+    This is called when the user disables push notifications.
+    """
+    service = NotificationService(db)
+    return await service.remove_push_token(
+        user_id=uuid.UUID(current_user.user_id),
+        fcm_token=token_data.fcm_token
+    )
 
 
 # Admin routes

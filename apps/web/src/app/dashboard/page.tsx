@@ -12,6 +12,7 @@ import { RecentActivity, Activity } from '@/components/ui/RecentActivity'
 import { StreakCounter } from '@/components/ui/StreakCounter'
 import { SubscriptionWidget } from '@/components/ui/SubscriptionWidget'
 import { OfflineIndicator } from '@/components/ui/OfflineIndicator'
+import { NotificationPermissionPrompt } from '@/components/ui/NotificationPermissionPrompt'
 import { fetchCurrentUser } from '@/lib/auth'
 import { getProfile } from '@/lib/api/users'
 
@@ -189,6 +190,7 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <OfflineIndicator />
+      <NotificationPermissionPrompt locale={locale} />
       
       <div className="flex">
         <Sidebar locale={locale} />

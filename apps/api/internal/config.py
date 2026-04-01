@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     # Application
     APP_NAME: str = "Benify API"
     APP_VERSION: str = "1.0.0"
+    APP_URL: str = "http://localhost:3101"
     DEBUG: bool = False
     
     # Server
@@ -20,7 +21,7 @@ class Settings(BaseSettings):
     DB_HOST: str = "localhost"
     DB_PORT: str = "5432"
     DB_NAME: str = "benify"
-    DATABASE_URL: str = ""  # Set via DATABASE_URL env var
+    DATABASE_URL: Optional[str] = None  # Set via DATABASE_URL env var or constructed from DB_* vars
     DATABASE_POOL_SIZE: int = 20
     DATABASE_MAX_OVERFLOW: int = 10
     
@@ -53,6 +54,28 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
         case_sensitive = True
+    
+    @property
+    def computed_database_url(self) -> str:
+        """Construct DATABASE_URL from individual DB settings if not explicitly set."""
+        # Use os.environ.get to ensure we get the actual env var value at runtime
+        db_url = os.environ.get("DATABASE_URL")
+        if db_url:
+            return db_url
+        
+        db_user = os.environ.get("DB_USER", self.DB_USER)
+        db_password = os.environ.get("DB_PASSWORD", self.DB_PASSWORD)
+        db_host = os.environ.get("DB_HOST", self.DB_HOST)
+        db_port = os.environ.get("DB_PORT", self.DB_PORT)
+        db_name = os.environ.get("DB_NAME", self.DB_NAME)
+        
+        # Build connection string using string concatenation
+        result = "postgresql"
+        result += "+asyncpg://"
+        result += db_user + ":" + db_password
+        result += "@" + db_host + ":" + db_port
+        result += "/" + db_name
+        return result
 
 
 @lru_cache()

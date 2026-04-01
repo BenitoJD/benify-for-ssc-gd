@@ -4,8 +4,9 @@ Service layer for notification business logic.
 from typing import List, Optional, Tuple
 from uuid import UUID
 from sqlalchemy.ext.asyncio import AsyncSession
+import json
 
-from .models import Notification, NotificationPreference, NotificationType
+from .models import Notification, NotificationPreference, NotificationType, PushToken
 from .repository import NotificationRepository
 from .schemas import (
     NotificationCreate,
@@ -16,6 +17,9 @@ from .schemas import (
     NotificationMarkAllRead,
     NotificationPreferenceUpdate,
     NotificationPreferenceResponse,
+    PushTokenCreate,
+    PushTokenResponse,
+    PushTokenDeleteResponse,
 )
 
 
@@ -210,6 +214,66 @@ class NotificationService:
             action_url="/dashboard"
         )
     
+    async def notify_study_reminder(
+        self,
+        user_id: UUID,
+        task_title: str,
+        task_type: str,
+        due_date: Optional[str] = None
+    ) -> Optional[Notification]:
+        """Send notification for study reminders."""
+        title = f"Time to study: {task_title}"
+        if due_date:
+            message = f"Your {task_type} '{task_title}' is due soon. Don't forget to complete it!"
+        else:
+            message = f"Time to work on your {task_type}: {task_title}"
+        
+        return await self.create_notification(
+            user_id=user_id,
+            notification_type=NotificationType.STUDY_REMINDER,
+            title=title,
+            message=message,
+            action_url="/study-plan/today"
+        )
+    
+    async def notify_exam_alert(
+        self,
+        user_id: UUID,
+        exam_name: str,
+        exam_date: str,
+        days_remaining: int
+    ) -> Optional[Notification]:
+        """Send notification for exam alerts."""
+        title = f"Exam in {days_remaining} days: {exam_name}"
+        message = f"Your {exam_name} is scheduled for {exam_date}. Keep preparing!"
+        
+        return await self.create_notification(
+            user_id=user_id,
+            notification_type=NotificationType.EXAM_ALERT,
+            title=title,
+            message=message,
+            action_url="/dashboard"
+        )
+    
+    async def notify_document_deadline(
+        self,
+        user_id: UUID,
+        document_name: str,
+        deadline_date: str,
+        days_remaining: int
+    ) -> Optional[Notification]:
+        """Send notification for document deadlines."""
+        title = f"Document deadline in {days_remaining} days"
+        message = f"Remember to upload your {document_name} by {deadline_date}."
+        
+        return await self.create_notification(
+            user_id=user_id,
+            notification_type=NotificationType.DOCUMENT_DEADLINE,
+            title=title,
+            message=message,
+            action_url="/documents"
+        )
+    
     async def notify_announcement(
         self,
         user_ids: List[UUID],
@@ -238,7 +302,9 @@ class NotificationService:
     async def get_preferences(self, user_id: UUID) -> NotificationPreferenceResponse:
         """Get notification preferences for a user."""
         preferences = await self.repo.get_or_create_preferences(user_id)
-        return NotificationPreferenceResponse.model_validate(preferences)
+        response = NotificationPreferenceResponse.model_validate(preferences)
+        # Return with mapped preferences for frontend compatibility
+        return response
     
     async def update_preferences(
         self,
@@ -257,7 +323,75 @@ class NotificationService:
             upvote_milestone_enabled=preferences.upvote_milestone_enabled,
             badge_earned_enabled=preferences.badge_earned_enabled,
             streak_reminder_enabled=preferences.streak_reminder_enabled,
+            study_reminder_enabled=preferences.study_reminder_enabled,
+            exam_alert_enabled=preferences.exam_alert_enabled,
+            document_deadline_enabled=preferences.document_deadline_enabled,
             announcement_enabled=preferences.announcement_enabled
         )
         
-        return NotificationPreferenceResponse.model_validate(updated)
+        response = NotificationPreferenceResponse.model_validate(updated)
+        return response
+    
+    # ========================================================================
+    # Push Tokens
+    # ========================================================================
+    
+    async def store_push_token(
+        self,
+        user_id: UUID,
+        fcm_token: str,
+        subscription_info: Optional[dict] = None
+    ) -> PushTokenResponse:
+        """Store or update a push token for a user."""
+        push_token = PushToken(
+            user_id=user_id,
+            token=fcm_token,
+            device_type="web",
+            subscription_info=json.dumps(subscription_info) if subscription_info else None
+        )
+        
+        stored = await self.repo.create_push_token(push_token)
+        
+        return PushTokenResponse(
+            success=True,
+            message="Push token stored successfully",
+            token_id=stored.id
+        )
+    
+    async def remove_push_token(
+        self,
+        user_id: UUID,
+        fcm_token: str
+    ) -> PushTokenDeleteResponse:
+        """Remove (deactivate) a push token for a user."""
+        success = await self.repo.deactivate_push_token(fcm_token, user_id)
+        
+        if success:
+            return PushTokenDeleteResponse(
+                success=True,
+                message="Push token removed successfully"
+            )
+        else:
+            return PushTokenDeleteResponse(
+                success=False,
+                message="Push token not found"
+            )
+    
+    async def remove_all_push_tokens(
+        self,
+        user_id: UUID
+    ) -> PushTokenDeleteResponse:
+        """Remove (deactivate) all push tokens for a user."""
+        count = await self.repo.deactivate_all_push_tokens(user_id)
+        
+        return PushTokenDeleteResponse(
+            success=True,
+            message=f"Removed {count} push token(s)"
+        )
+    
+    async def get_user_push_tokens(
+        self,
+        user_id: UUID
+    ) -> List[PushToken]:
+        """Get all active push tokens for a user."""
+        return await self.repo.get_push_tokens_for_user(user_id)
