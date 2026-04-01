@@ -336,8 +336,8 @@ export default function DocumentsPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600" />
+      <div className="min-h-screen flex items-center justify-center bg-[#FAFAFA]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#111827]" />
       </div>
     )
   }
@@ -350,18 +350,18 @@ export default function DocumentsPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#FAFAFA]">
       {/* Header */}
-      <header className="bg-white border-b">
+      <header className="bg-white border-b border-[#EAEAEA] sticky top-0 z-10">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button
               onClick={() => router.push('/dashboard')}
-              className="text-gray-600 hover:text-gray-900"
+              className="text-[#6B7280] hover:text-[#111827] p-1.5 hover:bg-[#FAFAFA] rounded-full transition-colors"
             >
               <ChevronRight className="w-5 h-5 rotate-180" />
             </button>
-            <div className="text-xl font-bold text-primary-600">
+            <div className="text-[15px] font-semibold tracking-tight text-[#111827]">
               {t('documents.title')}
             </div>
           </div>
@@ -376,38 +376,38 @@ export default function DocumentsPage() {
           <div className="max-w-7xl mx-auto">
             {/* Success Message */}
             {successMessage && (
-              <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2 text-green-800">
-                <Check className="w-5 h-5" />
+              <div className="mb-5 p-4 bg-green-50 border border-green-200 rounded-[8px] flex items-center gap-2 text-green-800 text-sm font-medium">
+                <Check className="w-4 h-4" />
                 {successMessage}
               </div>
             )}
 
             {/* Completion Progress */}
-            <div className="bg-white rounded-xl p-6 shadow-sm mb-6">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold">{t('documents.overallProgress')}</h2>
-                <span className="text-2xl font-bold text-primary-600">{calculateCompletion()}%</span>
+            <div className="bg-white border border-[#EAEAEA] rounded-[12px] p-6 shadow-sm mb-6">
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-[15px] font-semibold tracking-tight text-[#111827]">{t('documents.overallProgress')}</h2>
+                <span className="text-xl font-bold tracking-tight text-[#111827]">{calculateCompletion()}%</span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-3">
+              <div className="w-full bg-[#EAEAEA] rounded-full h-1.5 overflow-hidden">
                 <div
-                  className="bg-primary-600 h-3 rounded-full transition-all duration-300"
+                  className="bg-[#111827] h-full rounded-full transition-all duration-500 ease-out"
                   style={{ width: `${calculateCompletion()}%` }}
                 />
               </div>
             </div>
 
             {/* Tabs */}
-            <div className="flex gap-2 mb-6 overflow-x-auto">
+            <div className="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
               {tabs.map((tab) => {
                 const Icon = tab.icon
                 return (
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg whitespace-nowrap transition ${
+                    className={`flex items-center gap-2 px-4 py-2 rounded-[8px] text-sm font-medium whitespace-nowrap transition-all ${
                       activeTab === tab.id
-                        ? 'bg-primary-600 text-white'
-                        : 'bg-white text-gray-700 hover:bg-gray-50'
+                        ? 'bg-[#111827] text-white shadow-sm'
+                        : 'bg-white border border-[#EAEAEA] text-[#6B7280] hover:bg-[#FAFAFA] hover:text-[#111827]'
                     }`}
                   >
                     <Icon className="w-4 h-4" />
@@ -421,16 +421,16 @@ export default function DocumentsPage() {
             {activeTab === 'checklist' && (
               <div className="space-y-6">
                 {/* Stage Selector */}
-                <div className="bg-white rounded-xl p-4 shadow-sm">
+                <div className="bg-white border border-[#EAEAEA] rounded-[12px] p-4 shadow-sm">
                   <div className="flex gap-2">
                     {stages.map((stage) => (
                       <button
                         key={stage.id}
                         onClick={() => setCurrentStage(stage.id)}
-                        className={`px-4 py-2 rounded-lg transition ${
+                        className={`px-4 py-2 rounded-[8px] text-sm font-medium transition-all ${
                           currentStage === stage.id
-                            ? 'bg-primary-600 text-white'
-                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                            ? 'bg-[#111827] text-white'
+                            : 'bg-[#FAFAFA] border border-[#EAEAEA] text-[#6B7280] hover:text-[#111827]'
                         }`}
                       >
                         {stage.label}
@@ -442,7 +442,7 @@ export default function DocumentsPage() {
                 {/* Checklist Items */}
                 {isLoadingDocs ? (
                   <div className="flex justify-center py-12">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600" />
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#111827]" />
                   </div>
                 ) : (
                   <div className="space-y-4">
@@ -454,38 +454,38 @@ export default function DocumentsPage() {
                       return (
                         <div
                           key={item.id}
-                          className="bg-white rounded-xl p-6 shadow-sm"
+                          className="bg-white border border-[#EAEAEA] rounded-[12px] p-6 shadow-sm hover:border-gray-300 transition-colors"
                         >
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
                               <div className="flex items-center gap-2 mb-2">
-                                <h3 className="font-semibold text-lg">{item.title}</h3>
+                                <h3 className="font-semibold text-[15px] tracking-tight text-[#111827]">{item.title}</h3>
                                 {item.is_required && (
-                                  <span className="px-2 py-0.5 bg-red-100 text-red-800 text-xs rounded">
+                                  <span className="px-2 py-0.5 bg-red-50 border border-red-200 text-red-700 text-[10px] font-bold uppercase tracking-wider rounded-[4px]">
                                     {t('documents.required')}
                                   </span>
                                 )}
                                 {item.is_required_for_gender && (
-                                  <span className="px-2 py-0.5 bg-blue-100 text-blue-800 text-xs rounded">
+                                  <span className="px-2 py-0.5 bg-blue-50 border border-blue-200 text-blue-700 text-[10px] font-bold uppercase tracking-wider rounded-[4px]">
                                     {item.is_required_for_gender === 'male' 
                                       ? t('documents.maleOnly')
                                       : t('documents.femaleOnly')}
                                   </span>
                                 )}
                               </div>
-                              <p className="text-gray-600 text-sm mb-3">
+                              <p className="text-[#6B7280] text-sm mb-3">
                                 {item.description}
                               </p>
                               
                               {/* Instructions */}
                               {item.instructions && (
-                                <p className="text-gray-500 text-xs mb-3 bg-gray-50 p-2 rounded">
+                                <p className="text-[#9CA3AF] text-xs mb-3 bg-[#FAFAFA] border border-[#EAEAEA] p-3 rounded-[6px]">
                                   {item.instructions}
                                 </p>
                               )}
 
                               {/* Accepted formats and size */}
-                              <div className="flex gap-4 text-xs text-gray-500 mb-3">
+                              <div className="flex gap-4 text-xs text-[#9CA3AF] font-medium mb-3">
                                 <span>
                                   {t('documents.upload.acceptedFormats')}: {item.accepted_formats}
                                 </span>
@@ -509,12 +509,16 @@ export default function DocumentsPage() {
                               {/* Status */}
                               {userDoc && (
                                 <div className="flex items-center gap-2 mb-3">
-                                  <span className={`px-3 py-1 rounded-full text-sm flex items-center gap-1 ${getStatusColor(userDoc.status)}`}>
+                                  <span className={`px-3 py-1 rounded-[6px] text-xs font-semibold flex items-center gap-1.5 border ${
+                                    userDoc.status === 'verified' ? 'bg-green-50 border-green-200 text-green-700' :
+                                    userDoc.status === 'rejected' ? 'bg-red-50 border-red-200 text-red-700' :
+                                    'bg-[#FAFAFA] border-[#EAEAEA] text-[#6B7280]'
+                                  }`}>
                                     {getStatusIcon(userDoc.status)}
                                     {t(`documents.status.${userDoc.status}`)}
                                   </span>
                                   {userDoc.original_filename && (
-                                    <span className="text-sm text-gray-500">
+                                    <span className="text-xs text-[#9CA3AF] font-medium">
                                       {userDoc.original_filename}
                                     </span>
                                   )}
@@ -523,7 +527,7 @@ export default function DocumentsPage() {
 
                               {/* Rejection Reason */}
                               {userDoc?.status === 'rejected' && userDoc.rejection_reason && (
-                                <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm mb-3">
+                                <div className="p-3 bg-red-50 border border-red-200 rounded-[8px] text-red-700 text-sm mb-3">
                                   <strong>{t('documents.rejectionReason')}:</strong> {userDoc.rejection_reason}
                                 </div>
                               )}
@@ -531,7 +535,7 @@ export default function DocumentsPage() {
                               {/* Upload Area */}
                               {(!userDoc || userDoc.status === 'pending' || userDoc.status === 'rejected') && (
                                 <div className="space-y-3">
-                                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-primary-500 transition">
+                                  <div className="border-2 border-dashed border-[#EAEAEA] rounded-[8px] p-5 text-center hover:border-[#111827] transition-colors cursor-pointer">
                                     <input
                                       type="file"
                                       id={`file-${item.id}`}
@@ -546,8 +550,8 @@ export default function DocumentsPage() {
                                       htmlFor={`file-${item.id}`}
                                       className="cursor-pointer flex flex-col items-center"
                                     >
-                                      <Upload className="w-8 h-8 text-gray-400 mb-2" />
-                                      <span className="text-sm text-gray-600">
+                                      <Upload className="w-6 h-6 text-[#9CA3AF] mb-2" />
+                                      <span className="text-sm text-[#6B7280] font-medium">
                                         {t('documents.upload.clickToUpload')}
                                       </span>
                                     </label>
@@ -555,19 +559,19 @@ export default function DocumentsPage() {
 
                                   {/* Selected File */}
                                   {isUploadingThis && uploadForm.file && (
-                                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                    <div className="flex items-center justify-between p-3 bg-[#FAFAFA] border border-[#EAEAEA] rounded-[8px]">
                                       <div className="flex items-center gap-2">
-                                        <File className="w-5 h-5 text-gray-500" />
-                                        <span className="text-sm">
+                                        <File className="w-4 h-4 text-[#9CA3AF]" />
+                                        <span className="text-sm text-[#111827] font-medium">
                                           {uploadForm.file.name}
                                         </span>
-                                        <span className="text-xs text-gray-500">
+                                        <span className="text-xs text-[#9CA3AF]">
                                           ({formatFileSize(uploadForm.file.size)})
                                         </span>
                                       </div>
                                       <button
                                         onClick={() => setUploadForm({ itemId: null, file: null, isUploading: false, error: null })}
-                                        className="text-gray-400 hover:text-gray-600"
+                                        className="text-[#9CA3AF] hover:text-[#111827] transition-colors"
                                       >
                                         <X className="w-4 h-4" />
                                       </button>
@@ -576,7 +580,7 @@ export default function DocumentsPage() {
 
                                   {/* Upload Error */}
                                   {isUploadingThis && uploadForm.error && (
-                                    <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm flex items-center gap-2">
+                                    <div className="p-3 bg-red-50 border border-red-200 rounded-[8px] text-red-700 text-sm flex items-center gap-2">
                                       <AlertCircle className="w-4 h-4" />
                                       {uploadForm.error}
                                     </div>
@@ -587,7 +591,7 @@ export default function DocumentsPage() {
                                     <button
                                       onClick={() => handleUpload(item.id)}
                                       disabled={uploadForm.isUploading}
-                                      className="w-full py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 transition flex items-center justify-center gap-2"
+                                      className="w-full py-2.5 bg-[#111827] text-white rounded-[8px] hover:bg-black disabled:opacity-50 transition-colors flex items-center justify-center gap-2 font-medium text-sm"
                                     >
                                       {uploadForm.isUploading ? (
                                         <>
@@ -607,19 +611,19 @@ export default function DocumentsPage() {
 
                               {/* View/Delete Buttons for uploaded documents */}
                               {userDoc?.uploaded_file_url && userDoc.status !== 'rejected' && (
-                                <div className="flex gap-3 mt-3">
+                                <div className="flex gap-3 mt-4">
                                   <a
                                     href={userDoc.uploaded_file_url}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition"
+                                    className="flex items-center gap-2 px-4 py-2 bg-[#FAFAFA] border border-[#EAEAEA] text-[#111827] rounded-[8px] hover:bg-white hover:border-gray-300 transition-colors text-sm font-medium"
                                   >
                                     <Eye className="w-4 h-4" />
                                     {t('documents.viewDocument')}
                                   </a>
                                   <button
                                     onClick={() => handleDeleteDocument(userDoc.id)}
-                                    className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition"
+                                    className="flex items-center gap-2 px-4 py-2 bg-red-50 border border-red-200 text-red-600 rounded-[8px] hover:bg-red-100 transition-colors text-sm font-medium"
                                   >
                                     <Trash2 className="w-4 h-4" />
                                     {t('documents.replaceDocument')}
@@ -633,9 +637,9 @@ export default function DocumentsPage() {
                     })}
 
                     {checklistItems.length === 0 && (
-                      <div className="bg-white rounded-xl p-12 text-center">
-                        <FileText className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                        <p className="text-gray-500">{t('documents.noDocuments')}</p>
+                      <div className="bg-white border border-[#EAEAEA] rounded-[12px] p-12 text-center">
+                        <FileText className="w-10 h-10 text-[#EAEAEA] mx-auto mb-4" />
+                        <p className="text-[#6B7280] text-sm">{t('documents.noDocuments')}</p>
                       </div>
                     )}
                   </div>
@@ -646,105 +650,71 @@ export default function DocumentsPage() {
             {/* Guidelines Tab */}
             {activeTab === 'guidelines' && (
               <div className="space-y-6">
-                <div className="bg-white rounded-xl p-6 shadow-sm">
-                  <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                    <Stethoscope className="w-6 h-6 text-primary-600" />
+                <div className="bg-white border border-[#EAEAEA] rounded-[12px] p-6 shadow-sm">
+                  <h2 className="text-[15px] font-semibold tracking-tight text-[#111827] mb-5 flex items-center gap-2">
+                    <Stethoscope className="w-5 h-5 text-[#9CA3AF]" />
                     {t('documents.medicalGuidelines.title')}
                   </h2>
                   
                   {/* Vision Standards */}
                   <div className="mb-8">
-                    <h3 className="text-lg font-semibold mb-4 text-primary-700">
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-[#9CA3AF] mb-4">
                       {t('documents.medicalGuidelines.vision.title')}
                     </h3>
                     <div className="space-y-3">
-                      <div className="p-4 bg-gray-50 rounded-lg">
-                        <h4 className="font-medium mb-2">{t('documents.medicalGuidelines.vision.nearVision')}</h4>
-                        <p className="text-sm text-gray-600">
-                          {t('documents.medicalGuidelines.vision.nearVisionDesc')}
-                        </p>
+                      <div className="p-4 bg-[#FAFAFA] border border-[#EAEAEA] rounded-[8px]">
+                        <h4 className="font-semibold text-sm text-[#111827] mb-1.5">{t('documents.medicalGuidelines.vision.nearVision')}</h4>
+                        <p className="text-sm text-[#6B7280]">{t('documents.medicalGuidelines.vision.nearVisionDesc')}</p>
                       </div>
-                      <div className="p-4 bg-gray-50 rounded-lg">
-                        <h4 className="font-medium mb-2">{t('documents.medicalGuidelines.vision.distanceVision')}</h4>
-                        <p className="text-sm text-gray-600">
-                          {t('documents.medicalGuidelines.vision.distanceVisionDesc')}
-                        </p>
+                      <div className="p-4 bg-[#FAFAFA] border border-[#EAEAEA] rounded-[8px]">
+                        <h4 className="font-semibold text-sm text-[#111827] mb-1.5">{t('documents.medicalGuidelines.vision.distanceVision')}</h4>
+                        <p className="text-sm text-[#6B7280]">{t('documents.medicalGuidelines.vision.distanceVisionDesc')}</p>
                       </div>
-                      <div className="p-4 bg-gray-50 rounded-lg">
-                        <h4 className="font-medium mb-2">{t('documents.medicalGuidelines.vision.colorVision')}</h4>
-                        <p className="text-sm text-gray-600">
-                          {t('documents.medicalGuidelines.vision.colorVisionDesc')}
-                        </p>
+                      <div className="p-4 bg-[#FAFAFA] border border-[#EAEAEA] rounded-[8px]">
+                        <h4 className="font-semibold text-sm text-[#111827] mb-1.5">{t('documents.medicalGuidelines.vision.colorVision')}</h4>
+                        <p className="text-sm text-[#6B7280]">{t('documents.medicalGuidelines.vision.colorVisionDesc')}</p>
                       </div>
                     </div>
                   </div>
 
                   {/* Physical Fitness */}
                   <div className="mb-8">
-                    <h3 className="text-lg font-semibold mb-4 text-primary-700">
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-[#9CA3AF] mb-4">
                       {t('documents.medicalGuidelines.physical.title')}
                     </h3>
                     <div className="space-y-3">
-                      <div className="p-4 bg-gray-50 rounded-lg">
-                        <h4 className="font-medium mb-2">{t('documents.medicalGuidelines.physical.bloodPressure')}</h4>
-                        <p className="text-sm text-gray-600">
-                          {t('documents.medicalGuidelines.physical.bloodPressureDesc')}
-                        </p>
+                      <div className="p-4 bg-[#FAFAFA] border border-[#EAEAEA] rounded-[8px]">
+                        <h4 className="font-semibold text-sm text-[#111827] mb-1.5">{t('documents.medicalGuidelines.physical.bloodPressure')}</h4>
+                        <p className="text-sm text-[#6B7280]">{t('documents.medicalGuidelines.physical.bloodPressureDesc')}</p>
                       </div>
-                      <div className="p-4 bg-gray-50 rounded-lg">
-                        <h4 className="font-medium mb-2">{t('documents.medicalGuidelines.physical.ear')}</h4>
-                        <p className="text-sm text-gray-600">
-                          {t('documents.medicalGuidelines.physical.earDesc')}
-                        </p>
+                      <div className="p-4 bg-[#FAFAFA] border border-[#EAEAEA] rounded-[8px]">
+                        <h4 className="font-semibold text-sm text-[#111827] mb-1.5">{t('documents.medicalGuidelines.physical.ear')}</h4>
+                        <p className="text-sm text-[#6B7280]">{t('documents.medicalGuidelines.physical.earDesc')}</p>
                       </div>
-                      <div className="p-4 bg-gray-50 rounded-lg">
-                        <h4 className="font-medium mb-2">{t('documents.medicalGuidelines.physical.skin')}</h4>
-                        <p className="text-sm text-gray-600">
-                          {t('documents.medicalGuidelines.physical.skinDesc')}
-                        </p>
+                      <div className="p-4 bg-[#FAFAFA] border border-[#EAEAEA] rounded-[8px]">
+                        <h4 className="font-semibold text-sm text-[#111827] mb-1.5">{t('documents.medicalGuidelines.physical.skin')}</h4>
+                        <p className="text-sm text-[#6B7280]">{t('documents.medicalGuidelines.physical.skinDesc')}</p>
                       </div>
                     </div>
                   </div>
 
                   {/* Common Rejections */}
                   <div>
-                    <h3 className="text-lg font-semibold mb-4 text-red-600 flex items-center gap-2">
-                      <AlertTriangle className="w-5 h-5" />
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-red-500 mb-4 flex items-center gap-2">
+                      <AlertTriangle className="w-4 h-4" />
                       {t('documents.medicalGuidelines.commonRejections.title')}
                     </h3>
                     <div className="space-y-3">
-                      <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-                        <h4 className="font-medium mb-2 text-red-700">
-                          {t('documents.medicalGuidelines.commonRejections.item1.title')}
-                        </h4>
-                        <p className="text-sm text-red-600">
-                          {t('documents.medicalGuidelines.commonRejections.item1.desc')}
-                        </p>
-                      </div>
-                      <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-                        <h4 className="font-medium mb-2 text-red-700">
-                          {t('documents.medicalGuidelines.commonRejections.item2.title')}
-                        </h4>
-                        <p className="text-sm text-red-600">
-                          {t('documents.medicalGuidelines.commonRejections.item2.desc')}
-                        </p>
-                      </div>
-                      <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-                        <h4 className="font-medium mb-2 text-red-700">
-                          {t('documents.medicalGuidelines.commonRejections.item3.title')}
-                        </h4>
-                        <p className="text-sm text-red-600">
-                          {t('documents.medicalGuidelines.commonRejections.item3.desc')}
-                        </p>
-                      </div>
-                      <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-                        <h4 className="font-medium mb-2 text-red-700">
-                          {t('documents.medicalGuidelines.commonRejections.item4.title')}
-                        </h4>
-                        <p className="text-sm text-red-600">
-                          {t('documents.medicalGuidelines.commonRejections.item4.desc')}
-                        </p>
-                      </div>
+                      {[1,2,3,4].map(i => (
+                        <div key={i} className="p-4 bg-red-50 border border-red-200 rounded-[8px]">
+                          <h4 className="font-semibold text-sm text-red-700 mb-1">
+                            {t(`documents.medicalGuidelines.commonRejections.item${i}.title`)}
+                          </h4>
+                          <p className="text-sm text-red-600">
+                            {t(`documents.medicalGuidelines.commonRejections.item${i}.desc`)}
+                          </p>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </div>
@@ -754,28 +724,28 @@ export default function DocumentsPage() {
             {/* Self Assessment Tab */}
             {activeTab === 'self-assessment' && (
               <div className="space-y-6">
-                <div className="bg-white rounded-xl p-6 shadow-sm">
-                  <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                    <AlertTriangle className="w-6 h-6 text-primary-600" />
+                <div className="bg-white border border-[#EAEAEA] rounded-[12px] p-6 shadow-sm">
+                  <h2 className="text-[15px] font-semibold tracking-tight text-[#111827] mb-3 flex items-center gap-2">
+                    <AlertTriangle className="w-4 h-4 text-[#9CA3AF]" />
                     {t('documents.selfAssessment.title')}
                   </h2>
-                  <p className="text-gray-600 mb-6">
+                  <p className="text-[#6B7280] text-sm mb-6">
                     {t('documents.selfAssessment.description')}
                   </p>
 
                   {selfAssessmentResult ? (
-                    <div className={`p-6 rounded-xl ${
+                    <div className={`p-5 rounded-[8px] border ${
                       selfAssessmentResult.has_disqualifications
-                        ? 'bg-red-50 border border-red-200'
-                        : 'bg-green-50 border border-green-200'
+                        ? 'bg-red-50 border-red-200'
+                        : 'bg-green-50 border-green-200'
                     }`}>
-                      <div className="flex items-center gap-2 mb-4">
+                      <div className="flex items-center gap-2 mb-3">
                         {selfAssessmentResult.has_disqualifications ? (
-                          <XCircle className="w-8 h-8 text-red-600" />
+                          <XCircle className="w-6 h-6 text-red-600" />
                         ) : (
-                          <CheckCircle2 className="w-8 h-8 text-green-600" />
+                          <CheckCircle2 className="w-6 h-6 text-green-600" />
                         )}
-                        <h3 className={`text-lg font-semibold ${
+                        <h3 className={`font-semibold text-sm ${
                           selfAssessmentResult.has_disqualifications ? 'text-red-700' : 'text-green-700'
                         }`}>
                           {selfAssessmentResult.has_disqualifications
@@ -786,10 +756,10 @@ export default function DocumentsPage() {
                       
                       {selfAssessmentResult.disqualification_reasons.length > 0 && (
                         <div className="space-y-2">
-                          <h4 className="font-medium text-red-700">
+                          <h4 className="font-semibold text-xs uppercase tracking-wider text-red-700">
                             {t('documents.selfAssessment.reasons')}:
                           </h4>
-                          <ul className="list-disc list-inside text-red-600">
+                          <ul className="list-disc list-inside text-red-600 text-sm space-y-1">
                             {selfAssessmentResult.disqualification_reasons.map((reason, idx) => (
                               <li key={idx}>{reason}</li>
                             ))}
@@ -800,36 +770,30 @@ export default function DocumentsPage() {
                   ) : (
                     <div className="space-y-4">
                       {selfAssessmentQuestions.map((question, idx) => (
-                        <div key={question.id} className="p-4 bg-gray-50 rounded-lg">
-                          <p className="font-medium mb-3">
+                        <div key={question.id} className="p-4 bg-[#FAFAFA] border border-[#EAEAEA] rounded-[8px]">
+                          <p className="font-medium text-sm text-[#111827] mb-3">
                             {idx + 1}. {question.question}
                           </p>
-                          <div className="flex gap-4">
+                          <div className="flex gap-6">
                             <label className="flex items-center gap-2 cursor-pointer">
                               <input
                                 type="radio"
                                 name={`question-${question.id}`}
                                 checked={selfAssessmentResponses[question.id] === true}
-                                onChange={() => setSelfAssessmentResponses(prev => ({
-                                  ...prev,
-                                  [question.id]: true,
-                                }))}
-                                className="w-4 h-4 text-primary-600"
+                                onChange={() => setSelfAssessmentResponses(prev => ({ ...prev, [question.id]: true }))}
+                                className="w-4 h-4 accent-[#111827]"
                               />
-                              <span>{t('documents.selfAssessment.yes')}</span>
+                              <span className="text-sm font-medium text-[#111827]">{t('documents.selfAssessment.yes')}</span>
                             </label>
                             <label className="flex items-center gap-2 cursor-pointer">
                               <input
                                 type="radio"
                                 name={`question-${question.id}`}
                                 checked={selfAssessmentResponses[question.id] === false}
-                                onChange={() => setSelfAssessmentResponses(prev => ({
-                                  ...prev,
-                                  [question.id]: false,
-                                }))}
-                                className="w-4 h-4 text-primary-600"
+                                onChange={() => setSelfAssessmentResponses(prev => ({ ...prev, [question.id]: false }))}
+                                className="w-4 h-4 accent-[#111827]"
                               />
-                              <span>{t('documents.selfAssessment.no')}</span>
+                              <span className="text-sm font-medium text-[#111827]">{t('documents.selfAssessment.no')}</span>
                             </label>
                           </div>
                         </div>
@@ -839,7 +803,7 @@ export default function DocumentsPage() {
                         <button
                           onClick={handleSelfAssessmentSubmit}
                           disabled={Object.keys(selfAssessmentResponses).length !== selfAssessmentQuestions.length}
-                          className="w-full py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 transition"
+                          className="w-full py-2.5 bg-[#111827] text-white rounded-[8px] hover:bg-black disabled:opacity-50 transition-colors font-medium text-sm"
                         >
                           {t('documents.selfAssessment.submit')}
                         </button>
@@ -853,13 +817,12 @@ export default function DocumentsPage() {
             {/* Reminders Tab */}
             {activeTab === 'reminders' && (
               <div className="space-y-6">
-                {/* Set Reminder Section */}
-                <div className="bg-white rounded-xl p-6 shadow-sm">
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-xl font-semibold">{t('documents.reminder.setReminder')}</h2>
+                <div className="bg-white border border-[#EAEAEA] rounded-[12px] p-6 shadow-sm">
+                  <div className="flex items-center justify-between mb-5">
+                    <h2 className="text-[15px] font-semibold tracking-tight text-[#111827]">{t('documents.reminder.setReminder')}</h2>
                     <button
                       onClick={() => setShowReminderModal(true)}
-                      className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition flex items-center gap-2"
+                      className="px-4 py-2 bg-[#111827] text-white text-sm font-semibold rounded-[8px] hover:bg-black transition-colors flex items-center gap-2"
                     >
                       <Bell className="w-4 h-4" />
                       {t('documents.reminder.add')}
@@ -873,29 +836,29 @@ export default function DocumentsPage() {
                       return (
                         <div
                           key={reminder.id}
-                          className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
+                          className="flex items-center justify-between p-4 bg-[#FAFAFA] border border-[#EAEAEA] rounded-[8px]"
                         >
                           <div className="flex items-center gap-3">
-                            <Bell className="w-5 h-5 text-primary-600" />
+                            <Bell className="w-4 h-4 text-[#9CA3AF]" />
                             <div>
-                              <p className="font-medium">{item?.title || t('documents.reminder.unknownDocument')}</p>
-                              <p className="text-sm text-gray-500 flex items-center gap-1">
+                              <p className="font-semibold text-sm text-[#111827]">{item?.title || t('documents.reminder.unknownDocument')}</p>
+                              <p className="text-xs text-[#9CA3AF] font-medium flex items-center gap-1 mt-0.5">
                                 <Calendar className="w-3 h-3" />
                                 {new Date(reminder.reminder_date).toLocaleDateString()}
                               </p>
                             </div>
                           </div>
                           <div className="flex items-center gap-3">
-                            <span className={`px-2 py-1 text-xs rounded ${
+                            <span className={`px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider rounded-[4px] border ${
                               reminder.is_sent
-                                ? 'bg-green-100 text-green-800'
-                                : 'bg-amber-100 text-amber-800'
+                                ? 'bg-green-50 border-green-200 text-green-700'
+                                : 'bg-[#FAFAFA] border-[#EAEAEA] text-[#6B7280]'
                             }`}>
                               {reminder.is_sent ? t('documents.reminder.sent') : t('documents.reminder.pending')}
                             </span>
                             <button
                               onClick={() => handleDeleteReminder(reminder.id)}
-                              className="text-red-500 hover:text-red-700"
+                              className="text-[#9CA3AF] hover:text-red-500 transition-colors"
                             >
                               <Trash2 className="w-4 h-4" />
                             </button>
@@ -905,7 +868,7 @@ export default function DocumentsPage() {
                     })}
 
                     {reminders.length === 0 && (
-                      <p className="text-center text-gray-500 py-8">
+                      <p className="text-center text-[#6B7280] text-sm py-8">
                         {t('documents.reminder.noReminders')}
                       </p>
                     )}
@@ -919,13 +882,13 @@ export default function DocumentsPage() {
 
       {/* Reminder Modal */}
       {showReminderModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl p-6 w-full max-w-md">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">{t('documents.reminder.setReminder')}</h3>
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+          <div className="bg-white border border-[#EAEAEA] rounded-[12px] shadow-xl p-6 w-full max-w-md">
+            <div className="flex items-center justify-between mb-5">
+              <h3 className="text-[15px] font-semibold tracking-tight text-[#111827]">{t('documents.reminder.setReminder')}</h3>
               <button
                 onClick={() => setShowReminderModal(false)}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-[#9CA3AF] hover:text-[#111827] transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -933,13 +896,13 @@ export default function DocumentsPage() {
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-[11px] font-semibold uppercase tracking-wider text-[#9CA3AF] mb-2">
                   {t('documents.reminder.selectDocument')}
                 </label>
                 <select
                   value={reminderForm.itemId}
                   onChange={(e) => setReminderForm(prev => ({ ...prev, itemId: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  className="w-full px-3 py-2.5 border border-[#EAEAEA] rounded-[8px] text-sm text-[#111827] focus:outline-none focus:border-[#111827] focus:ring-1 focus:ring-[#111827] bg-white transition-shadow"
                 >
                   <option value="">{t('documents.reminder.selectDocumentPlaceholder')}</option>
                   {checklistItems.map((item) => (
@@ -949,23 +912,23 @@ export default function DocumentsPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-[11px] font-semibold uppercase tracking-wider text-[#9CA3AF] mb-2">
                   {t('documents.reminder.reminderDate')}
                 </label>
                 <input
                   type="date"
                   value={reminderForm.reminderDate}
                   onChange={(e) => setReminderForm(prev => ({ ...prev, reminderDate: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  className="w-full px-3 py-2.5 border border-[#EAEAEA] rounded-[8px] text-sm text-[#111827] focus:outline-none focus:border-[#111827] focus:ring-1 focus:ring-[#111827] transition-shadow"
                   min={new Date().toISOString().split('T')[0]}
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-[11px] font-semibold uppercase tracking-wider text-[#9CA3AF] mb-2">
                   {t('documents.reminder.reminderType')}
                 </label>
-                <div className="flex gap-4">
+                <div className="flex gap-5">
                   {(['in_app', 'email', 'both'] as const).map((type) => (
                     <label key={type} className="flex items-center gap-2 cursor-pointer">
                       <input
@@ -973,25 +936,25 @@ export default function DocumentsPage() {
                         name="reminderType"
                         checked={reminderForm.reminderType === type}
                         onChange={() => setReminderForm(prev => ({ ...prev, reminderType: type }))}
-                        className="w-4 h-4 text-primary-600"
+                        className="w-4 h-4 accent-[#111827]"
                       />
-                      <span>{t(`documents.reminder.types.${type}`)}</span>
+                      <span className="text-sm font-medium text-[#111827]">{t(`documents.reminder.types.${type}`)}</span>
                     </label>
                   ))}
                 </div>
               </div>
 
-              <div className="flex gap-3 pt-4">
+              <div className="flex gap-3 pt-2">
                 <button
                   onClick={() => setShowReminderModal(false)}
-                  className="flex-1 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition"
+                  className="flex-1 py-2.5 border border-[#EAEAEA] text-[#6B7280] rounded-[8px] hover:bg-[#FAFAFA] transition-colors text-sm font-medium"
                 >
                   {t('common.cancel')}
                 </button>
                 <button
                   onClick={handleSetReminder}
                   disabled={!reminderForm.itemId || !reminderForm.reminderDate}
-                  className="flex-1 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 transition"
+                  className="flex-1 py-2.5 bg-[#111827] text-white rounded-[8px] hover:bg-black disabled:opacity-50 transition-colors text-sm font-medium"
                 >
                   {t('documents.reminder.save')}
                 </button>

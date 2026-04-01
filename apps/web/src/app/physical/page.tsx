@@ -14,6 +14,7 @@ import {
   Award,
   Plus,
   ChevronRight,
+  ArrowRight,
   Dumbbell,
   Zap,
   Heart,
