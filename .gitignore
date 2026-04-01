@@ -15,7 +15,10 @@ Thumbs.db
 # Node dependencies and build output
 node_modules/
 apps/web/node_modules/
+.next/
+apps/web/.next/
 dist/
+apps/web/dist/
 build/
 coverage/
 .vite/
@@ -40,3 +43,5 @@ tmp/
 __pycache__/
 *.pyc
 *.pyo
+.pytest_cache/
+.ruff_cache/
