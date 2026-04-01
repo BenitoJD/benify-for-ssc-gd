@@ -16,17 +16,17 @@ export function StudyHoursSlider({ value, onChange }: StudyHoursSliderProps) {
   return (
     <div className="w-full">
       {/* Selected value display */}
-      <div className="text-center mb-8">
-        <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-primary-100">
-          <span className="text-4xl font-bold text-primary-600">{value}</span>
+      <div className="text-center mb-10">
+        <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-[#FAFAFA] border border-[#EAEAEA] shadow-sm mb-4">
+          <span className="text-5xl font-bold tracking-tight text-[#111827]">{value}</span>
         </div>
-        <p className="mt-2 text-gray-600">
+        <p className="text-sm font-medium text-[#6B7280]">
           {t('onboarding.steps.studyHours.hoursPerDay')}
         </p>
       </div>
 
       {/* Slider */}
-      <div className="px-4 mb-8">
+      <div className="px-2 mb-10">
         <input
           type="range"
           min="1"
@@ -34,11 +34,14 @@ export function StudyHoursSlider({ value, onChange }: StudyHoursSliderProps) {
           step="1"
           value={value}
           onChange={(e) => onChange(Number(e.target.value))}
-          className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-primary-600"
+          className="w-full h-1.5 bg-[#EAEAEA] rounded-lg appearance-none cursor-pointer accent-[#111827]"
         />
-        <div className="flex justify-between mt-2">
+        <div className="flex justify-between mt-3 px-1">
           {hours.map((hour) => (
-            <span key={hour} className="text-sm text-gray-500">
+            <span key={hour} className={clsx(
+              "text-xs font-medium transition-colors cursor-pointer",
+              value === hour ? "text-[#111827]" : "text-[#9CA3AF]"
+            )} onClick={() => onChange(hour)}>
               {hour}h
             </span>
           ))}
@@ -53,10 +56,10 @@ export function StudyHoursSlider({ value, onChange }: StudyHoursSliderProps) {
             type="button"
             onClick={() => onChange(hour)}
             className={clsx(
-              'p-3 rounded-lg border-2 font-medium transition-all',
+              'p-3 rounded-[8px] border font-medium text-sm transition-all duration-200',
               value === hour
-                ? 'border-primary-600 bg-primary-50 text-primary-700'
-                : 'border-gray-200 hover:border-gray-300 text-gray-700'
+                ? 'border-[#111827] bg-[#FAFAFA] text-[#111827] shadow-sm'
+                : 'border-[#EAEAEA] hover:border-gray-300 text-gray-600 hover:bg-[#FAFAFA]'
             )}
           >
             {hour} {hour === 1 ? t('onboarding.steps.studyHours.hour') : t('onboarding.steps.studyHours.hours')}
@@ -65,9 +68,9 @@ export function StudyHoursSlider({ value, onChange }: StudyHoursSliderProps) {
       </div>
 
       {/* Recommendation */}
-      <div className="mt-6 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
-        <p className="text-sm text-yellow-800">
-          <span className="font-medium">{t('onboarding.steps.studyHours.recommendation')}:</span>{' '}
+      <div className="mt-8 p-4 bg-[#FAFAFA] rounded-[8px] border border-[#EAEAEA]">
+        <p className="text-sm text-[#6B7280] leading-relaxed">
+          <span className="font-semibold text-[#111827]">{t('onboarding.steps.studyHours.recommendation')}:</span>{' '}
           {value <= 2 && t('onboarding.steps.studyHours.recommendLight')}
           {value > 2 && value <= 4 && t('onboarding.steps.studyHours.recommendModerate')}
           {value > 4 && t('onboarding.steps.studyHours.recommendIntense')}

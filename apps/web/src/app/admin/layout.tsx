@@ -94,8 +94,8 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600" />
+      <div className="min-h-screen flex items-center justify-center bg-[#FAFAFA]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#111827]" />
       </div>
     )
   }
@@ -105,7 +105,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-[#FAFAFA] font-sans text-[#111827] flex">
       {/* Mobile hamburger */}
       <button
         type="button"
@@ -119,7 +119,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       {/* Mobile overlay */}
       {isMobileOpen && (
         <div
-          className="lg:hidden fixed inset-0 bg-black/50 z-40"
+          className="lg:hidden fixed inset-0 bg-black/20 backdrop-blur-sm z-40 transition-opacity"
           onClick={() => setIsMobileOpen(false)}
         />
       )}
@@ -127,41 +127,40 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       {/* Sidebar */}
       <aside
         className={clsx(
-          'fixed lg:static inset-y-0 left-0 z-50 w-64 bg-gray-900 text-white transform transition-transform duration-300 ease-in-out',
+          'fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white border-r border-[#EAEAEA] transform transition-transform duration-300 ease-in-out flex flex-col',
           'lg:translate-x-0',
           isMobileOpen ? 'translate-x-0' : '-translate-x-full'
         )}
       >
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b border-gray-800">
+          <div className="flex items-center justify-between p-5 border-b border-[#EAEAEA]">
             <BrandLogo
               href="/admin"
               size="md"
-              imageClassName="drop-shadow-[0_4px_12px_rgba(255,255,255,0.12)]"
             />
             <button
               type="button"
               onClick={() => setIsMobileOpen(false)}
-              className="lg:hidden p-2 hover:bg-gray-800 rounded-lg"
+              className="lg:hidden p-2 hover:bg-[#FAFAFA] rounded-md transition-colors"
               aria-label="Close menu"
             >
-              <X className="w-5 h-5 text-gray-400" />
+              <X className="w-5 h-5 text-gray-500" />
             </button>
           </div>
 
           {/* Admin info */}
-          <div className="p-4 border-b border-gray-800">
-            <p className="text-sm text-gray-400">Logged in as</p>
-            <p className="font-medium truncate">{adminUser.email}</p>
-            <p className="text-xs text-gray-500 mt-1 capitalize">{adminUser.role.replace('_', ' ')}</p>
+          <div className="p-5 border-b border-[#EAEAEA]">
+            <p className="text-xs font-medium text-[#9CA3AF] uppercase tracking-wider mb-1">Logged in as</p>
+            <p className="font-semibold text-sm truncate">{adminUser.email}</p>
+            <p className="text-xs text-[#6B7280] mt-1.5 capitalize font-medium px-2 py-0.5 bg-[#FAFAFA] border border-[#EAEAEA] rounded inline-block">{adminUser.role.replace('_', ' ')}</p>
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 p-4 space-y-6 overflow-y-auto">
+          <nav className="flex-1 p-5 space-y-8 overflow-y-auto">
             {/* Main nav */}
             <div className="space-y-1">
-              <p className="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Main</p>
+              <p className="px-3 text-xs font-semibold text-[#9CA3AF] uppercase tracking-wider mb-3">Main</p>
               {navItems.map((item) => {
                 const Icon = item.icon
                 const active = isActive(item.href, item.exact)
@@ -172,14 +171,14 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                     href={item.href}
                     onClick={() => setIsMobileOpen(false)}
                     className={clsx(
-                      'flex items-center gap-3 px-4 py-3 rounded-lg transition-colors',
+                      'flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors text-sm',
                       active
-                        ? 'bg-primary-600 text-white'
-                        : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                        ? 'bg-[#FAFAFA] text-[#111827] font-semibold'
+                        : 'text-[#6B7280] hover:bg-[#FAFAFA] hover:text-[#111827] font-medium'
                     )}
                   >
-                    <Icon className="w-5 h-5" />
-                    <span className="font-medium">{item.label}</span>
+                    <Icon className={clsx('w-[18px] h-[18px]', active ? 'text-[#111827]' : 'text-[#9CA3AF]')} />
+                    <span>{item.label}</span>
                   </Link>
                 )
               })}
@@ -187,7 +186,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
             {/* Content Management */}
             <div className="space-y-1">
-              <p className="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Content</p>
+              <p className="px-3 text-xs font-semibold text-[#9CA3AF] uppercase tracking-wider mb-3">Content</p>
               {contentNavItems.map((item) => {
                 const Icon = item.icon
                 const active = isActive(item.href, item.exact)
@@ -198,14 +197,14 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                     href={item.href}
                     onClick={() => setIsMobileOpen(false)}
                     className={clsx(
-                      'flex items-center gap-3 px-4 py-3 rounded-lg transition-colors',
+                      'flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors text-sm',
                       active
-                        ? 'bg-primary-600 text-white'
-                        : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                        ? 'bg-[#FAFAFA] text-[#111827] font-semibold'
+                        : 'text-[#6B7280] hover:bg-[#FAFAFA] hover:text-[#111827] font-medium'
                     )}
                   >
-                    <Icon className="w-5 h-5" />
-                    <span className="font-medium">{item.label}</span>
+                    <Icon className={clsx('w-[18px] h-[18px]', active ? 'text-[#111827]' : 'text-[#9CA3AF]')} />
+                    <span>{item.label}</span>
                   </Link>
                 )
               })}
@@ -213,7 +212,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
             {/* Admin Tools */}
             <div className="space-y-1">
-              <p className="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Admin</p>
+              <p className="px-3 text-xs font-semibold text-[#9CA3AF] uppercase tracking-wider mb-3">Admin</p>
               {adminNavItems.map((item) => {
                 const Icon = item.icon
                 const active = isActive(item.href, item.exact)
@@ -224,14 +223,14 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                     href={item.href}
                     onClick={() => setIsMobileOpen(false)}
                     className={clsx(
-                      'flex items-center gap-3 px-4 py-3 rounded-lg transition-colors',
+                      'flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors text-sm',
                       active
-                        ? 'bg-primary-600 text-white'
-                        : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                        ? 'bg-[#FAFAFA] text-[#111827] font-semibold'
+                        : 'text-[#6B7280] hover:bg-[#FAFAFA] hover:text-[#111827] font-medium'
                     )}
                   >
-                    <Icon className="w-5 h-5" />
-                    <span className="font-medium">{item.label}</span>
+                    <Icon className={clsx('w-[18px] h-[18px]', active ? 'text-[#111827]' : 'text-[#9CA3AF]')} />
+                    <span>{item.label}</span>
                   </Link>
                 )
               })}
@@ -239,20 +238,20 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           </nav>
 
           {/* Footer */}
-          <div className="p-4 border-t border-gray-800">
+          <div className="p-5 border-t border-[#EAEAEA]">
             <button
               onClick={handleLogout}
-              className="flex items-center gap-3 w-full px-4 py-3 text-gray-300 hover:bg-gray-800 hover:text-white rounded-lg transition-colors"
+              className="flex items-center gap-3 w-full px-3 py-2.5 text-[#6B7280] hover:text-[#111827] hover:bg-[#FAFAFA] rounded-[8px] transition-colors text-sm font-medium"
             >
-              <LogOut className="w-5 h-5" />
-              <span className="font-medium">Logout</span>
+              <LogOut className="w-[18px] h-[18px]" />
+              <span>Logout</span>
             </button>
           </div>
         </div>
       </aside>
 
       {/* Main content */}
-      <main className="flex-1 p-4 lg:p-8 pt-16 lg:pt-8">
+      <main className="flex-1 p-4 lg:p-8 pt-16 lg:pt-8 overflow-y-auto">
         <div className="max-w-7xl mx-auto">
           {children}
         </div>

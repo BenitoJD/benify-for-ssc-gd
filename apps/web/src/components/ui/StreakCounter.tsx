@@ -14,70 +14,69 @@ export function StreakCounter({ currentStreak, longestStreak, isActive }: Streak
   const t = useTranslations('dashboard')
 
   return (
-    <div className="bg-gradient-to-br from-orange-500 to-red-500 rounded-2xl p-6 text-white">
-      <div className="flex items-center gap-3 mb-4">
+    <div className="bg-white rounded-[12px] p-6 text-[#111827] border border-[#EAEAEA] shadow-sm">
+      <div className="flex items-center justify-between mb-8">
+        <h2 className="text-[15px] font-semibold tracking-tight">{t('streak')}</h2>
         <div className={clsx(
-          'relative',
-          isActive && 'animate-pulse'
+          'p-2 rounded-[6px]',
+          isActive ? 'bg-[#FAFAFA] border border-[#EAEAEA]' : 'bg-[#FAFAFA]'
         )}>
           <Flame 
             className={clsx(
-              'w-8 h-8',
-              isActive ? 'text-orange-300' : 'text-orange-400'
+              'w-[18px] h-[18px]',
+              isActive ? 'text-[#111827]' : 'text-[#9CA3AF] grayscale'
             )} 
-            fill={isActive ? 'currentColor' : 'none'}
           />
-          {isActive && currentStreak >= 7 && (
-            <div className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-300 rounded-full animate-bounce" />
-          )}
-        </div>
-        <h2 className="text-lg font-semibold">{t('streak')}</h2>
-      </div>
-
-      <div className="text-center mb-4">
-        <div className="flex items-baseline justify-center gap-1">
-          <span className="text-6xl font-bold">{currentStreak}</span>
-          <span className="text-xl text-orange-100">{t('days')}</span>
         </div>
       </div>
 
-      <div className="flex items-center justify-between text-sm">
-        <div className="flex items-center gap-2">
-          <span className="text-orange-100">Longest:</span>
-          <span className="font-semibold">{longestStreak} {t('days')}</span>
+      <div className="text-center mb-6">
+        <div className="flex items-baseline justify-center gap-1.5">
+          <span className="text-6xl font-bold tracking-tight text-[#111827]">{currentStreak}</span>
+          <span className="text-sm font-medium text-[#6B7280]">{t('days')}</span>
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between text-xs font-medium">
+        <div className="flex items-center gap-1.5 text-[#6B7280]">
+          <span>Longest:</span>
+          <span className="text-[#111827]">{longestStreak} {t('days')}</span>
         </div>
         {isActive ? (
-          <span className="flex items-center gap-1 text-orange-100">
-            <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-            {t('streakFlame')}
+          <span className="flex items-center gap-1.5 text-[#111827]">
+            <span className="w-1.5 h-1.5 bg-[#111827] rounded-full animate-pulse" />
+            Active Streak
           </span>
         ) : (
-          <span className="text-orange-200">{t('streakLost')}</span>
+          <span className="text-[#9CA3AF]">{t('streakLost')}</span>
         )}
       </div>
 
       {/* Streak milestones */}
-      <div className="mt-4 pt-4 border-t border-orange-400/30">
-        <div className="flex justify-between text-xs text-orange-100">
+      <div className="mt-8 pt-5 border-t border-[#EAEAEA]">
+        <div className="flex justify-between text-[11px] font-semibold text-[#9CA3AF]">
           {[7, 14, 30, 60, 100].map((milestone) => (
             <div 
               key={milestone}
               className={clsx(
-                'flex flex-col items-center',
-                currentStreak >= milestone && 'text-yellow-300'
+                'flex flex-col items-center gap-1',
+                currentStreak >= milestone ? 'text-[#111827]' : ''
               )}
             >
-              <span className="font-semibold">{milestone}</span>
-              <span>🔥</span>
+              <span>{milestone}</span>
+              <div className={clsx(
+                "w-1 h-1 rounded-full",
+                currentStreak >= milestone ? "bg-[#111827]" : "bg-[#EAEAEA]"
+              )} />
             </div>
           ))}
         </div>
         {/* Progress bar to next milestone */}
         {currentStreak < 100 && (
-          <div className="mt-2">
-            <div className="h-1 bg-orange-400/30 rounded-full overflow-hidden">
+          <div className="mt-3">
+            <div className="h-1 bg-[#EAEAEA] rounded-full overflow-hidden">
               <div 
-                className="h-full bg-yellow-300 rounded-full transition-all duration-500"
+                className="h-full bg-[#111827] rounded-full transition-all duration-500 ease-out"
                 style={{ width: `${(currentStreak % 100) / 100 * 100}%` }}
               />
             </div>

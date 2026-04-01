@@ -20,19 +20,19 @@ export function YearSelector({ value, onChange, years = [2025, 2026, 2027] }: Ye
           type="button"
           onClick={() => onChange(year)}
           className={clsx(
-            'flex flex-col items-center justify-center p-6 rounded-xl border-2 transition-all',
+            'flex flex-col items-center justify-center p-6 rounded-[12px] border transition-all duration-200',
             value === year
-              ? 'border-primary-600 bg-primary-50'
-              : 'border-gray-200 hover:border-gray-300 bg-white'
+              ? 'border-[#111827] bg-[#FAFAFA] shadow-sm'
+              : 'border-[#EAEAEA] hover:border-gray-300 hover:bg-[#FAFAFA] bg-white'
           )}
         >
           <span className={clsx(
-            'text-2xl font-bold',
-            value === year ? 'text-primary-600' : 'text-gray-700'
+            'text-2xl font-bold tracking-tight',
+            value === year ? 'text-[#111827]' : 'text-gray-700'
           )}>
             {year}
           </span>
-          <span className="text-sm text-gray-500 mt-1">
+          <span className="text-sm text-[#6B7280] mt-1 font-medium">
             {t('onboarding.steps.year.sscGDExam')}
           </span>
         </button>

@@ -23,23 +23,20 @@ export function WeakAreasWidget({ weakAreas, locale }: WeakAreasWidgetProps) {
   const t = useTranslations('dashboard')
 
   const getAccuracyColor = (accuracy: number) => {
-    if (accuracy >= 50) return 'text-yellow-600 bg-yellow-50'
-    if (accuracy >= 40) return 'text-orange-600 bg-orange-50'
-    return 'text-red-600 bg-red-50'
+    if (accuracy >= 50) return 'text-[#111827] border-[#EAEAEA] bg-[#FAFAFA]'
+    if (accuracy >= 40) return 'text-[#111827] border-[#111827] bg-[#FAFAFA]'
+    return 'text-white border-[#111827] bg-[#111827]'
   }
 
   return (
-    <div className="bg-white rounded-2xl p-6 shadow-sm">
+    <div className="bg-white rounded-[12px] p-6 shadow-sm border border-[#EAEAEA]">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-red-50 rounded-lg">
-            <AlertTriangle className="w-5 h-5 text-red-500" />
-          </div>
-          <h2 className="text-lg font-semibold text-gray-900">{t('weakAreas')}</h2>
+          <h2 className="text-[15px] font-semibold tracking-tight text-[#111827]">{t('weakAreas')}</h2>
         </div>
         <Link
           href="/dashboard"
-          className="text-sm text-primary-600 hover:text-primary-700 font-medium"
+          className="text-sm text-[#6B7280] hover:text-[#111827] font-medium transition-colors"
         >
           {t('viewAll')}
         </Link>
@@ -55,25 +52,27 @@ export function WeakAreasWidget({ weakAreas, locale }: WeakAreasWidgetProps) {
       ) : (
         <div className="space-y-3">
           {weakAreas.map((area) => (
-            <div
+              <div
               key={area.id}
-              className="flex items-center gap-4 p-4 rounded-xl border border-gray-100 hover:border-red-200 hover:shadow-sm transition-all"
+              className="flex items-center gap-4 p-4 rounded-[8px] border border-[#EAEAEA] hover:border-gray-300 hover:bg-[#FAFAFA] transition-all duration-200"
             >
               {/* Accuracy Badge */}
               <div className="flex-shrink-0">
                 <div className={clsx(
-                  'w-14 h-14 rounded-full flex flex-col items-center justify-center',
+                  'w-[52px] h-[52px] rounded-full flex flex-col items-center justify-center border',
                   getAccuracyColor(area.accuracy)
                 )}>
-                  <span className="text-lg font-bold">{area.accuracy}%</span>
+                  <span className="text-sm font-bold tracking-tight">{area.accuracy}%</span>
                 </div>
               </div>
 
               {/* Topic Info */}
               <div className="flex-1 min-w-0">
-                <h3 className="font-medium text-gray-900 truncate">{area.topicName}</h3>
-                <p className="text-sm text-gray-500">{area.subjectName}</p>
-                <p className="text-xs text-gray-400 mt-1">
+                <div className="flex items-center gap-2 mb-0.5">
+                    <span className="text-xs text-[#6B7280] font-medium truncate">{area.subjectName}</span>
+                </div>
+                <h3 className="font-medium text-sm text-[#111827] truncate">{area.topicName}</h3>
+                <p className="text-xs text-[#9CA3AF] mt-0.5">
                   {area.correctAnswers}/{area.totalQuestions} correct
                 </p>
               </div>
@@ -81,10 +80,10 @@ export function WeakAreasWidget({ weakAreas, locale }: WeakAreasWidgetProps) {
               {/* Practice CTA */}
               <Link
                 href="/pyqs"
-                className="flex-shrink-0 flex items-center gap-1 px-3 py-2 bg-red-50 text-red-600 text-sm font-medium rounded-lg hover:bg-red-100 transition-colors"
+                className="flex-shrink-0 flex items-center gap-1 px-3 py-1.5 bg-white border border-[#EAEAEA] text-[#111827] text-xs font-semibold rounded-[6px] hover:bg-[#FAFAFA] hover:border-gray-300 transition-colors"
               >
                 {t('practiceNow')}
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-3.5 h-3.5 ml-0.5" />
               </Link>
             </div>
           ))}

@@ -171,33 +171,33 @@ export function DiagnosticQuiz({ onComplete }: DiagnosticQuizProps) {
     <div className="w-full">
       {/* Error Message */}
       {error && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+        <div className="mb-6 p-4 bg-[#FEF2F2] border border-[#FCA5A5] rounded-[8px] text-red-600 text-sm">
           {error}
         </div>
       )}
 
       {/* Progress */}
       <div className="mb-6">
-        <div className="flex justify-between text-sm text-gray-600 mb-2">
+        <div className="flex justify-between text-sm text-[#6B7280] font-medium mb-3">
           <span>{t('onboarding.steps.assessment.question')} {currentQuestion + 1} {t('onboarding.steps.assessment.of')} {totalQuestions}</span>
           <span>{Math.round(progress)}%</span>
         </div>
-        <div className="h-2 bg-gray-200 rounded-full">
+        <div className="h-1.5 bg-[#EAEAEA] rounded-full">
           <div
-            className="h-2 bg-primary-600 rounded-full transition-all duration-300"
+            className="h-1.5 bg-[#111827] rounded-full transition-all duration-300"
             style={{ width: `${progress}%` }}
           />
         </div>
       </div>
 
       {/* Question */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
-        <div className="mb-2">
-          <span className="text-xs font-medium text-primary-600 bg-primary-50 px-2 py-1 rounded">
+      <div className="bg-white rounded-[12px] border border-[#EAEAEA] p-6 mb-8 shadow-sm">
+        <div className="mb-4">
+          <span className="text-xs font-semibold text-[#111827] uppercase tracking-wider bg-[#FAFAFA] border border-[#EAEAEA] px-2.5 py-1 rounded-[6px]">
             {t(`onboarding.steps.assessment.subjects.${question.subject}`)}
           </span>
         </div>
-        <h3 className="text-lg font-medium text-gray-900 mb-6">
+        <h3 className="text-lg font-medium text-[#111827] mb-6 leading-relaxed">
           {question.question}
         </h3>
 
@@ -209,21 +209,24 @@ export function DiagnosticQuiz({ onComplete }: DiagnosticQuizProps) {
               type="button"
               onClick={() => handleSelectAnswer(option.id)}
               className={clsx(
-                'w-full text-left p-4 rounded-lg border-2 transition-all',
+                'w-full text-left p-4 rounded-[8px] border transition-all duration-200 flex items-center',
                 answers[question.id] === option.id
-                  ? 'border-primary-600 bg-primary-50'
-                  : 'border-gray-200 hover:border-gray-300 bg-white'
+                  ? 'border-[#111827] bg-[#FAFAFA] shadow-sm'
+                  : 'border-[#EAEAEA] hover:border-gray-300 bg-white hover:bg-[#FAFAFA]'
               )}
             >
               <span className={clsx(
-                'inline-flex items-center justify-center w-6 h-6 rounded-full border mr-3 text-sm',
+                'inline-flex items-center justify-center w-6 h-6 rounded border mr-4 text-xs font-medium transition-colors border-[#EAEAEA]',
                 answers[question.id] === option.id
-                  ? 'border-primary-600 bg-primary-600 text-white'
-                  : 'border-gray-300 text-gray-500'
+                  ? 'bg-[#111827] text-white border-[#111827]'
+                  : 'bg-white text-gray-500'
               )}>
                 {option.id.toUpperCase()}
               </span>
-              <span className={answers[question.id] === option.id ? 'text-primary-700' : 'text-gray-700'}>
+              <span className={clsx(
+                'font-medium text-sm',
+                answers[question.id] === option.id ? 'text-[#111827]' : 'text-gray-700'
+              )}>
                 {option.text}
               </span>
             </button>
@@ -232,16 +235,16 @@ export function DiagnosticQuiz({ onComplete }: DiagnosticQuizProps) {
       </div>
 
       {/* Navigation */}
-      <div className="flex justify-between">
+      <div className="flex justify-between pt-4 border-t border-[#EAEAEA] mt-6">
         <button
           type="button"
           onClick={handlePrevious}
           disabled={currentQuestion === 0}
           className={clsx(
-            'px-4 py-2 rounded-lg font-medium transition-colors',
+            'px-5 py-2.5 rounded-[8px] text-sm font-medium transition-colors border border-[#EAEAEA]',
             currentQuestion === 0
-              ? 'text-gray-400 cursor-not-allowed'
-              : 'text-gray-700 hover:bg-gray-100'
+              ? 'text-gray-400 cursor-not-allowed opacity-50 bg-[#FAFAFA]'
+              : 'text-[#111827] hover:bg-[#FAFAFA] bg-white'
           )}
         >
           {t('common.previous')}
@@ -253,10 +256,10 @@ export function DiagnosticQuiz({ onComplete }: DiagnosticQuizProps) {
             onClick={handleNext}
             disabled={!canProceed}
             className={clsx(
-              'px-6 py-2 rounded-lg font-medium transition-colors',
+              'px-6 py-2.5 rounded-[8px] text-sm font-medium transition-colors border',
               canProceed
-                ? 'bg-primary-600 text-white hover:bg-primary-700'
-                : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                ? 'bg-[#111827] text-white border-[#111827] hover:bg-black'
+                : 'bg-[#FAFAFA] text-gray-400 border-[#EAEAEA] cursor-not-allowed'
             )}
           >
             {t('common.next')}
@@ -267,10 +270,10 @@ export function DiagnosticQuiz({ onComplete }: DiagnosticQuizProps) {
             onClick={handleSubmit}
             disabled={Object.keys(answers).length !== totalQuestions || isSubmitting}
             className={clsx(
-              'px-6 py-2 rounded-lg font-medium transition-colors',
+              'px-6 py-2.5 rounded-[8px] text-sm font-medium transition-colors border',
               Object.keys(answers).length === totalQuestions && !isSubmitting
-                ? 'bg-green-600 text-white hover:bg-green-700'
-                : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                ? 'bg-[#111827] text-white border-[#111827] hover:bg-black'
+                : 'bg-[#FAFAFA] text-gray-400 border-[#EAEAEA] cursor-not-allowed'
             )}
           >
             {isSubmitting ? t('common.loading') : t('onboarding.steps.assessment.submit')}

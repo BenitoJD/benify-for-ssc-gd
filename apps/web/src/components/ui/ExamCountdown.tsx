@@ -43,34 +43,35 @@ export function ExamCountdown({ targetDate }: ExamCountdownProps) {
   }, [targetDate])
 
   return (
-    <div className="bg-gradient-to-br from-primary-600 to-primary-700 rounded-2xl p-6 text-white">
-      <div className="flex items-center gap-3 mb-4">
-        <Clock className="w-6 h-6" />
-        <h2 className="text-lg font-semibold">{t('examCountdown')}</h2>
+    <div className="bg-[#111827] rounded-[12px] p-6 text-white shadow-sm h-full flex flex-col justify-center">
+      <div className="flex items-center gap-3 mb-6">
+        <Clock className="w-[18px] h-[18px] text-[#9CA3AF]" />
+        <h2 className="text-[15px] font-semibold tracking-tight">{t('examCountdown')}</h2>
       </div>
       
       <div className="grid grid-cols-4 gap-3">
-        <div className="bg-white/20 backdrop-blur rounded-xl p-3 text-center">
-          <div className="text-3xl font-bold">{timeLeft.days}</div>
-          <div className="text-xs text-white/80">{t('daysLeft')}</div>
+        <div className="bg-white/5 border border-white/10 rounded-[8px] p-3 text-center transition-colors hover:bg-white/10">
+          <div className="text-3xl font-bold tracking-tight">{timeLeft.days}</div>
+          <div className="text-[11px] uppercase tracking-wider font-semibold text-[#9CA3AF] mt-1">{t('daysLeft')}</div>
         </div>
-        <div className="bg-white/20 backdrop-blur rounded-xl p-3 text-center">
-          <div className="text-3xl font-bold">{timeLeft.hours}</div>
-          <div className="text-xs text-white/80">{t('hoursLeft').split(' ')[0]}</div>
+        <div className="bg-white/5 border border-white/10 rounded-[8px] p-3 text-center transition-colors hover:bg-white/10">
+          <div className="text-3xl font-bold tracking-tight">{timeLeft.hours}</div>
+          <div className="text-[11px] uppercase tracking-wider font-semibold text-[#9CA3AF] mt-1">{t('hoursLeft').split(' ')[0]}</div>
         </div>
-        <div className="bg-white/20 backdrop-blur rounded-xl p-3 text-center">
-          <div className="text-3xl font-bold">{timeLeft.minutes}</div>
-          <div className="text-xs text-white/80">{t('minutesLeft').split(' ')[0]}</div>
+        <div className="bg-white/5 border border-white/10 rounded-[8px] p-3 text-center transition-colors hover:bg-white/10">
+          <div className="text-3xl font-bold tracking-tight">{timeLeft.minutes}</div>
+          <div className="text-[11px] uppercase tracking-wider font-semibold text-[#9CA3AF] mt-1">{t('minutesLeft').split(' ')[0]}</div>
         </div>
-        <div className="bg-white/20 backdrop-blur rounded-xl p-3 text-center">
-          <div className="text-3xl font-bold">{timeLeft.seconds}</div>
-          <div className="text-xs text-white/80">sec</div>
+        <div className="bg-white/5 border border-white/10 rounded-[8px] p-3 text-center transition-colors hover:bg-white/10">
+          <div className="text-3xl font-bold tracking-tight">{timeLeft.seconds}</div>
+          <div className="text-[11px] uppercase tracking-wider font-semibold text-[#9CA3AF] mt-1">sec</div>
         </div>
       </div>
 
-      <p className="text-center text-sm text-white/80 mt-4">
-        {t('examDate')}: {targetDate.toLocaleDateString()}
-      </p>
+      <div className="mt-6 pt-5 border-t border-white/10 flex justify-between items-center text-xs">
+        <span className="text-[#9CA3AF] font-medium">{t('examDate')}</span>
+        <span className="font-semibold">{targetDate.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}</span>
+      </div>
     </div>
   )
 }

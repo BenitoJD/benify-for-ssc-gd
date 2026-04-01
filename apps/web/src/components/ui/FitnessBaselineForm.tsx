@@ -30,20 +30,20 @@ export function FitnessBaselineForm({
             type="button"
             onClick={() => onGenderChange('male')}
             className={clsx(
-              'flex flex-col items-center justify-center p-6 rounded-xl border-2 transition-all',
+              'flex flex-col items-center justify-center p-6 rounded-[12px] border transition-all duration-200',
               gender === 'male'
-                ? 'border-primary-600 bg-primary-50'
-                : 'border-gray-200 hover:border-gray-300 bg-white'
+                ? 'border-[#111827] bg-[#FAFAFA] shadow-sm'
+                : 'border-[#EAEAEA] hover:border-gray-300 bg-white hover:bg-[#FAFAFA]'
             )}
           >
-            <span className="text-4xl mb-2">👨</span>
+            <span className="text-4xl mb-3 grayscale">👨</span>
             <span className={clsx(
-              'font-medium',
-              gender === 'male' ? 'text-primary-700' : 'text-gray-700'
+              'font-medium text-sm',
+              gender === 'male' ? 'text-[#111827]' : 'text-gray-700'
             )}>
               {t('onboarding.steps.fitness.male')}
             </span>
-            <span className="text-xs text-gray-500 mt-1">
+            <span className="text-xs text-[#6B7280] mt-1.5 font-medium">
               {t('onboarding.steps.fitness.maleRequirement')}
             </span>
           </button>
@@ -52,20 +52,20 @@ export function FitnessBaselineForm({
             type="button"
             onClick={() => onGenderChange('female')}
             className={clsx(
-              'flex flex-col items-center justify-center p-6 rounded-xl border-2 transition-all',
+              'flex flex-col items-center justify-center p-6 rounded-[12px] border transition-all duration-200',
               gender === 'female'
-                ? 'border-primary-600 bg-primary-50'
-                : 'border-gray-200 hover:border-gray-300 bg-white'
+                ? 'border-[#111827] bg-[#FAFAFA] shadow-sm'
+                : 'border-[#EAEAEA] hover:border-gray-300 bg-white hover:bg-[#FAFAFA]'
             )}
           >
-            <span className="text-4xl mb-2">👩</span>
+            <span className="text-4xl mb-3 grayscale">👩</span>
             <span className={clsx(
-              'font-medium',
-              gender === 'female' ? 'text-primary-700' : 'text-gray-700'
+              'font-medium text-sm',
+              gender === 'female' ? 'text-[#111827]' : 'text-gray-700'
             )}>
               {t('onboarding.steps.fitness.female')}
             </span>
-            <span className="text-xs text-gray-500 mt-1">
+            <span className="text-xs text-[#6B7280] mt-1.5 font-medium">
               {t('onboarding.steps.fitness.femaleRequirement')}
             </span>
           </button>
@@ -84,31 +84,31 @@ export function FitnessBaselineForm({
               type="button"
               onClick={() => onFitnessLevelChange(level)}
               className={clsx(
-                'w-full text-left p-4 rounded-lg border-2 transition-all',
+                'w-full text-left p-4 rounded-[8px] border transition-all duration-200',
                 fitnessLevel === level
-                  ? 'border-primary-600 bg-primary-50'
-                  : 'border-gray-200 hover:border-gray-300 bg-white'
+                  ? 'border-[#111827] bg-[#FAFAFA] shadow-sm'
+                  : 'border-[#EAEAEA] hover:border-gray-300 bg-white hover:bg-[#FAFAFA]'
               )}
             >
-              <div className="flex items-center">
+              <div className="flex flex-row items-center">
                 <span className={clsx(
-                  'inline-flex items-center justify-center w-6 h-6 rounded-full border mr-3',
+                  'inline-flex items-center justify-center w-6 h-6 rounded border mr-4 text-xs grayscale transition-colors',
                   fitnessLevel === level
-                    ? 'border-primary-600 bg-primary-600 text-white'
-                    : 'border-gray-300 text-gray-500'
+                    ? 'border-[#111827] bg-[#111827]'
+                    : 'border-[#EAEAEA] bg-white'
                 )}>
-                  {level === 'beginner' && '🔰'}
+                  {level === 'beginner' && '🤍'}
                   {level === 'intermediate' && '⭐'}
-                  {level === 'advanced' && '🏆'}
+                  {level === 'advanced' && '🔥'}
                 </span>
                 <div>
                   <span className={clsx(
-                    'font-medium',
-                    fitnessLevel === level ? 'text-primary-700' : 'text-gray-700'
+                    'font-medium text-sm',
+                    fitnessLevel === level ? 'text-[#111827]' : 'text-gray-700'
                   )}>
                     {t(`onboarding.steps.fitness.levels.${level}`)}
                   </span>
-                  <p className="text-sm text-gray-500 mt-0.5">
+                  <p className="text-xs text-[#6B7280] mt-1 leading-relaxed">
                     {level === 'beginner' && t('onboarding.steps.fitness.levels.beginnerDesc')}
                     {level === 'intermediate' && t('onboarding.steps.fitness.levels.intermediateDesc')}
                     {level === 'advanced' && t('onboarding.steps.fitness.levels.advancedDesc')}
@@ -121,17 +121,17 @@ export function FitnessBaselineForm({
       </div>
 
       {/* Info Box */}
-      <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-        <h4 className="font-medium text-blue-900 mb-2">
+      <div className="p-5 bg-[#FAFAFA] rounded-[8px] border border-[#EAEAEA]">
+        <h4 className="font-semibold text-[#111827] mb-3 text-sm tracking-tight">
           {t('onboarding.steps.fitness.infoTitle')}
         </h4>
-        <ul className="text-sm text-blue-800 space-y-1">
+        <ul className="text-sm text-[#6B7280] space-y-2 leading-relaxed">
           <li className="flex items-start">
-            <span className="mr-2">•</span>
+            <span className="mr-2 text-[#9CA3AF]">—</span>
             <span>{t('onboarding.steps.fitness.infoMale')}</span>
           </li>
           <li className="flex items-start">
-            <span className="mr-2">•</span>
+            <span className="mr-2 text-[#9CA3AF]">—</span>
             <span>{t('onboarding.steps.fitness.infoFemale')}</span>
           </li>
         </ul>

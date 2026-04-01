@@ -24,9 +24,9 @@ const activityIcons = {
 }
 
 const activityColors = {
-  lesson_completed: 'bg-blue-100 text-blue-600',
-  test_completed: 'bg-purple-100 text-purple-600',
-  streak_started: 'bg-orange-100 text-orange-600',
+  lesson_completed: 'bg-[#FAFAFA] text-[#111827] border border-[#EAEAEA]',
+  test_completed: 'bg-[#FAFAFA] text-[#111827] border border-[#EAEAEA]',
+  streak_started: 'bg-[#FAFAFA] text-[#111827] border border-[#EAEAEA]',
 }
 
 export function RecentActivity({ activities }: RecentActivityProps) {
@@ -60,9 +60,9 @@ export function RecentActivity({ activities }: RecentActivityProps) {
   }
 
   return (
-    <div className="bg-white rounded-2xl p-6 shadow-sm">
+    <div className="bg-white rounded-[12px] p-6 shadow-sm border border-[#EAEAEA]">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-lg font-semibold text-gray-900">{t('recentActivity')}</h2>
+        <h2 className="text-[15px] font-semibold tracking-tight text-[#111827]">{t('recentActivity')}</h2>
       </div>
 
       {activities.length === 0 ? (
@@ -83,29 +83,29 @@ export function RecentActivity({ activities }: RecentActivityProps) {
               <div key={activity.id} className="flex gap-4">
                 {/* Timeline */}
                 <div className="flex flex-col items-center">
-                  <div className={clsx('p-2 rounded-lg', colorClass)}>
-                    <Icon className="w-4 h-4" />
+                  <div className={clsx('p-2 rounded-[6px]', colorClass)}>
+                    <Icon className="w-4 h-4 text-[#111827]" />
                   </div>
                   {index < activities.length - 1 && (
-                    <div className="w-0.5 h-full min-h-[40px] bg-gray-100 my-1" />
+                    <div className="w-px h-full min-h-[40px] bg-[#EAEAEA] my-1" />
                   )}
                 </div>
 
                 {/* Content */}
-                <div className="flex-1 pb-4">
+                <div className="flex-1 pb-5">
                   <div className="flex items-start justify-between">
                     <div>
                       <p className={clsx(
-                        'font-medium text-gray-900',
-                        isLatest && 'text-primary-700'
+                        'text-sm transition-colors',
+                        isLatest ? 'text-[#111827] font-semibold' : 'text-[#6B7280] font-medium'
                       )}>
                         {getActivityTitle(activity)}
                       </p>
                       {activity.description && (
-                        <p className="text-sm text-gray-500 mt-0.5">{activity.description}</p>
+                        <p className="text-xs text-[#9CA3AF] mt-1">{activity.description}</p>
                       )}
                     </div>
-                    <span className="text-xs text-gray-400 whitespace-nowrap">
+                    <span className="text-xs text-[#9CA3AF] whitespace-nowrap ml-4 font-medium">
                       {formatTimestamp(activity.timestamp)}
                     </span>
                   </div>

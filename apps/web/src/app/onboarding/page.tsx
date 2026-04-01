@@ -188,24 +188,24 @@ export default function OnboardingPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600" />
+      <div className="min-h-screen flex items-center justify-center bg-[#FAFAFA] font-sans">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#111827]" />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#FAFAFA] font-sans text-[#111827]">
       {/* Header */}
-      <header className="bg-white border-b">
-        <div className="container mx-auto px-4 py-4">
+      <header className="bg-white border-b border-[#EAEAEA] sticky top-0 z-10">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <BrandLogo href="/" size="md" />
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8 max-w-2xl">
-        <div className="bg-white rounded-2xl shadow-sm p-6 md:p-8">
+      <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-10 max-w-2xl">
+        <div className="bg-white rounded-[16px] shadow-sm border border-[#EAEAEA] p-6 md:p-10">
           {/* Progress */}
           <div className="mb-8">
             <OnboardingProgress
@@ -217,19 +217,22 @@ export default function OnboardingPage() {
 
           {/* Error Message */}
           {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-              {error}
+            <div className="mb-8 p-3.5 bg-[#FEF2F2] border border-[#FCA5A5] rounded-[8px] text-red-600 text-sm flex items-start space-x-2">
+              <svg className="w-5 h-5 text-red-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>{error}</span>
             </div>
           )}
 
           {/* Step Content */}
           <div className="min-h-[400px]">
             {currentStep === 0 && (
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+                <h2 className="text-2xl font-semibold tracking-tight text-[#111827] mb-2">
                   {t('onboarding.steps.year.title')}
                 </h2>
-                <p className="text-gray-600 mb-6">
+                <p className="text-sm text-[#6B7280] mb-8">
                   {t('onboarding.steps.year.subtitle')}
                 </p>
                 <YearSelector
@@ -243,11 +246,11 @@ export default function OnboardingPage() {
             )}
 
             {currentStep === 1 && (
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+                <h2 className="text-2xl font-semibold tracking-tight text-[#111827] mb-2">
                   {t('onboarding.steps.assessment.title')}
                 </h2>
-                <p className="text-gray-600 mb-6">
+                <p className="text-sm text-[#6B7280] mb-8">
                   {t('onboarding.steps.assessment.subtitle')}
                 </p>
                 <DiagnosticQuiz onComplete={handleAssessmentComplete} />
@@ -255,11 +258,11 @@ export default function OnboardingPage() {
             )}
 
             {currentStep === 2 && (
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+                <h2 className="text-2xl font-semibold tracking-tight text-[#111827] mb-2">
                   {t('onboarding.steps.studyHours.title')}
                 </h2>
-                <p className="text-gray-600 mb-6">
+                <p className="text-sm text-[#6B7280] mb-8">
                   {t('onboarding.steps.studyHours.subtitle')}
                 </p>
                 <StudyHoursSlider
@@ -270,11 +273,11 @@ export default function OnboardingPage() {
             )}
 
             {currentStep === 3 && (
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+                <h2 className="text-2xl font-semibold tracking-tight text-[#111827] mb-2">
                   {t('onboarding.steps.fitness.title')}
                 </h2>
-                <p className="text-gray-600 mb-6">
+                <p className="text-sm text-[#6B7280] mb-8">
                   {t('onboarding.steps.fitness.subtitle')}
                 </p>
                 <FitnessBaselineForm
@@ -288,16 +291,16 @@ export default function OnboardingPage() {
           </div>
 
           {/* Navigation */}
-          <div className="flex justify-between mt-8 pt-6 border-t">
+          <div className="flex justify-between mt-10 pt-6 border-t border-[#EAEAEA]">
             <button
               type="button"
               onClick={handleBack}
               disabled={currentStep === 0}
               className={clsx(
-                'px-4 py-2 rounded-lg font-medium transition-colors',
+                'px-4 py-2.5 rounded-[8px] text-sm font-medium transition-colors',
                 currentStep === 0
-                  ? 'text-gray-400 cursor-not-allowed'
-                  : 'text-gray-700 hover:bg-gray-100'
+                  ? 'text-gray-400 cursor-not-allowed opacity-50'
+                  : 'text-[#111827] border border-[#EAEAEA] hover:bg-[#FAFAFA] hover:border-gray-300'
               )}
             >
               {t('common.previous')}
@@ -308,7 +311,7 @@ export default function OnboardingPage() {
                 <button
                   type="button"
                   onClick={handleSkip}
-                  className="px-4 py-2 rounded-lg font-medium text-gray-600 hover:bg-gray-100 transition-colors"
+                  className="px-4 py-2.5 rounded-[8px] text-sm font-medium text-[#6B7280] hover:text-[#111827] hover:bg-[#FAFAFA] transition-colors"
                 >
                   {t('common.skip')}
                 </button>
@@ -319,10 +322,10 @@ export default function OnboardingPage() {
                 onClick={handleNext}
                 disabled={isSaving}
                 className={clsx(
-                  'px-6 py-2 rounded-lg font-medium transition-colors',
+                  'px-6 py-2.5 rounded-[8px] text-sm font-medium transition-colors border',
                   isSaving
-                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                    : 'bg-primary-600 text-white hover:bg-primary-700'
+                    ? 'bg-gray-100 text-gray-400 border-[#EAEAEA] cursor-not-allowed'
+                    : 'bg-[#111827] text-white border-[#111827] hover:bg-black focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900'
                 )}
               >
                 {isSaving
@@ -336,9 +339,9 @@ export default function OnboardingPage() {
         </div>
 
         {/* Help Text */}
-        <p className="text-center text-sm text-gray-500 mt-6">
+        <p className="text-center text-xs text-[#6B7280] mt-6">
           {t('onboarding.requiredFields')}{' '}
-          <span className="text-primary-600">{t('onboarding.optionalFields')}</span>
+          <span className="text-[#111827] font-medium">{t('onboarding.optionalFields')}</span>
         </p>
       </main>
     </div>

@@ -27,21 +27,21 @@ const taskTypeIcons = {
 }
 
 const taskTypeColors = {
-  lesson: 'bg-blue-100 text-blue-600',
-  test: 'bg-purple-100 text-purple-600',
-  revision: 'bg-green-100 text-green-600',
+  lesson: 'bg-[#FAFAFA] text-[#111827] border border-[#EAEAEA]',
+  test: 'bg-[#FAFAFA] text-[#111827] border border-[#EAEAEA]',
+  revision: 'bg-[#FAFAFA] text-[#111827] border border-[#EAEAEA]',
 }
 
 export function TodaysTasks({ tasks, locale }: TodaysTasksProps) {
   const t = useTranslations('dashboard')
 
   return (
-    <div className="bg-white rounded-2xl p-6 shadow-sm">
+    <div className="bg-white rounded-[12px] p-6 shadow-sm border border-[#EAEAEA]">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-lg font-semibold text-gray-900">{t('todayTasks')}</h2>
+        <h2 className="text-[15px] font-semibold text-[#111827] tracking-tight">{t('todayTasks')}</h2>
         <Link
           href="/dashboard"
-          className="text-sm text-primary-600 hover:text-primary-700 font-medium"
+          className="text-sm text-[#6B7280] hover:text-[#111827] font-medium transition-colors"
         >
           {t('viewAll')}
         </Link>
@@ -63,41 +63,41 @@ export function TodaysTasks({ tasks, locale }: TodaysTasksProps) {
               <div
                 key={task.id}
                 className={clsx(
-                  'flex items-center gap-4 p-4 rounded-xl border transition-all hover:shadow-sm',
+                  'flex items-center gap-4 p-4 rounded-[8px] border transition-all duration-200',
                   task.status === 'completed' 
-                    ? 'bg-gray-50 border-gray-100' 
-                    : 'bg-white border-gray-100 hover:border-primary-200'
+                    ? 'bg-[#FAFAFA] border-[#EAEAEA] opacity-75' 
+                    : 'bg-white border-[#EAEAEA] hover:border-gray-300 hover:bg-[#FAFAFA]'
                 )}
               >
                 {/* Task Type Icon */}
                 <div className="flex-shrink-0">
-                  <div className={clsx('p-2 rounded-lg', taskTypeColors[task.type])}>
-                    <TypeIcon className="w-5 h-5" />
+                  <div className={clsx('p-2.5 rounded-[6px]', taskTypeColors[task.type])}>
+                    <TypeIcon className="w-4 h-4 text-[#111827]" />
                   </div>
                 </div>
 
                 {/* Task Info */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className={clsx('px-2 py-0.5 rounded text-xs font-medium', taskTypeColors[task.type])}>
+                    <span className={clsx('px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider', taskTypeColors[task.type])}>
                       {t(task.type)}
                     </span>
-                    <span className="text-xs text-gray-500">{task.subject}</span>
+                    <span className="text-xs text-[#6B7280] font-medium truncate">{task.subject}</span>
                   </div>
                   <h3 className={clsx(
-                    'font-medium truncate',
-                    task.status === 'completed' ? 'text-gray-500 line-through' : 'text-gray-900'
+                    'font-medium text-sm truncate',
+                    task.status === 'completed' ? 'text-[#9CA3AF] line-through' : 'text-[#111827]'
                   )}>
                     {task.title}
                   </h3>
-                  <p className="text-sm text-gray-500 truncate">{task.topic}</p>
+                  <p className="text-[#6B7280] text-xs truncate mt-0.5">{task.topic}</p>
                 </div>
 
                 {/* Action Button */}
                 {task.status !== 'completed' && (
                   <Link
                     href="/pyqs"
-                    className="flex-shrink-0 px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-700 transition-colors"
+                    className="flex-shrink-0 px-4 py-2 bg-[#111827] text-white text-xs font-semibold rounded-[6px] hover:bg-black transition-colors"
                   >
                     {task.status === 'in_progress' ? t('inProgress') : t('practiceNow')}
                   </Link>

@@ -223,8 +223,8 @@ export default function PhysicalPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600" />
+      <div className="min-h-screen flex items-center justify-center bg-[#FAFAFA]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#111827]" />
       </div>
     )
   }
@@ -237,18 +237,18 @@ export default function PhysicalPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#FAFAFA]">
       {/* Header */}
-      <header className="bg-white border-b">
+      <header className="bg-white border-b border-[#EAEAEA] sticky top-0 z-10">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button
               onClick={() => router.push('/dashboard')}
-              className="text-gray-600 hover:text-gray-900"
+              className="text-[#6B7280] hover:text-[#111827] p-1.5 hover:bg-[#FAFAFA] rounded-full transition-colors"
             >
               <ChevronRight className="w-5 h-5 rotate-180" />
             </button>
-            <div className="text-xl font-bold text-primary-600">
+            <div className="text-[15px] font-semibold tracking-tight text-[#111827]">
               {t('physical.title')}
             </div>
           </div>
@@ -262,17 +262,17 @@ export default function PhysicalPage() {
         <main className="flex-1 lg:ml-0 p-4 lg:p-8 pt-16 lg:pt-8">
           <div className="max-w-7xl mx-auto">
             {/* Tabs */}
-            <div className="flex gap-2 mb-6 overflow-x-auto">
+            <div className="flex gap-2 mb-8 overflow-x-auto pb-2 scrollbar-hide">
               {tabs.map((tab) => {
                 const Icon = tab.icon
                 return (
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg whitespace-nowrap transition ${
+                    className={`flex items-center gap-2 px-4 py-2 rounded-[8px] text-sm font-medium whitespace-nowrap transition-all ${
                       activeTab === tab.id
-                        ? 'bg-primary-600 text-white'
-                        : 'bg-white text-gray-700 hover:bg-gray-50'
+                        ? 'bg-[#111827] text-white shadow-sm'
+                        : 'bg-white border border-[#EAEAEA] text-[#6B7280] hover:bg-[#FAFAFA] hover:text-[#111827]'
                     }`}
                   >
                     <Icon className="w-4 h-4" />
@@ -286,63 +286,63 @@ export default function PhysicalPage() {
             {activeTab === 'overview' && (
               <div className="space-y-6">
                 {/* Readiness Overview */}
-                <div className="bg-white rounded-xl p-6 shadow-sm">
-                  <h2 className="text-xl font-semibold mb-4">{t('physical.readiness.title')}</h2>
+                <div className="bg-white rounded-[12px] p-6 shadow-sm border border-[#EAEAEA]">
+                  <h2 className="text-[15px] font-semibold tracking-tight text-[#111827] mb-5">{t('physical.readiness.title')}</h2>
                   <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div className={`p-4 rounded-lg ${readiness?.pst_complete ? 'bg-green-50' : 'bg-yellow-50'}`}>
+                    <div className="p-4 rounded-[8px] border border-[#EAEAEA] bg-[#FAFAFA]">
                       <div className="flex items-center gap-2 mb-2">
                         {readiness?.pst_complete ? (
-                          <CheckCircle2 className="w-5 h-5 text-green-600" />
+                          <CheckCircle2 className="w-4 h-4 text-green-600" />
                         ) : (
-                          <XCircle className="w-5 h-5 text-yellow-600" />
+                          <XCircle className="w-4 h-4 text-orange-500" />
                         )}
-                        <span className="font-medium">{t('physical.readiness.pst')}</span>
+                        <span className="font-semibold text-sm text-[#111827]">{t('physical.readiness.pst')}</span>
                       </div>
-                      <p className="text-sm text-gray-600">
+                      <p className="text-xs text-[#6B7280] font-medium">
                         {readiness?.pst_complete ? t('common.completed') : t('common.pending')}
                       </p>
                     </div>
-                    <div className={`p-4 rounded-lg ${readiness?.pet_complete ? 'bg-green-50' : 'bg-yellow-50'}`}>
+                    <div className="p-4 rounded-[8px] border border-[#EAEAEA] bg-[#FAFAFA]">
                       <div className="flex items-center gap-2 mb-2">
                         {readiness?.pet_complete ? (
-                          <CheckCircle2 className="w-5 h-5 text-green-600" />
+                          <CheckCircle2 className="w-4 h-4 text-green-600" />
                         ) : (
-                          <XCircle className="w-5 h-5 text-yellow-600" />
+                          <XCircle className="w-4 h-4 text-orange-500" />
                         )}
-                        <span className="font-medium">{t('physical.readiness.pet')}</span>
+                        <span className="font-semibold text-sm text-[#111827]">{t('physical.readiness.pet')}</span>
                       </div>
-                      <p className="text-sm text-gray-600">
+                      <p className="text-xs text-[#6B7280] font-medium">
                         {readiness?.pet_complete ? t('common.completed') : t('common.pending')}
                       </p>
                     </div>
-                    <div className={`p-4 rounded-lg ${readiness?.height_measured ? 'bg-green-50' : 'bg-yellow-50'}`}>
+                    <div className="p-4 rounded-[8px] border border-[#EAEAEA] bg-[#FAFAFA]">
                       <div className="flex items-center gap-2 mb-2">
-                        <Ruler className={`w-5 h-5 ${readiness?.height_measured ? 'text-green-600' : 'text-yellow-600'}`} />
-                        <span className="font-medium">{t('physical.readiness.height')}</span>
+                        <Ruler className={`w-4 h-4 ${readiness?.height_measured ? 'text-[#111827]' : 'text-[#9CA3AF]'}`} />
+                        <span className="font-semibold text-sm text-[#111827]">{t('physical.readiness.height')}</span>
                       </div>
-                      <p className="text-sm text-gray-600">
+                      <p className="text-xs text-[#6B7280] font-medium">
                         {readiness?.height_measured ? t('common.measured') : t('common.notMeasured')}
                       </p>
                     </div>
-                    <div className={`p-4 rounded-lg ${readiness?.weight_measured ? 'bg-green-50' : 'bg-yellow-50'}`}>
+                    <div className="p-4 rounded-[8px] border border-[#EAEAEA] bg-[#FAFAFA]">
                       <div className="flex items-center gap-2 mb-2">
-                        <Weight className={`w-5 h-5 ${readiness?.weight_measured ? 'text-green-600' : 'text-yellow-600'}`} />
-                        <span className="font-medium">{t('physical.readiness.weight')}</span>
+                        <Weight className={`w-4 h-4 ${readiness?.weight_measured ? 'text-[#111827]' : 'text-[#9CA3AF]'}`} />
+                        <span className="font-semibold text-sm text-[#111827]">{t('physical.readiness.weight')}</span>
                       </div>
-                      <p className="text-sm text-gray-600">
+                      <p className="text-xs text-[#6B7280] font-medium">
                         {readiness?.weight_measured ? t('common.measured') : t('common.notMeasured')}
                       </p>
                     </div>
                   </div>
                   {readiness && (
-                    <div className="mt-4">
-                      <div className="flex justify-between text-sm mb-1">
-                        <span>{t('physical.readiness.overall')}</span>
-                        <span className="font-medium">{readiness.overall_percentage}%</span>
+                    <div className="mt-6 pt-5 border-t border-[#EAEAEA]">
+                      <div className="flex justify-between text-xs font-semibold text-[#111827] mb-2 uppercase tracking-wider">
+                        <span className="text-[#9CA3AF]">{t('physical.readiness.overall')}</span>
+                        <span>{readiness.overall_percentage}%</span>
                       </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div className="w-full bg-[#EAEAEA] rounded-full h-1.5 overflow-hidden">
                         <div
-                          className="bg-primary-600 h-2 rounded-full transition-all"
+                          className="bg-[#111827] h-full rounded-full transition-all duration-500 ease-out"
                           style={{ width: `${readiness.overall_percentage}%` }}
                         />
                       </div>
@@ -351,39 +351,39 @@ export default function PhysicalPage() {
                 </div>
 
                 {/* PST Requirements */}
-                <div className="bg-white rounded-xl p-6 shadow-sm">
-                  <h2 className="text-xl font-semibold mb-4">{t('physical.pst.title')}</h2>
+                <div className="bg-white rounded-[12px] p-6 shadow-sm border border-[#EAEAEA]">
+                  <h2 className="text-[15px] font-semibold tracking-tight text-[#111827] mb-5">{t('physical.pst.title')}</h2>
                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                    <div className="p-4 bg-gray-50 rounded-lg">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Ruler className="w-5 h-5 text-gray-600" />
-                        <span className="font-medium">{t('physical.pst.height')}</span>
+                    <div className="p-5 bg-white border border-[#EAEAEA] rounded-[8px] hover:border-gray-300 transition-colors">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Ruler className="w-4 h-4 text-[#9CA3AF]" />
+                        <span className="font-medium text-sm text-[#6B7280]">{t('physical.pst.height')}</span>
                       </div>
-                      <p className="text-2xl font-bold text-primary-600">
+                      <p className="text-2xl font-bold tracking-tight text-[#111827]">
                         {pstRequirements?.height_cm_min} cm
                       </p>
-                      <p className="text-sm text-gray-500">{t('physical.pst.minimum')}</p>
+                      <p className="text-[11px] uppercase tracking-wider font-semibold text-[#9CA3AF] mt-1">{t('physical.pst.minimum')}</p>
                     </div>
                     {userGender === 'male' && pstRequirements?.chest_cm_min && (
-                      <div className="p-4 bg-gray-50 rounded-lg">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Activity className="w-5 h-5 text-gray-600" />
-                          <span className="font-medium">{t('physical.pst.chest')}</span>
+                      <div className="p-5 bg-white border border-[#EAEAEA] rounded-[8px] hover:border-gray-300 transition-colors">
+                        <div className="flex items-center gap-2 mb-3">
+                          <Activity className="w-4 h-4 text-[#9CA3AF]" />
+                          <span className="font-medium text-sm text-[#6B7280]">{t('physical.pst.chest')}</span>
                         </div>
-                        <p className="text-2xl font-bold text-primary-600">
+                        <p className="text-2xl font-bold tracking-tight text-[#111827]">
                           {pstRequirements.chest_cm_min} cm
                         </p>
-                        <p className="text-sm text-gray-500">
+                        <p className="text-[11px] uppercase tracking-wider font-semibold text-[#9CA3AF] mt-1">
                           + {pstRequirements.chest_expansion_cm} cm {t('physical.pst.expansion')}
                         </p>
                       </div>
                     )}
-                    <div className="p-4 bg-gray-50 rounded-lg">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Weight className="w-5 h-5 text-gray-600" />
-                        <span className="font-medium">{t('physical.pst.weight')}</span>
+                    <div className="p-5 bg-white border border-[#EAEAEA] rounded-[8px] hover:border-gray-300 transition-colors">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Weight className="w-4 h-4 text-[#9CA3AF]" />
+                        <span className="font-medium text-sm text-[#6B7280]">{t('physical.pst.weight')}</span>
                       </div>
-                      <p className="text-lg font-bold text-primary-600">
+                      <p className="text-xl font-bold tracking-tight text-[#111827]">
                         {pstRequirements?.weight_kg_note || t('physical.pst.proportionate')}
                       </p>
                     </div>
@@ -391,50 +391,50 @@ export default function PhysicalPage() {
                 </div>
 
                 {/* PET Requirements */}
-                <div className="bg-white rounded-xl p-6 shadow-sm">
-                  <h2 className="text-xl font-semibold mb-4">{t('physical.pet.title')}</h2>
+                <div className="bg-white rounded-[12px] p-6 shadow-sm border border-[#EAEAEA]">
+                  <h2 className="text-[15px] font-semibold tracking-tight text-[#111827] mb-5">{t('physical.pet.title')}</h2>
                   <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-                    <div className="p-4 bg-blue-50 rounded-lg">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Timer className="w-5 h-5 text-blue-600" />
-                        <span className="font-medium">{t('physical.pet.run')}</span>
+                    <div className="p-5 bg-white border border-[#EAEAEA] rounded-[8px] hover:border-gray-300 transition-colors">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Timer className="w-4 h-4 text-[#9CA3AF]" />
+                        <span className="font-medium text-sm text-[#6B7280]">{t('physical.pet.run')}</span>
                       </div>
-                      <p className="text-2xl font-bold text-blue-600">
+                      <p className="text-2xl font-bold tracking-tight text-[#111827]">
                         {petRequirements?.run_distance_km} km
                       </p>
-                      <p className="text-sm text-gray-600">
+                      <p className="text-[11px] uppercase tracking-wider font-semibold text-[#9CA3AF] mt-1">
                         {t('physical.pet.maxTime')}: {Math.floor((petRequirements?.run_time_seconds_max || 0) / 60)}:{((petRequirements?.run_time_seconds_max || 0) % 60).toString().padStart(2, '0')}
                       </p>
                     </div>
-                    <div className="p-4 bg-green-50 rounded-lg">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Zap className="w-5 h-5 text-green-600" />
-                        <span className="font-medium">{t('physical.pet.longJump')}</span>
+                    <div className="p-5 bg-white border border-[#EAEAEA] rounded-[8px] hover:border-gray-300 transition-colors">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Zap className="w-4 h-4 text-[#9CA3AF]" />
+                        <span className="font-medium text-sm text-[#6B7280]">{t('physical.pet.longJump')}</span>
                       </div>
-                      <p className="text-2xl font-bold text-green-600">
+                      <p className="text-2xl font-bold tracking-tight text-[#111827]">
                         {petRequirements?.long_jump_m_min} m
                       </p>
-                      <p className="text-sm text-gray-500">{t('physical.pet.minimum')}</p>
+                      <p className="text-[11px] uppercase tracking-wider font-semibold text-[#9CA3AF] mt-1">{t('physical.pet.minimum')}</p>
                     </div>
-                    <div className="p-4 bg-purple-50 rounded-lg">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Heart className="w-5 h-5 text-purple-600" />
-                        <span className="font-medium">{t('physical.pet.highJump')}</span>
+                    <div className="p-5 bg-white border border-[#EAEAEA] rounded-[8px] hover:border-gray-300 transition-colors">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Heart className="w-4 h-4 text-[#9CA3AF]" />
+                        <span className="font-medium text-sm text-[#6B7280]">{t('physical.pet.highJump')}</span>
                       </div>
-                      <p className="text-2xl font-bold text-purple-600">
+                      <p className="text-2xl font-bold tracking-tight text-[#111827]">
                         {petRequirements?.high_jump_m_min} m
                       </p>
-                      <p className="text-sm text-gray-500">{t('physical.pet.minimum')}</p>
+                      <p className="text-[11px] uppercase tracking-wider font-semibold text-[#9CA3AF] mt-1">{t('physical.pet.minimum')}</p>
                     </div>
-                    <div className="p-4 bg-orange-50 rounded-lg">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Activity className="w-5 h-5 text-orange-600" />
-                        <span className="font-medium">{t('physical.pet.gender')}</span>
+                    <div className="p-5 bg-white border border-[#EAEAEA] rounded-[8px] hover:border-gray-300 transition-colors">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Activity className="w-4 h-4 text-[#9CA3AF]" />
+                        <span className="font-medium text-sm text-[#6B7280]">{t('physical.pet.gender')}</span>
                       </div>
-                      <p className="text-2xl font-bold text-orange-600 capitalize">
+                      <p className="text-2xl font-bold tracking-tight text-[#111827] capitalize">
                         {userGender}
                       </p>
-                      <p className="text-sm text-gray-500">{t('physical.pet.genderSpecific')}</p>
+                      <p className="text-[11px] uppercase tracking-wider font-semibold text-[#9CA3AF] mt-1">{t('physical.pet.genderSpecific')}</p>
                     </div>
                   </div>
                 </div>
@@ -444,62 +444,65 @@ export default function PhysicalPage() {
             {/* Plans Tab */}
             {activeTab === 'plans' && (
               <div className="space-y-6">
-                <div className="flex justify-between items-center">
-                  <h2 className="text-xl font-semibold">{t('physical.plans.title')}</h2>
-                  <select className="border rounded-lg px-3 py-2">
-                    <option value="">{t('physical.plans.allTypes')}</option>
-                    <option value="running">{t('physical.plans.running')}</option>
-                    <option value="strength">{t('physical.plans.strength')}</option>
-                    <option value="flexibility">{t('physical.plans.flexibility')}</option>
-                  </select>
-                </div>
-                
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                  {plans.map((plan) => (
-                    <div key={plan.id} className="bg-white rounded-xl p-6 shadow-sm">
-                      <div className="flex justify-between items-start mb-4">
-                        <div>
-                          <h3 className="font-semibold text-lg">{plan.title}</h3>
-                          <p className="text-sm text-gray-500">{plan.description}</p>
-                        </div>
-                        {plan.is_premium && (
-                          <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">
-                            Free Access
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex gap-4 text-sm text-gray-600 mb-4">
-                        <span className="flex items-center gap-1">
-                          <Activity className="w-4 h-4" />
-                          {plan.plan_type}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <Timer className="w-4 h-4" />
-                          {plan.duration_weeks} {t('physical.plans.weeks')}
-                        </span>
-                        {plan.difficulty_level && (
-                          <span className="flex items-center gap-1">
-                            <Zap className="w-4 h-4" />
-                            {plan.difficulty_level}
-                          </span>
-                        )}
-                      </div>
-                      <button
-                        onClick={() => router.push(`/physical/plans/${plan.id}`)}
-                        className="w-full bg-primary-600 text-white py-2 rounded-lg hover:bg-primary-700 transition"
-                      >
-                        {t('physical.plans.viewPlan')}
-                      </button>
-                    </div>
-                  ))}
-                </div>
-                
-                {plans.length === 0 && (
-                  <div className="text-center py-12 text-gray-500">
-                    <Dumbbell className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                    <p>{t('physical.plans.noPlans')}</p>
+                <div className="bg-white rounded-[12px] p-6 shadow-sm border border-[#EAEAEA]">
+                  <div className="flex items-center justify-between mb-5">
+                    <h2 className="text-[15px] font-semibold tracking-tight text-[#111827]">{t('physical.plans.current')}</h2>
+                    <span className="px-3 py-1 bg-[#FAFAFA] border border-[#EAEAEA] text-[#111827] rounded-[6px] text-xs font-semibold">
+                      {t('physical.plans.week')} 3/12
+                    </span>
                   </div>
-                )}
+
+                  <div className="space-y-4">
+                    {[1, 2, 3, 4, 5, 6, 7].map((day) => (
+                      <div key={day} className="border border-[#EAEAEA] rounded-[8px] p-5 bg-[#FAFAFA] hover:border-gray-300 transition-colors">
+                        <div className="flex items-start justify-between">
+                          <div className="flex items-start gap-4">
+                            <div className="mt-1">
+                              {day <= 2 ? (
+                                <CheckCircle2 className="w-5 h-5 text-green-600" />
+                              ) : day === 3 ? (
+                                <div className="w-5 h-5 rounded-full border-2 border-[#111827] border-t-transparent animate-spin" />
+                              ) : (
+                                <div className="w-5 h-5 rounded-full border-2 border-[#EAEAEA]" />
+                              )}
+                            </div>
+                            <div>
+                              <h3 className="font-semibold text-sm text-[#111827] mb-1">
+                                {t('physical.plans.day')} {day}: {day === 7 ? t('physical.plans.rest') : t('physical.plans.trainingCardio')}
+                              </h3>
+                              {day !== 7 && (
+                                <p className="text-[#6B7280] text-sm mb-3">
+                                  {day % 2 === 0 ? '5km Run (Target: 25 mins) + Core' : 'Intervals: 400m x 8 + Legs'}
+                                </p>
+                              )}
+                              <div className="flex gap-2">
+                                <span className={`px-2.5 py-1 rounded-[6px] text-[10px] font-bold tracking-wider uppercase ${
+                                  day === 7 ? 'bg-white border border-[#EAEAEA] text-[#6B7280]' : 'bg-white border border-[#EAEAEA] text-[#111827]'
+                                }`}>
+                                  {day === 7 ? t('physical.plans.recovery') : t('physical.plans.highIntensity')}
+                                </span>
+                                {day !== 7 && (
+                                  <span className="px-2.5 py-1 bg-white border border-[#EAEAEA] text-[#6B7280] rounded-[6px] text-[10px] font-bold tracking-wider uppercase">
+                                    60 {t('physical.plans.mins')}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                          {day === 3 && (
+                            <button className="px-4 py-2 bg-[#111827] text-white text-xs font-semibold rounded-[6px] hover:bg-black transition-colors">
+                              {t('physical.plans.start')}
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <button className="w-full mt-5 py-2.5 bg-white border border-[#EAEAEA] rounded-[8px] text-sm font-semibold text-[#111827] hover:bg-[#FAFAFA] transition-colors flex items-center justify-center gap-2">
+                    {t('physical.plans.viewFull')} <ArrowRight className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             )}
 
@@ -507,18 +510,18 @@ export default function PhysicalPage() {
             {activeTab === 'progress' && (
               <div className="space-y-6">
                 {/* Log Progress Form */}
-                <div className="bg-white rounded-xl p-6 shadow-sm">
-                  <h2 className="text-xl font-semibold mb-4">{t('physical.progress.logSession')}</h2>
-                  <form onSubmit={handleLogProgress} className="space-y-4">
+                <div className="bg-white rounded-[12px] p-6 shadow-sm border border-[#EAEAEA]">
+                  <h2 className="text-[15px] font-semibold tracking-tight text-[#111827] mb-5">{t('physical.progress.logSession')}</h2>
+                  <form onSubmit={handleLogProgress} className="space-y-5">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-[11px] font-semibold uppercase tracking-wider text-[#9CA3AF] mb-2">
                           {t('physical.progress.activityType')}
                         </label>
                         <select
                           value={progressForm.activity_type}
                           onChange={(e) => handleProgressFormChange('activity_type', e.target.value)}
-                          className="w-full border rounded-lg px-3 py-2"
+                          className="w-full px-3 py-2.5 bg-white border border-[#EAEAEA] rounded-[8px] text-sm text-[#111827] focus:outline-none focus:border-[#111827] focus:ring-1 focus:ring-[#111827] transition-shadow"
                         >
                           <option value="running">{t('physical.activity.running')}</option>
                           <option value="strength">{t('physical.activity.strength')}</option>
@@ -526,7 +529,7 @@ export default function PhysicalPage() {
                         </select>
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-[11px] font-semibold uppercase tracking-wider text-[#9CA3AF] mb-2">
                           {t('physical.progress.duration')}
                         </label>
                         <input
@@ -534,13 +537,13 @@ export default function PhysicalPage() {
                           value={progressForm.duration_minutes}
                           onChange={(e) => handleProgressFormChange('duration_minutes', e.target.value)}
                           placeholder="30"
-                          className="w-full border rounded-lg px-3 py-2"
+                          className="w-full px-3 py-2.5 bg-white border border-[#EAEAEA] rounded-[8px] text-sm text-[#111827] focus:outline-none focus:border-[#111827] focus:ring-1 focus:ring-[#111827] transition-shadow"
                         />
                       </div>
                       {progressForm.activity_type === 'running' && (
                         <>
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                            <label className="block text-[11px] font-semibold uppercase tracking-wider text-[#9CA3AF] mb-2">
                               {t('physical.progress.distance')} (km)
                             </label>
                             <input
@@ -549,11 +552,11 @@ export default function PhysicalPage() {
                               value={progressForm.distance_km}
                               onChange={(e) => handleProgressFormChange('distance_km', e.target.value)}
                               placeholder="5.0"
-                              className="w-full border rounded-lg px-3 py-2"
+                              className="w-full px-3 py-2.5 bg-white border border-[#EAEAEA] rounded-[8px] text-sm text-[#111827] focus:outline-none focus:border-[#111827] focus:ring-1 focus:ring-[#111827] transition-shadow"
                             />
                           </div>
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                            <label className="block text-[11px] font-semibold uppercase tracking-wider text-[#9CA3AF] mb-2">
                               {t('physical.progress.pace')} (min/km)
                             </label>
                             <input
@@ -562,41 +565,41 @@ export default function PhysicalPage() {
                               value={progressForm.pace_min_per_km}
                               onChange={(e) => handleProgressFormChange('pace_min_per_km', e.target.value)}
                               placeholder="6.0"
-                              className="w-full border rounded-lg px-3 py-2"
+                              className="w-full px-3 py-2.5 bg-white border border-[#EAEAEA] rounded-[8px] text-sm text-[#111827] focus:outline-none focus:border-[#111827] focus:ring-1 focus:ring-[#111827] transition-shadow"
                             />
                           </div>
                         </>
                       )}
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-[11px] font-semibold uppercase tracking-wider text-[#9CA3AF] mb-2">
                         {t('physical.progress.notes')}
                       </label>
                       <textarea
                         value={progressForm.notes}
                         onChange={(e) => handleProgressFormChange('notes', e.target.value)}
                         placeholder={t('physical.progress.notesPlaceholder')}
-                        className="w-full border rounded-lg px-3 py-2"
+                        className="w-full px-3 py-2.5 bg-white border border-[#EAEAEA] rounded-[8px] text-sm text-[#111827] focus:outline-none focus:border-[#111827] focus:ring-1 focus:ring-[#111827] transition-shadow"
                         rows={3}
                       />
                     </div>
                     <button
                       type="submit"
                       disabled={isSubmitting}
-                      className="flex items-center gap-2 bg-primary-600 text-white px-6 py-2 rounded-lg hover:bg-primary-700 transition disabled:opacity-50"
+                      className="w-full py-2.5 bg-[#111827] text-white rounded-[8px] font-medium hover:bg-black transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                     >
                       <Plus className="w-4 h-4" />
                       {isSubmitting ? t('common.submitting') : t('physical.progress.log')}
                     </button>
                     {submitSuccess && (
-                      <p className="text-green-600">{t('physical.progress.loggedSuccess')}</p>
+                      <p className="text-green-600 text-sm font-medium">{t('physical.progress.loggedSuccess')}</p>
                     )}
                   </form>
                 </div>
 
                 {/* Endurance Chart */}
-                <div className="bg-white rounded-xl p-6 shadow-sm">
-                  <h2 className="text-xl font-semibold mb-4">{t('physical.progress.endurance.title')}</h2>
+                <div className="bg-white rounded-[12px] p-6 shadow-sm border border-[#EAEAEA]">
+                  <h2 className="text-[15px] font-semibold tracking-tight text-[#111827] mb-5">{t('physical.progress.endurance.title')}</h2>
                   {enduranceData.length > 0 ? (
                     <div className="space-y-4">
                       {/* Simple chart representation */}
@@ -604,7 +607,7 @@ export default function PhysicalPage() {
                         {enduranceData.map((point, index) => (
                           <div key={index} className="flex-1 flex flex-col items-center">
                             <div
-                              className="w-full bg-primary-500 rounded-t"
+                              className="w-full bg-[#111827] rounded-t-[4px] hover:opacity-80 transition-opacity"
                               style={{
                                 height: `${Math.min((point.distance_km / Math.max(...enduranceData.map(d => d.distance_km))) * 100, 100)}%`,
                               }}
@@ -612,15 +615,15 @@ export default function PhysicalPage() {
                           </div>
                         ))}
                       </div>
-                      <div className="flex justify-between text-sm text-gray-500">
+                      <div className="flex justify-between text-sm text-[#6B7280] font-medium border-t border-[#EAEAEA] pt-4 mt-2">
                         <span>{t('physical.progress.endurance.30days')}</span>
-                        <span>
+                        <span className="text-[#111827] font-semibold">
                           {t('physical.progress.endurance.total')}: {enduranceData.reduce((sum, d) => sum + d.distance_km, 0).toFixed(1)} km
                         </span>
                       </div>
                     </div>
                   ) : (
-                    <p className="text-gray-500 text-center py-8">
+                    <p className="text-[#6B7280] text-center py-8">
                       {t('physical.progress.endurance.noData')}
                     </p>
                   )}
@@ -632,12 +635,12 @@ export default function PhysicalPage() {
             {activeTab === 'mock-test' && (
               <div className="space-y-6">
                 {/* Mock Test Form */}
-                <div className="bg-white rounded-xl p-6 shadow-sm">
-                  <h2 className="text-xl font-semibold mb-4">{t('physical.mockTest.title')}</h2>
-                  <form onSubmit={handleMockTest} className="space-y-4">
+                <div className="bg-white rounded-[12px] p-6 shadow-sm border border-[#EAEAEA]">
+                  <h2 className="text-[15px] font-semibold tracking-tight text-[#111827] mb-5">{t('physical.mockTest.title')}</h2>
+                  <form onSubmit={handleMockTest} className="space-y-5">
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-[11px] font-semibold uppercase tracking-wider text-[#9CA3AF] mb-2">
                           {t('physical.mockTest.height')} (cm)
                         </label>
                         <input
@@ -645,12 +648,12 @@ export default function PhysicalPage() {
                           value={mockTestForm.height_cm}
                           onChange={(e) => handleMockTestFormChange('height_cm', e.target.value)}
                           placeholder={pstRequirements?.height_cm_min?.toString() || '170'}
-                          className="w-full border rounded-lg px-3 py-2"
+                          className="w-full px-3 py-2.5 bg-white border border-[#EAEAEA] rounded-[8px] text-sm text-[#111827] focus:outline-none focus:border-[#111827] focus:ring-1 focus:ring-[#111827] transition-shadow"
                         />
                       </div>
                       {userGender === 'male' && (
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <label className="block text-[11px] font-semibold uppercase tracking-wider text-[#9CA3AF] mb-2">
                             {t('physical.mockTest.chest')} (cm)
                           </label>
                           <input
@@ -658,12 +661,12 @@ export default function PhysicalPage() {
                             value={mockTestForm.chest_cm}
                             onChange={(e) => handleMockTestFormChange('chest_cm', e.target.value)}
                             placeholder={pstRequirements?.chest_cm_min?.toString() || '80'}
-                            className="w-full border rounded-lg px-3 py-2"
+                            className="w-full px-3 py-2.5 bg-white border border-[#EAEAEA] rounded-[8px] text-sm text-[#111827] focus:outline-none focus:border-[#111827] focus:ring-1 focus:ring-[#111827] transition-shadow"
                           />
                         </div>
                       )}
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-[11px] font-semibold uppercase tracking-wider text-[#9CA3AF] mb-2">
                           {t('physical.mockTest.weight')} (kg)
                         </label>
                         <input
@@ -671,14 +674,14 @@ export default function PhysicalPage() {
                           value={mockTestForm.weight_kg}
                           onChange={(e) => handleMockTestFormChange('weight_kg', e.target.value)}
                           placeholder="70"
-                          className="w-full border rounded-lg px-3 py-2"
+                          className="w-full px-3 py-2.5 bg-white border border-[#EAEAEA] rounded-[8px] text-sm text-[#111827] focus:outline-none focus:border-[#111827] focus:ring-1 focus:ring-[#111827] transition-shadow"
                         />
                       </div>
                     </div>
                     
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-[11px] font-semibold uppercase tracking-wider text-[#9CA3AF] mb-2">
                           {userGender === 'male' ? '1.5km' : '800m'} {t('physical.mockTest.runTime')}
                         </label>
                         <div className="flex gap-2">
@@ -687,20 +690,20 @@ export default function PhysicalPage() {
                             value={mockTestForm.run_time_minutes}
                             onChange={(e) => handleMockTestFormChange('run_time_minutes', e.target.value)}
                             placeholder={userGender === 'male' ? '7' : '4'}
-                            className="w-full border rounded-lg px-3 py-2"
+                            className="w-full px-3 py-2.5 bg-white border border-[#EAEAEA] rounded-[8px] text-sm text-[#111827] focus:outline-none focus:border-[#111827] focus:ring-1 focus:ring-[#111827] transition-shadow"
                           />
-                          <span className="self-center">:</span>
+                          <span className="self-center font-bold text-[#111827]">:</span>
                           <input
                             type="number"
                             value={mockTestForm.run_time_seconds}
                             onChange={(e) => handleMockTestFormChange('run_time_seconds', e.target.value)}
                             placeholder="0"
-                            className="w-full border rounded-lg px-3 py-2"
+                            className="w-full px-3 py-2.5 bg-white border border-[#EAEAEA] rounded-[8px] text-sm text-[#111827] focus:outline-none focus:border-[#111827] focus:ring-1 focus:ring-[#111827] transition-shadow"
                           />
                         </div>
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-[11px] font-semibold uppercase tracking-wider text-[#9CA3AF] mb-2">
                           {t('physical.mockTest.longJump')} (m)
                         </label>
                         <input
@@ -709,11 +712,11 @@ export default function PhysicalPage() {
                           value={mockTestForm.long_jump_m}
                           onChange={(e) => handleMockTestFormChange('long_jump_m', e.target.value)}
                           placeholder={petRequirements?.long_jump_m_min?.toString() || '2.65'}
-                          className="w-full border rounded-lg px-3 py-2"
+                          className="w-full px-3 py-2.5 bg-white border border-[#EAEAEA] rounded-[8px] text-sm text-[#111827] focus:outline-none focus:border-[#111827] focus:ring-1 focus:ring-[#111827] transition-shadow"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-[11px] font-semibold uppercase tracking-wider text-[#9CA3AF] mb-2">
                           {t('physical.mockTest.highJump')} (m)
                         </label>
                         <input
@@ -722,7 +725,7 @@ export default function PhysicalPage() {
                           value={mockTestForm.high_jump_m}
                           onChange={(e) => handleMockTestFormChange('high_jump_m', e.target.value)}
                           placeholder={petRequirements?.high_jump_m_min?.toString() || '1.20'}
-                          className="w-full border rounded-lg px-3 py-2"
+                          className="w-full px-3 py-2.5 bg-white border border-[#EAEAEA] rounded-[8px] text-sm text-[#111827] focus:outline-none focus:border-[#111827] focus:ring-1 focus:ring-[#111827] transition-shadow"
                         />
                       </div>
                     </div>
@@ -730,7 +733,7 @@ export default function PhysicalPage() {
                     <button
                       type="submit"
                       disabled={isSubmitting}
-                      className="flex items-center gap-2 bg-primary-600 text-white px-6 py-2 rounded-lg hover:bg-primary-700 transition disabled:opacity-50"
+                      className="w-full py-2.5 bg-[#111827] text-white rounded-[8px] font-medium hover:bg-black transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                     >
                       <Award className="w-4 h-4" />
                       {isSubmitting ? t('common.submitting') : t('physical.mockTest.calculate')}
@@ -740,38 +743,38 @@ export default function PhysicalPage() {
 
                 {/* Mock Test Results */}
                 {mockTestResult && (
-                  <div className="bg-white rounded-xl p-6 shadow-sm">
+                  <div className="bg-white rounded-[12px] p-6 shadow-sm border border-[#EAEAEA]">
                     <div className="flex items-center justify-between mb-6">
-                      <h2 className="text-xl font-semibold">{t('physical.mockTest.results')}</h2>
-                      <div className={`px-4 py-2 rounded-lg ${mockTestResult.overall_passed ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                        <span className="font-bold text-2xl">{mockTestResult.score}%</span>
-                        <span className="ml-2">{mockTestResult.overall_passed ? t('common.passed') : t('common.failed')}</span>
+                      <h2 className="text-[15px] font-semibold tracking-tight text-[#111827]">{t('physical.mockTest.results')}</h2>
+                      <div className={`px-4 py-2 rounded-[8px] border ${mockTestResult.overall_passed ? 'bg-green-50 border-green-200 text-green-800' : 'bg-red-50 border-red-200 text-red-800'}`}>
+                        <span className="font-bold tracking-tight text-xl">{mockTestResult.score}%</span>
+                        <span className="ml-2 font-medium text-sm">{mockTestResult.overall_passed ? t('common.passed') : t('common.failed')}</span>
                       </div>
                     </div>
                     
-                    <div className="space-y-4 mb-6">
+                    <div className="space-y-3 mb-6">
                       {mockTestResult.stations.map((station, index) => (
                         <div
                           key={index}
-                          className={`p-4 rounded-lg flex items-center justify-between ${
-                            station.passed ? 'bg-green-50' : 'bg-red-50'
+                          className={`p-4 rounded-[8px] border flex items-center justify-between ${
+                            station.passed ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'
                           }`}
                         >
                           <div>
-                            <h3 className="font-medium">{station.station_name}</h3>
-                            <p className="text-sm text-gray-600">{station.requirement}</p>
+                            <h3 className={`font-semibold text-sm ${station.passed ? 'text-green-800' : 'text-red-800'}`}>{station.station_name}</h3>
+                            <p className={`text-xs mt-1 ${station.passed ? 'text-green-700' : 'text-red-700'}`}>{station.requirement}</p>
                           </div>
                           <div className="text-right">
                             {station.user_value !== undefined && (
-                              <p className="text-2xl font-bold">
+                              <p className={`text-lg font-bold tracking-tight ${station.passed ? 'text-green-800' : 'text-red-800'}`}>
                                 {station.user_value} {station.unit}
                               </p>
                             )}
                             {station.passed !== undefined && (
                               station.passed ? (
-                                <CheckCircle2 className="w-6 h-6 text-green-600 ml-auto" />
+                                <CheckCircle2 className="w-5 h-5 text-green-600 ml-auto mt-1" />
                               ) : (
-                                <XCircle className="w-6 h-6 text-red-600 ml-auto" />
+                                <XCircle className="w-5 h-5 text-red-600 ml-auto mt-1" />
                               )
                             )}
                           </div>
@@ -780,9 +783,9 @@ export default function PhysicalPage() {
                     </div>
                     
                     {mockTestResult.recommendations.length > 0 && (
-                      <div className="bg-yellow-50 rounded-lg p-4">
-                        <h3 className="font-medium mb-2">{t('physical.mockTest.recommendations')}</h3>
-                        <ul className="list-disc list-inside space-y-1 text-sm">
+                      <div className="bg-[#FAFAFA] border border-[#EAEAEA] rounded-[8px] p-5">
+                        <h3 className="font-semibold text-sm text-[#111827] mb-3">{t('physical.mockTest.recommendations')}</h3>
+                        <ul className="list-disc list-inside space-y-2 text-sm text-[#6B7280]">
                           {mockTestResult.recommendations.map((rec, index) => (
                             <li key={index}>{rec}</li>
                           ))}

@@ -57,7 +57,7 @@ export function Sidebar({ locale }: SidebarProps) {
       {/* Mobile overlay */}
       {isMobileOpen && (
         <div 
-          className="lg:hidden fixed inset-0 bg-black/50 z-40"
+          className="lg:hidden fixed inset-0 bg-black/20 backdrop-blur-sm z-40 transition-opacity"
           onClick={() => setIsMobileOpen(false)}
         />
       )}
@@ -65,19 +65,19 @@ export function Sidebar({ locale }: SidebarProps) {
       {/* Sidebar */}
       <aside
         className={clsx(
-          'fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white border-r transform transition-transform duration-300 ease-in-out',
+          'fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white border-r border-[#EAEAEA] transform transition-transform duration-300 ease-in-out',
           'lg:translate-x-0',
           isMobileOpen ? 'translate-x-0' : '-translate-x-full'
         )}
       >
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b">
+          <div className="flex items-center justify-between p-5 border-b border-[#EAEAEA]">
             <BrandLogo href="/dashboard" size="md" />
             <button
               type="button"
               onClick={() => setIsMobileOpen(false)}
-              className="lg:hidden p-2 hover:bg-gray-100 rounded-lg"
+              className="lg:hidden p-2 hover:bg-[#FAFAFA] rounded-md transition-colors"
               aria-label={t('dashboard.closeMenu')}
             >
               <X className="w-5 h-5 text-gray-500" />
@@ -85,7 +85,7 @@ export function Sidebar({ locale }: SidebarProps) {
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 p-4 space-y-1">
+          <nav className="flex-1 p-5 space-y-1">
             {navItems.map((item) => {
               const Icon = item.icon
               const active = isActive(item.href)
@@ -96,26 +96,26 @@ export function Sidebar({ locale }: SidebarProps) {
                   href={item.href}
                   onClick={() => setIsMobileOpen(false)}
                   className={clsx(
-                    'flex items-center gap-3 px-4 py-3 rounded-lg transition-colors',
+                    'flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors text-sm',
                     active
-                      ? 'bg-primary-50 text-primary-700'
-                      : 'text-gray-700 hover:bg-gray-50'
+                      ? 'bg-[#FAFAFA] text-[#111827] font-semibold'
+                      : 'text-[#6B7280] hover:bg-[#FAFAFA] hover:text-[#111827] font-medium'
                   )}
                 >
-                  <Icon className={clsx('w-5 h-5', active ? 'text-primary-600' : 'text-gray-500')} />
-                  <span className="font-medium">{t(item.labelKey)}</span>
+                  <Icon className={clsx('w-[18px] h-[18px]', active ? 'text-[#111827]' : 'text-[#9CA3AF]')} />
+                  <span>{t(item.labelKey)}</span>
                 </Link>
               )
             })}
           </nav>
 
           {/* Footer */}
-          <div className="p-4 border-t">
+          <div className="p-5 border-t border-[#EAEAEA]">
             <Link
               href="/"
-              className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+              className="flex items-center gap-3 px-3 py-2.5 text-[#6B7280] hover:text-[#111827] hover:bg-[#FAFAFA] rounded-[8px] transition-colors text-sm font-medium"
             >
-              <span className="text-lg font-medium">{t('nav.logout')}</span>
+              <span>{t('nav.logout')}</span>
             </Link>
           </div>
         </div>

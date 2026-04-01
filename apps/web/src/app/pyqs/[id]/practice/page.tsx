@@ -190,12 +190,12 @@ export default function PracticeModePage() {
   }
 
   const getOptionClass = (option: string, _index: number) => {
-    const baseClass = 'flex items-center gap-3 p-4 border rounded-lg cursor-pointer transition-all'
+    const baseClass = 'flex items-center gap-3 p-4 border rounded-[8px] cursor-pointer transition-all'
 
     if (!answeredCurrent && !answerRevealed) {
       return selectedAnswer === option
-        ? `${baseClass} border-primary-500 bg-primary-50`
-        : `${baseClass} border-gray-200 hover:border-primary-300 hover:bg-gray-50`
+        ? `${baseClass} border-[#111827] bg-[#FAFAFA] ring-1 ring-[#111827]`
+        : `${baseClass} border-[#EAEAEA] bg-white hover:border-gray-300 hover:bg-[#FAFAFA]`
     }
 
     if (answerRevealed) {
@@ -203,17 +203,17 @@ export default function PracticeModePage() {
         return `${baseClass} border-green-500 bg-green-50`
       }
       if (selectedAnswer === option && option !== currentPYQ.correct_answer) {
-        return `${baseClass} border-red-500 bg-red-50`
+        return `${baseClass} border-red-200 bg-red-50`
       }
     }
 
-    return `${baseClass} border-gray-200 opacity-50`
+    return `${baseClass} border-[#EAEAEA] bg-white opacity-50`
   }
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <Loader2 className="w-8 h-8 text-primary-600 animate-spin" />
+      <div className="min-h-screen flex items-center justify-center bg-[#FAFAFA]">
+        <Loader2 className="w-8 h-8 text-[#111827] animate-spin" />
       </div>
     )
   }
@@ -236,50 +236,51 @@ export default function PracticeModePage() {
     : 0
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#FAFAFA]">
       {/* Header */}
-      <header className="bg-white border-b sticky top-0 z-10">
-        <div className="container mx-auto px-4 py-3">
+      <header className="bg-white border-b border-[#EAEAEA] sticky top-0 z-10 shadow-sm">
+        <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <Link href="/pyqs" className="text-gray-600 hover:text-gray-900">
+              <Link href="/pyqs" className="text-[#6B7280] hover:text-[#111827] transition-colors p-2 hover:bg-[#FAFAFA] rounded-full">
                 <ArrowLeft className="w-5 h-5" />
               </Link>
               <div>
-                <h1 className="text-lg font-semibold text-gray-900">{t('pyq.practiceMode')}</h1>
-                <p className="text-sm text-gray-500">
-                  {t('pyq.question')} {currentIndex + 1} {t('pyq.of')} {pyqs.length}
+                <h1 className="text-[15px] font-semibold tracking-tight text-[#111827]">{t('pyq.practiceMode')}</h1>
+                <p className="text-xs font-medium text-[#9CA3AF] uppercase tracking-wide mt-0.5">
+                  {t('pyq.question')} {currentIndex + 1} / {pyqs.length}
                 </p>
               </div>
             </div>
             <div className="flex items-center gap-4">
               {/* Score Display */}
-              <div className="flex items-center gap-4 px-4 py-2 bg-gray-100 rounded-lg">
+              <div className="flex items-center gap-4 px-4 py-2 bg-[#FAFAFA] border border-[#EAEAEA] rounded-[8px]">
                 <div className="text-center">
-                  <p className="text-xs text-gray-500">{t('pyq.score')}</p>
-                  <p className="text-lg font-bold text-green-600">{state.score.correct}</p>
+                  <p className="text-[10px] uppercase font-bold tracking-wider text-[#9CA3AF] mb-0.5">{t('pyq.score')}</p>
+                  <p className="text-sm font-semibold text-green-600">{state.score.correct}</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-xs text-gray-500">&nbsp;</p>
-                  <p className="text-lg font-bold text-red-600">{state.score.incorrect}</p>
+                  <p className="text-[10px] uppercase font-bold tracking-wider text-transparent mb-0.5">-</p>
+                  <p className="text-sm font-semibold text-red-500">{state.score.incorrect}</p>
                 </div>
+                <div className="w-px h-6 bg-[#EAEAEA]" />
                 <div className="text-center">
-                  <p className="text-xs text-gray-500">{t('pyq.accuracy')}</p>
-                  <p className="text-lg font-bold text-primary-600">{scorePercentage}%</p>
+                  <p className="text-[10px] uppercase font-bold tracking-wider text-[#9CA3AF] mb-0.5">{t('pyq.accuracy')}</p>
+                  <p className="text-sm font-semibold text-[#111827]">{scorePercentage}%</p>
                 </div>
               </div>
               <button
                 onClick={handleBookmark}
-                className={`p-2 rounded-full ${isBookmarked || state.bookmarked.has(currentPYQ.id) ? 'text-primary-600 bg-primary-100' : 'text-gray-400 hover:bg-gray-100'}`}
+                className={`p-2 rounded-[6px] border ${isBookmarked || state.bookmarked.has(currentPYQ.id) ? 'text-[#111827] bg-[#FAFAFA] border-[#EAEAEA]' : 'text-[#9CA3AF] border-transparent hover:bg-[#FAFAFA] hover:border-[#EAEAEA]'}`}
               >
-                <Bookmark className={`w-5 h-5 ${isBookmarked || state.bookmarked.has(currentPYQ.id) ? 'fill-current' : ''}`} />
+                <Bookmark className={`w-4 h-4 ${isBookmarked || state.bookmarked.has(currentPYQ.id) ? 'fill-current' : ''}`} />
               </button>
             </div>
           </div>
           {/* Progress Bar */}
-          <div className="mt-3 h-1 bg-gray-200 rounded-full overflow-hidden">
+          <div className="mt-4 h-1 bg-[#EAEAEA] rounded-full overflow-hidden">
             <div
-              className="h-full bg-primary-600 transition-all"
+              className="h-full bg-[#111827] transition-all duration-300 ease-out"
               style={{ width: `${((currentIndex + 1) / pyqs.length) * 100}%` }}
             />
           </div>
@@ -290,22 +291,22 @@ export default function PracticeModePage() {
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-3xl mx-auto">
           {/* Question Card */}
-          <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-            <div className="flex items-center gap-2 mb-4">
-              <span className="px-2 py-1 text-xs font-medium bg-primary-100 text-primary-700 rounded">
+          <div className="bg-white rounded-[12px] shadow-sm p-8 mb-6 border border-[#EAEAEA]">
+            <div className="flex items-center gap-2 mb-6">
+              <span className="px-2 py-1 text-[10px] uppercase tracking-wider font-bold border border-[#EAEAEA] bg-[#FAFAFA] text-[#111827] rounded-[6px]">
                 {currentPYQ.exam_year}
               </span>
-              <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded">
+              <span className="px-2 py-1 text-[10px] uppercase tracking-wider font-bold border border-[#EAEAEA] bg-[#FAFAFA] text-[#111827] rounded-[6px]">
                 {currentPYQ.subject_name}
               </span>
               {currentPYQ.topic_name && (
-                <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded">
+                <span className="px-2 py-1 text-[10px] uppercase tracking-wider font-bold border border-[#EAEAEA] bg-[#FAFAFA] text-[#111827] rounded-[6px]">
                   {currentPYQ.topic_name}
                 </span>
               )}
             </div>
 
-            <p className="text-lg text-gray-900 mb-6">{currentPYQ.question_text}</p>
+            <p className="text-lg text-[#111827] font-medium leading-relaxed mb-8">{currentPYQ.question_text}</p>
 
             <div className="space-y-3">
               {currentPYQ.options.map((option, index) => (
@@ -314,15 +315,19 @@ export default function PracticeModePage() {
                   onClick={() => handleSelectAnswer(String.fromCharCode(65 + index))}
                   className={getOptionClass(String.fromCharCode(65 + index), index)}
                 >
-                  <span className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 font-medium text-gray-700">
+                  <span className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-[6px] bg-[#FAFAFA] border border-[#EAEAEA] font-semibold text-sm text-[#111827]">
                     {String.fromCharCode(65 + index)}
                   </span>
-                  <span className="flex-1 text-gray-700">{option}</span>
+                  <span className="flex-1 text-[#111827] font-medium">{option}</span>
                   {answerRevealed && option === currentPYQ.correct_answer && (
-                    <Check className="w-5 h-5 text-green-600" />
+                    <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center">
+                      <Check className="w-4 h-4 text-green-600" />
+                    </div>
                   )}
                   {answerRevealed && selectedAnswer === option && option !== currentPYQ.correct_answer && (
-                    <X className="w-5 h-5 text-red-600" />
+                    <div className="w-6 h-6 rounded-full bg-red-100 flex items-center justify-center">
+                      <X className="w-4 h-4 text-red-600" />
+                    </div>
                   )}
                 </div>
               ))}
@@ -330,7 +335,7 @@ export default function PracticeModePage() {
 
             {/* Feedback */}
             {answerRevealed && answeredCurrent && (
-              <div className={`mt-6 p-4 rounded-lg ${isCurrentCorrect ? 'bg-green-50' : 'bg-red-50'}`}>
+              <div className={`mt-8 p-5 rounded-[8px] border ${isCurrentCorrect ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
                 <div className="flex items-start gap-3">
                   {isCurrentCorrect ? (
                     <Check className="w-5 h-5 text-green-600 mt-0.5" />
@@ -338,12 +343,13 @@ export default function PracticeModePage() {
                     <X className="w-5 h-5 text-red-600 mt-0.5" />
                   )}
                   <div>
-                    <p className={`font-semibold ${isCurrentCorrect ? 'text-green-700' : 'text-red-700'}`}>
+                    <p className={`text-sm font-semibold tracking-wide uppercase ${isCurrentCorrect ? 'text-green-700' : 'text-red-700'}`}>
                       {isCurrentCorrect ? t('pyq.correct') : t('pyq.incorrect')}
                     </p>
                     {currentPYQ.explanation && (
-                      <p className="mt-2 text-sm text-gray-600">
-                        <strong>{t('pyq.explanation')}:</strong> {currentPYQ.explanation}
+                      <p className="mt-2 text-sm text-[#111827] leading-relaxed">
+                        <strong className="block mb-1 text-xs uppercase tracking-wider text-[#6B7280]">{t('pyq.explanation')}</strong>
+                        {currentPYQ.explanation}
                       </p>
                     )}
                   </div>
@@ -357,7 +363,7 @@ export default function PracticeModePage() {
             <button
               onClick={handlePrevious}
               disabled={currentIndex === 0}
-              className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 disabled:opacity-50"
+              className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-[#6B7280] hover:text-[#111827] bg-white border border-[#EAEAEA] rounded-[8px] hover:bg-[#FAFAFA] disabled:opacity-50 transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
               {t('pyq.previous')}
@@ -367,7 +373,7 @@ export default function PracticeModePage() {
               {!answerRevealed && (
                 <button
                   onClick={handleRevealAnswer}
-                  className="flex items-center gap-2 px-4 py-2 text-primary-600 border border-primary-600 rounded-lg hover:bg-primary-50"
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-[#111827] border border-[#111827] rounded-[8px] hover:bg-[#FAFAFA] transition-colors"
                 >
                   <Eye className="w-4 h-4" />
                   {t('pyq.revealAnswer')}
@@ -376,7 +382,7 @@ export default function PracticeModePage() {
               {answerRevealed && (
                 <button
                   onClick={handleRevealAnswer}
-                  className="flex items-center gap-2 px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-[#6B7280] border border-[#EAEAEA] bg-white rounded-[8px] hover:bg-[#FAFAFA] transition-colors"
                 >
                   <EyeOff className="w-4 h-4" />
                   {t('pyq.hideAnswer')}
@@ -387,7 +393,7 @@ export default function PracticeModePage() {
             <button
               onClick={handleNext}
               disabled={currentIndex === pyqs.length - 1}
-              className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50"
+              className="flex items-center gap-2 px-4 py-2 text-sm font-semibold bg-[#111827] text-white rounded-[8px] hover:bg-black disabled:opacity-50 transition-colors"
             >
               {t('pyq.next')}
               <ArrowRight className="w-4 h-4" />
@@ -395,20 +401,20 @@ export default function PracticeModePage() {
           </div>
 
           {/* Question Navigator */}
-          <div className="mt-8 p-4 bg-white rounded-lg shadow-sm">
-            <h3 className="text-sm font-medium text-gray-700 mb-3">{t('pyq.questionNavigator')}</h3>
+          <div className="mt-8 p-6 bg-white rounded-[12px] shadow-sm border border-[#EAEAEA]">
+            <h3 className="text-sm font-semibold text-[#111827] mb-4">{t('pyq.questionNavigator')}</h3>
             <div className="flex flex-wrap gap-2">
               {pyqs.map((pyq, index) => {
                 const isAnswered = state.answers[pyq.id] !== undefined
                 const isCurrent = pyq.id === currentPYQ.id
                 const isCorrect = state.answers[pyq.id] === pyq.correct_answer
 
-                let bgClass = 'bg-gray-100 hover:bg-gray-200'
+                let bgClass = 'bg-[#FAFAFA] border border-[#EAEAEA] text-[#6B7280] hover:bg-white hover:border-gray-300'
                 if (isAnswered) {
-                  bgClass = isCorrect ? 'bg-green-100 hover:bg-green-200' : 'bg-red-100 hover:bg-red-200'
+                  bgClass = isCorrect ? 'bg-green-50 border-green-200 text-green-700' : 'bg-red-50 border-red-200 text-red-700'
                 }
                 if (isCurrent) {
-                  bgClass = 'bg-primary-100 hover:bg-primary-200 ring-2 ring-primary-500'
+                  bgClass = 'bg-[#111827] border-[#111827] text-white'
                 }
 
                 return (
@@ -418,24 +424,24 @@ export default function PracticeModePage() {
                       setSelectedAnswer(state.answers[pyq.id] || null)
                       setAnswerRevealed(state.revealed[pyq.id] || false)
                     }}
-                    className={`w-8 h-8 rounded text-sm font-medium ${bgClass} transition-all`}
+                    className={`w-9 h-9 rounded-[8px] text-sm font-semibold border ${bgClass} transition-colors flex items-center justify-center`}
                   >
                     {index + 1}
                   </button>
                 )
               })}
             </div>
-            <div className="flex items-center gap-4 mt-4 text-xs text-gray-600">
-              <div className="flex items-center gap-1">
-                <div className="w-3 h-3 bg-gray-100 rounded" />
+            <div className="flex items-center gap-6 mt-6 pt-4 border-t border-[#EAEAEA] text-xs font-medium text-[#6B7280]">
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 bg-[#FAFAFA] border border-[#EAEAEA] rounded-[4px]" />
                 <span>{t('pyq.unanswered')}</span>
               </div>
-              <div className="flex items-center gap-1">
-                <div className="w-3 h-3 bg-green-100 rounded" />
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 bg-green-50 border border-green-200 rounded-[4px]" />
                 <span>{t('pyq.correct')}</span>
               </div>
-              <div className="flex items-center gap-1">
-                <div className="w-3 h-3 bg-red-100 rounded" />
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 bg-red-50 border border-red-200 rounded-[4px]" />
                 <span>{t('pyq.incorrect')}</span>
               </div>
             </div>
@@ -443,20 +449,20 @@ export default function PracticeModePage() {
 
           {/* Session Summary */}
           {state.score.total > 0 && (
-            <div className="mt-6 p-4 bg-primary-50 rounded-lg">
-              <h3 className="font-semibold text-primary-900 mb-2">{t('pyq.sessionSummary')}</h3>
+            <div className="mt-6 p-6 bg-white border border-[#EAEAEA] rounded-[12px] shadow-sm">
+              <h3 className="text-sm font-semibold text-[#111827] mb-4">{t('pyq.sessionSummary')}</h3>
               <div className="grid grid-cols-3 gap-4 text-center">
-                <div>
+                <div className="p-4 bg-[#FAFAFA] rounded-[8px] border border-[#EAEAEA]">
                   <p className="text-2xl font-bold text-green-600">{state.score.correct}</p>
-                  <p className="text-xs text-primary-700">{t('pyq.correct')}</p>
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-[#9CA3AF] mt-1">{t('pyq.correct')}</p>
                 </div>
-                <div>
-                  <p className="text-2xl font-bold text-red-600">{state.score.incorrect}</p>
-                  <p className="text-xs text-primary-700">{t('pyq.incorrect')}</p>
+                <div className="p-4 bg-[#FAFAFA] rounded-[8px] border border-[#EAEAEA]">
+                  <p className="text-2xl font-bold text-red-500">{state.score.incorrect}</p>
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-[#9CA3AF] mt-1">{t('pyq.incorrect')}</p>
                 </div>
-                <div>
-                  <p className="text-2xl font-bold text-primary-600">{scorePercentage}%</p>
-                  <p className="text-xs text-primary-700">{t('pyq.accuracy')}</p>
+                <div className="p-4 bg-[#111827] rounded-[8px] text-white">
+                  <p className="text-2xl font-bold">{scorePercentage}%</p>
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-white/70 mt-1">{t('pyq.accuracy')}</p>
                 </div>
               </div>
             </div>

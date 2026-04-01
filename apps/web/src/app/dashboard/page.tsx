@@ -169,14 +169,14 @@ export default function DashboardPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600" />
+      <div className="min-h-screen flex items-center justify-center bg-[#FAFAFA] font-sans">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#111827]" />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#FAFAFA] font-sans text-[#111827]">
       <OfflineIndicator />
       <NotificationPermissionPrompt locale={locale} />
       
@@ -185,10 +185,10 @@ export default function DashboardPage() {
         
         {/* Main Content */}
         <main className="flex-1 lg:ml-0 p-4 lg:p-8 pt-16 lg:pt-8">
-          <div className="max-w-7xl mx-auto space-y-6">
+          <div className="max-w-7xl mx-auto space-y-8">
             {/* Welcome Header */}
             <div className="mb-8">
-              <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">
+              <h1 className="text-2xl lg:text-3xl font-semibold tracking-tight text-[#111827]">
                 {t('dashboard.welcome', { name: userName })}
               </h1>
             </div>
@@ -198,17 +198,17 @@ export default function DashboardPage() {
               <div className="lg:col-span-2">
                 <ExamCountdown targetDate={examDate} />
               </div>
-              <div className="rounded-2xl bg-white p-6 shadow-sm border border-gray-100">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-100 text-green-700">
-                    <span className="text-lg font-bold">F</span>
+              <div className="rounded-[12px] bg-white p-6 shadow-sm border border-[#EAEAEA]">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-[8px] bg-[#FAFAFA] border border-[#EAEAEA] text-[#111827]">
+                    <span className="text-lg font-bold font-serif">F</span>
                   </div>
                   <div>
-                    <h2 className="text-lg font-semibold text-gray-900">Full Access Enabled</h2>
-                    <p className="text-sm text-gray-500">All study tools are currently free to use.</p>
+                    <h2 className="text-base font-semibold text-[#111827] tracking-tight">Full Access Enabled</h2>
+                    <p className="text-sm text-[#6B7280]">All study tools are free to use</p>
                   </div>
                 </div>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-[#6B7280] leading-relaxed">
                   Practice questions, physical training, documents, and community features are available without a paid plan.
                 </p>
               </div>
