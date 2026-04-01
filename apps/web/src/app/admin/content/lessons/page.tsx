@@ -379,9 +379,9 @@ export default function AdminLessonsPage() {
                     </td>
                     <td className="px-6 py-4">
                       {lesson.is_premium ? (
-                        <Lock className="w-5 h-5 text-amber-500" title="Premium" />
+                        <span title="Premium"><Lock className="w-5 h-5 text-amber-500" /></span>
                       ) : (
-                        <Unlock className="w-5 h-5 text-gray-400" title="Free" />
+                        <span title="Free"><Unlock className="w-5 h-5 text-gray-400" /></span>
                       )}
                     </td>
                     <td className="px-6 py-4">
