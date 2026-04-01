@@ -35,22 +35,25 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
-      <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-8">
+    <div className="min-h-screen bg-[#FAFAFA] flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 font-sans">
+      <div className="w-full max-w-[400px] bg-white rounded-[12px] shadow-sm border border-[#EAEAEA] p-8 sm:p-10">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Student Login</h1>
-          <p className="text-gray-600 mt-2">Use your email and password to access the app</p>
+          <h1 className="text-2xl font-semibold text-gray-900 tracking-tight">Student Login</h1>
+          <p className="text-sm text-[#6B7280] mt-2">Use your email and password to access the app</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-5">
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-              {error}
+            <div className="bg-[#FEF2F2] border border-[#FCA5A5] text-red-600 px-3 py-2.5 rounded-lg text-sm flex items-start space-x-2">
+              <svg className="w-5 h-5 text-red-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>{error}</span>
             </div>
           )}
 
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1.5">
               Email Address
             </label>
             <input
@@ -58,14 +61,14 @@ export default function LoginPage() {
               type="email"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition"
+              className="w-full px-3.5 py-2.5 bg-white border border-[#E5E7EB] rounded-lg text-sm placeholder-gray-400 focus:outline-none focus:border-gray-400 focus:ring-1 focus:ring-gray-400 transition-colors"
               placeholder="you@example.com"
               required
             />
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1.5">
               Password
             </label>
             <input
@@ -73,7 +76,7 @@ export default function LoginPage() {
               type="password"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition"
+              className="w-full px-3.5 py-2.5 bg-white border border-[#E5E7EB] rounded-lg text-sm placeholder-gray-400 focus:outline-none focus:border-gray-400 focus:ring-1 focus:ring-gray-400 transition-colors"
               placeholder="••••••••"
               required
             />
@@ -82,22 +85,22 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-primary-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-primary-700 focus:ring-4 focus:ring-primary-200 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-[#111827] text-white mt-2 py-2.5 px-4 rounded-lg text-sm font-medium hover:bg-black focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isLoading ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
 
-        <div className="mt-6 text-center text-sm text-gray-600 space-y-2">
+        <div className="mt-8 text-center text-sm text-[#6B7280] flex flex-col space-y-3">
           <p>
             Need an account?{' '}
-            <Link href="/signup" className="text-primary-600 hover:text-primary-700 font-medium">
+            <Link href="/signup" className="text-[#111827] hover:underline decoration-gray-300 underline-offset-4 transition-all">
               Create one
             </Link>
           </p>
           <p>
             Admin access?{' '}
-            <Link href="/admin/login" className="text-primary-600 hover:text-primary-700 font-medium">
+            <Link href="/admin/login" className="text-[#111827] hover:underline decoration-gray-300 underline-offset-4 transition-all">
               Open admin portal
             </Link>
           </p>

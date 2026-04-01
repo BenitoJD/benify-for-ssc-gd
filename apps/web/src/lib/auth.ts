@@ -49,12 +49,33 @@ function transformUser(apiUser: ApiUser): User {
 
 export function getApiBaseUrl(): string {
   const configured = process.env.NEXT_PUBLIC_API_URL?.trim()
-  const fallback = 'http://localhost:3100'
-  return (configured || fallback).replace(/\/+$/, '')
+
+  if (configured) {
+    const normalized = configured.replace(/\/+$/, '')
+
+    if (normalized.endsWith('/api/v1')) {
+      return normalized
+    }
+
+    if (normalized.endsWith('/api')) {
+      return `${normalized}/v1`
+    }
+
+    return `${normalized}/api/v1`
+  }
+
+  return 'http://localhost:3100/api/v1'
 }
 
 export function createApiUrl(path: string): string {
-  return `${getApiBaseUrl()}${path}`
+  const baseUrl = getApiBaseUrl()
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`
+
+  if (baseUrl.endsWith('/api/v1') && normalizedPath.startsWith('/api/v1/')) {
+    return `${baseUrl}${normalizedPath.slice('/api/v1'.length)}`
+  }
+
+  return `${baseUrl}${normalizedPath}`
 }
 
 async function readEnvelope<T>(response: Response): Promise<T> {
