@@ -1,0 +1,34 @@
+{
+  "featureId": "ai-advanced-features",
+  "reviewedAt": "2026-04-01T00:00:00Z",
+  "commitId": "6fb1de4",
+  "transcriptSkeletonReviewed": false,
+  "diffReviewed": true,
+  "status": "fail",
+  "codeReview": {
+    "summary": "The AI advanced features module is well-structured with proper separation of concerns (models, schemas, repository, service, router). The SM-2 algorithm implementation is correct and 37 unit tests pass. However, there are 2 blocking bugs that will cause runtime failures: (1) Notification types used in AI service don't exist in the NotificationType enum, and (2) JSONB keyword search uses incorrect PostgreSQL operator.",
+    "issues": [
+      {
+        "file": "apps/api/internal/ai/service.py",
+        "line": 340,
+        "severity": "blocking",
+        "description": "Notification type 'habit_nudge' does not exist in NotificationType enum (notifications/models.py). This will cause a ValueError when create_notification is called. Valid types are: REPLY, ANSWER_ACCEPTED, UPVOTE_MILESTONE, BADGE_EARNED, STREAK_REMINDER, ANNOUNCEMENT, STUDY_REMINDER, EXAM_ALERT, DOCUMENT_DEADLINE."
+      },
+      {
+        "file": "apps/api/internal/ai/service.py",
+        "line": 487,
+        "severity": "blocking",
+        "description": "Notification type 'daily_summary' does not exist in NotificationType enum (notifications/models.py). Same issue as above."
+      },
+      {
+        "file": "apps/api/internal/ai/repository.py",
+        "line": 195,
+        "severity": "blocking",
+        "description": "search_knowledge_base uses DoubtAssistantKnowledge.question_keywords.op('?') which is incorrect. The PostgreSQL ? operator checks for key existence in JSONB, not substring pattern matching. This will either error or return no results. Should cast to text and use ilike for pattern matching, or use a different JSONB search approach."
+      }
+    ]
+  },
+  "sharedStateObservations": [],
+  "addressesFailureFrom": null,
+  "summary": "The AI module structure and SM-2 algorithm are correctly implemented with good test coverage. However, two blocking bugs exist: (1) AI service references notification types 'habit_nudge' and 'daily_summary' that don't exist in the NotificationType enum - this will cause ValueError at runtime when sending notifications, and (2) the knowledge base search uses incorrect JSONB operator '?' which is meant for key existence checks, not substring matching. Both issues will cause runtime failures despite passing unit tests."
+}

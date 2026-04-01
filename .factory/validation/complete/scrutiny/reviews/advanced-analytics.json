@@ -1,0 +1,57 @@
+{
+  "featureId": "advanced-analytics",
+  "reviewedAt": "2026-04-01T13:30:00Z",
+  "commitId": "00a5cbe884bb0b88ba0d30ae5cdb2b2e78f87b60",
+  "transcriptSkeletonReviewed": true,
+  "diffReviewed": true,
+  "status": "fail",
+  "codeReview": {
+    "summary": "The advanced-analytics feature adds percentile rank, exam readiness, stage readiness, cohort comparison, and comprehensive report endpoints. However, there are several blocking issues: (1) `cohort_distribution` returns boolean values instead of actual distribution percentages, (2) return type annotations are incorrect (say `dict` but return Pydantic models), (3) `_generate_percentile_breakdown` normalizes scores in a way that may not match how scores are stored/used elsewhere.",
+    "issues": [
+      {
+        "file": "apps/api/internal/analytics/service.py",
+        "line": 518,
+        "severity": "blocking",
+        "description": "cohort_distribution returns boolean values instead of distribution percentages. `round(user_percentile >= 90, 2)` evaluates to 1.0 or 0.0 based on whether the user's percentile is above threshold, NOT the percentage of cohort in that bucket. Should compute what % of cohort users are in top_10 or above_average."
+      },
+      {
+        "file": "apps/api/internal/analytics/service.py",
+        "line": 388,
+        "severity": "non_blocking",
+        "description": "Return type annotation says `dict` but actually returns `PercentileRankResponse` Pydantic model. Same issue at lines 430, 483, 520 for exam_readiness, stage_readiness, cohort_comparison."
+      },
+      {
+        "file": "apps/api/internal/analytics/service.py",
+        "line": 376,
+        "severity": "non_blocking",
+        "description": "_generate_percentile_breakdown normalizes scores by dividing by max_score, then creates ranges 0-100. If MockAttempt.total_score stores percentage values (0-100), this double-normalizes. If it stores raw points (e.g., 150/200), the normalization is correct. The logic appears inconsistent with calculate_percentile_rank which uses raw scores directly."
+      },
+      {
+        "file": "apps/api/internal/analytics/service.py",
+        "line": 445,
+        "severity": "non_blocking",
+        "description": "get_exam_readiness uses physical_data.get('chest_measured', False) but get_physical_readiness_data() in repository.py never sets 'chest_measured' key. The Profile model also doesn't have a chest_measurement field. This always returns False."
+      },
+      {
+        "file": "apps/api/internal/analytics/service.py",
+        "line": 485,
+        "severity": "non_blocking",
+        "description": "get_stage_readiness uses physical_data.get('chest_measured', False) for pst_details but physical_data never contains this key."
+      }
+    ]
+  },
+  "sharedStateObservations": [
+    {
+      "area": "conventions",
+      "observation": "The service methods have incorrect return type annotations (declare `dict` but return Pydantic models). AGENTS.md doesn't specify that type annotations must match actual return types, but this is a best practice that should be documented.",
+      "evidence": "get_percentile_rank line 388: `-> dict:` but returns PercentileRankResponse. Similarly for get_exam_readiness (430), get_stage_readiness (483), get_cohort_comparison (520)."
+    },
+    {
+      "area": "conventions",
+      "observation": "Tests in test_analytics.py use hardcoded numeric assertions that don't verify semantic correctness of calculated values. The test for cohort_distribution just checks that keys exist with numeric values, not that the values make sense.",
+      "evidence": "test_create_cohort_comparison (line ~580): cohort_distribution={'top_10_percent': 0.65, 'above_average': 0.65} - these values are semantically wrong (booleans rounded to 1/0 disguised as percentages) but the test passes."
+    }
+  ],
+  "addressesFailureFrom": null,
+  "summary": "Feature implements the required advanced analytics endpoints (percentile-rank, exam-readiness, stage-readiness, cohort-comparison, comprehensive-report) with appropriate schemas and service/repository methods. However, there is a blocking bug in cohort_distribution calculation where boolean values are returned instead of actual distribution percentages. There are also several non-blocking type annotation inconsistencies and potential data normalization issues."
+}
