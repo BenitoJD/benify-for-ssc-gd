@@ -348,3 +348,297 @@ class TestAnalyticsServiceIntegration:
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
+
+
+# ============ Advanced Analytics Tests ============
+
+from internal.analytics.schemas import (
+    PercentileRankResponse,
+    ExamReadinessResponse,
+    StageReadinessResponse,
+    CohortComparisonResponse,
+    ComprehensiveReportResponse,
+)
+
+
+class TestPercentileRankResponse:
+    """Test PercentileRankResponse schema."""
+    
+    def test_create_percentile_rank(self):
+        """Test creating PercentileRankResponse."""
+        response = PercentileRankResponse(
+            estimated_percentile=75.5,
+            total_test_takers=1000,
+            user_score=82.3,
+            cohort_scores=[60.0, 70.0, 80.0, 90.0],
+            percentile_breakdown=[
+                {"range": "0-10%", "count": 100},
+                {"range": "10-25%", "count": 250},
+            ],
+            rank_category="top_25"
+        )
+        
+        assert response.estimated_percentile == 75.5
+        assert response.total_test_takers == 1000
+        assert response.rank_category == "top_25"
+    
+    def test_percentile_rank_categories(self):
+        """Test different rank categories."""
+        categories = [
+            (95.0, "top_10"),
+            (80.0, "top_25"),
+            (60.0, "top_50"),
+            (40.0, "above_avg"),
+            (20.0, "below_avg"),
+        ]
+        
+        for percentile, expected_category in categories:
+            response = PercentileRankResponse(
+                estimated_percentile=percentile,
+                total_test_takers=100,
+                user_score=50.0,
+                cohort_scores=[],
+                percentile_breakdown=[],
+                rank_category=expected_category
+            )
+            assert response.rank_category == expected_category
+
+
+class TestExamReadinessResponse:
+    """Test ExamReadinessResponse schema."""
+    
+    def test_create_exam_readiness(self):
+        """Test creating ExamReadinessResponse."""
+        response = ExamReadinessResponse(
+            overall_readiness=75.0,
+            academic_readiness=80.0,
+            physical_readiness=60.0,
+            academic_breakdown={
+                "total_mocks": 10,
+                "total_questions": 1000,
+                "total_correct": 800,
+                "accuracy": 80.0
+            },
+            physical_breakdown={
+                "height_measured": True,
+                "weight_measured": True,
+                "pet_ready": True,
+                "running_progress": False
+            },
+            readiness_label="ready",
+            recommendations=[
+                "Focus on improving your mock test scores."
+            ]
+        )
+        
+        assert response.overall_readiness == 75.0
+        assert response.academic_readiness == 80.0
+        assert response.physical_readiness == 60.0
+        assert response.readiness_label == "ready"
+    
+    def test_readiness_labels(self):
+        """Test readiness label thresholds."""
+        labels = [
+            (85.0, "highly_ready"),
+            (70.0, "ready"),
+            (55.0, "moderately_ready"),
+            (40.0, "needs_improvement"),
+        ]
+        
+        for readiness, expected_label in labels:
+            response = ExamReadinessResponse(
+                overall_readiness=readiness,
+                academic_readiness=readiness,
+                physical_readiness=readiness,
+                academic_breakdown={},
+                physical_breakdown={},
+                readiness_label=expected_label,
+                recommendations=[]
+            )
+            assert response.readiness_label == expected_label
+
+
+class TestStageReadinessResponse:
+    """Test StageReadinessResponse schema."""
+    
+    def test_create_stage_readiness(self):
+        """Test creating StageReadinessResponse."""
+        response = StageReadinessResponse(
+            pst_readiness=100.0,
+            pet_readiness=66.7,
+            document_readiness=50.0,
+            overall_readiness=72.2,
+            pst_details={
+                "height_measured": True,
+                "weight_measured": True,
+                "chest_measured": True,
+                "gender": "male"
+            },
+            pet_details={
+                "has_running_progress": True,
+                "total_progress_logs": 10,
+                "running_sessions": 5
+            },
+            document_details={
+                "verified_count": 5,
+                "uploaded_count": 7,
+                "total_required": 10
+            },
+            stage_status={
+                "pst": "ready",
+                "pet": "in_progress",
+                "documents": "in_progress"
+            }
+        )
+        
+        assert response.pst_readiness == 100.0
+        assert response.pet_readiness == 66.7
+        assert response.document_readiness == 50.0
+        assert response.stage_status["pst"] == "ready"
+    
+    def test_stage_status_thresholds(self):
+        """Test stage status based on readiness percentage."""
+        statuses = [
+            (90.0, "ready"),
+            (80.0, "ready"),
+            (45.0, "in_progress"),
+            (20.0, "not_started"),
+        ]
+        
+        for readiness, expected_status in statuses:
+            if readiness >= 80:
+                status = "ready"
+            elif readiness >= 30:
+                status = "in_progress"
+            else:
+                status = "not_started"
+            assert status == expected_status
+
+
+class TestCohortComparisonResponse:
+    """Test CohortComparisonResponse schema."""
+    
+    def test_create_cohort_comparison(self):
+        """Test creating CohortComparisonResponse."""
+        response = CohortComparisonResponse(
+            cohort_name="Started January 2024",
+            cohort_size=50,
+            cohort_start_date=datetime(2024, 1, 15),
+            user_progress=65.0,
+            cohort_average_progress=55.0,
+            user_percentile=65.0,
+            progress_comparison={
+                "user_mocks_taken": 8,
+                "cohort_avg_mocks": 5.5,
+                "user_accuracy": 72.0,
+                "cohort_avg_accuracy": 65.0
+            },
+            user_averages={
+                "total_questions": 800,
+                "total_correct": 576,
+                "accuracy": 72.0
+            },
+            cohort_distribution={
+                "top_10_percent": 0.65,
+                "above_average": 0.65
+            }
+        )
+        
+        assert response.cohort_name == "Started January 2024"
+        assert response.cohort_size == 50
+        assert response.user_progress == 65.0
+        assert response.user_percentile == 65.0
+
+
+class TestComprehensiveReportResponse:
+    """Test ComprehensiveReportResponse schema."""
+    
+    def test_create_comprehensive_report(self):
+        """Test creating ComprehensiveReportResponse."""
+        report_id = str(uuid4())
+        now = datetime.utcnow()
+        
+        response = ComprehensiveReportResponse(
+            report_id=report_id,
+            generated_at=now,
+            user_id=uuid4(),
+            user_name="Test User",
+            percentile_rank=PercentileRankResponse(
+                estimated_percentile=75.0,
+                total_test_takers=1000,
+                user_score=80.0,
+                cohort_scores=[],
+                percentile_breakdown=[],
+                rank_category="top_25"
+            ),
+            exam_readiness=ExamReadinessResponse(
+                overall_readiness=72.0,
+                academic_readiness=80.0,
+                physical_readiness=55.0,
+                academic_breakdown={},
+                physical_breakdown={},
+                readiness_label="ready",
+                recommendations=[]
+            ),
+            stage_readiness=StageReadinessResponse(
+                pst_readiness=100.0,
+                pet_readiness=66.7,
+                document_readiness=50.0,
+                overall_readiness=72.2,
+                pst_details={},
+                pet_details={},
+                document_details={},
+                stage_status={}
+            ),
+            cohort_comparison=CohortComparisonResponse(
+                cohort_name="Started January 2024",
+                cohort_size=50,
+                cohort_start_date=now,
+                user_progress=65.0,
+                cohort_average_progress=55.0,
+                user_percentile=65.0,
+                progress_comparison={},
+                user_averages={},
+                cohort_distribution={}
+            ),
+            subject_performance=[],
+            weak_areas=[],
+            recent_trends=[],
+            report_type="comprehensive",
+            valid_until=now + timedelta(days=7),
+            download_url=None
+        )
+        
+        assert response.report_id == report_id
+        assert response.report_type == "comprehensive"
+        assert response.user_name == "Test User"
+
+
+class TestAdvancedAnalyticsService:
+    """Test cases for advanced analytics service methods."""
+    
+    @pytest.fixture
+    def mock_db(self):
+        """Create mock database session."""
+        return MockAsyncSession()
+    
+    @pytest.fixture
+    def service(self, mock_db):
+        """Create AnalyticsService with mock db."""
+        return AnalyticsService(mock_db)
+    
+    def test_generate_percentile_breakdown_empty(self, service):
+        """Test percentile breakdown with empty scores."""
+        result = service._generate_percentile_breakdown([])
+        assert result == []
+    
+    def test_generate_percentile_breakdown_with_scores(self, service):
+        """Test percentile breakdown with scores."""
+        scores = [40.0, 50.0, 60.0, 70.0, 80.0]
+        result = service._generate_percentile_breakdown(scores)
+        
+        assert len(result) == 6
+        # Check that all ranges have counts
+        for r in result:
+            assert "range" in r
+            assert "count" in r

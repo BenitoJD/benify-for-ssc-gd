@@ -161,3 +161,75 @@ class AnalyticsExportResponse(BaseModel):
     download_url: str
     format: ExportFormat
     expires_at: datetime
+
+
+# ============ Advanced Analytics Schemas ============
+
+class PercentileRankResponse(BaseModel):
+    """Percentile rank estimation response."""
+    estimated_percentile: float  # 0-100 based on user's score vs all test-takers
+    total_test_takers: int  # Total number of test-takers in the cohort
+    user_score: float  # User's average/latest score
+    cohort_scores: List[float]  # Distribution of scores for visualization
+    percentile_breakdown: List[dict]  # Score ranges with percentile labels
+    rank_category: str  # "top_10", "top_25", "top_50", "above_avg", "below_avg"
+
+
+class ExamReadinessResponse(BaseModel):
+    """Exam readiness score combining academic and physical readiness."""
+    overall_readiness: float  # 0-100 combined score
+    academic_readiness: float  # 0-100 academic score component (70% weight)
+    physical_readiness: float  # 0-100 physical score component (30% weight)
+    academic_breakdown: dict  # Breakdown of academic factors
+    physical_breakdown: dict  # Breakdown of physical factors
+    readiness_label: str  # "highly_ready", "ready", "moderately_ready", "needs_improvement"
+    recommendations: List[str]  # Recommendations to improve readiness
+
+
+class StageReadinessResponse(BaseModel):
+    """Stage-wise readiness percentages (PST, PET, Document)."""
+    pst_readiness: float  # 0-100 percentage
+    pet_readiness: float  # 0-100 percentage
+    document_readiness: float  # 0-100 percentage
+    overall_readiness: float  # Combined 0-100
+    pst_details: dict  # Details of PST completion
+    pet_details: dict  # Details of PET completion
+    document_details: dict  # Details of document completion
+    stage_status: dict  # Status of each stage: "ready", "in_progress", "not_started"
+
+
+class CohortComparisonResponse(BaseModel):
+    """Cohort comparison: user's progress vs peers who started same date."""
+    cohort_name: str  # e.g., "Started Jan 2024"
+    cohort_size: int  # Number of users in the cohort
+    cohort_start_date: datetime  # When this cohort started
+    user_progress: float  # User's progress percentage (0-100)
+    cohort_average_progress: float  # Average progress of the cohort
+    user_percentile: float  # User's percentile within cohort
+    progress_comparison: dict  # Detailed comparison metrics
+    user_averages: dict  # User's average scores vs cohort
+    cohort_distribution: dict  # Distribution of progress in cohort
+
+
+class ComprehensiveReportResponse(BaseModel):
+    """Comprehensive analytics report for export."""
+    report_id: str
+    generated_at: datetime
+    user_id: UUID
+    user_name: Optional[str] = None
+    
+    # Performance summary
+    percentile_rank: PercentileRankResponse
+    exam_readiness: ExamReadinessResponse
+    stage_readiness: StageReadinessResponse
+    cohort_comparison: CohortComparisonResponse
+    
+    # Detailed breakdowns
+    subject_performance: List[SubjectAccuracy]
+    weak_areas: List[ChapterWeakness]
+    recent_trends: List[ScoreTrendItem]
+    
+    # Metadata
+    report_type: str = "comprehensive"
+    valid_until: datetime  # Report expiration
+    download_url: Optional[str] = None

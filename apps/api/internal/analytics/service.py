@@ -427,3 +427,402 @@ class AnalyticsService:
             accuracy=round(stats["accuracy"], 2),
             weak_questions=weak_questions,
         )
+    
+    # ============ Advanced Analytics Methods ============
+    
+    async def get_percentile_rank(
+        self,
+        user_id: UUID,
+        test_series_id: Optional[UUID] = None
+    ) -> dict:
+        """Calculate estimated percentile rank based on mock scores vs all test-takers.
+        
+        Uses the user's average score compared to all test-takers to estimate percentile.
+        """
+        from .schemas import PercentileRankResponse
+        
+        # Get user's attempts
+        attempts = await self.repo.get_user_attempts(user_id, limit=10)
+        
+        if not attempts:
+            return PercentileRankResponse(
+                estimated_percentile=50.0,
+                total_test_takers=0,
+                user_score=0.0,
+                cohort_scores=[],
+                percentile_breakdown=[],
+                rank_category="below_avg"
+            )
+        
+        # Calculate user's average score
+        scores = [a.total_score for a in attempts if a.total_score is not None]
+        if not scores:
+            return PercentileRankResponse(
+                estimated_percentile=50.0,
+                total_test_takers=0,
+                user_score=0.0,
+                cohort_scores=[],
+                percentile_breakdown=[],
+                rank_category="below_avg"
+            )
+        
+        user_avg_score = sum(scores) / len(scores)
+        
+        # Get percentile data
+        percentile_data = await self.repo.calculate_percentile_rank(user_id, user_avg_score)
+        
+        # Generate percentile breakdown for visualization
+        cohort_scores = percentile_data.get("cohort_scores", [])
+        percentile_breakdown = self._generate_percentile_breakdown(cohort_scores)
+        
+        return PercentileRankResponse(
+            estimated_percentile=percentile_data["estimated_percentile"],
+            total_test_takers=percentile_data["total_test_takers"],
+            user_score=round(user_avg_score, 2),
+            cohort_scores=cohort_scores[-100:] if cohort_scores else [],  # Last 100 for viz
+            percentile_breakdown=percentile_breakdown,
+            rank_category=percentile_data["rank_category"]
+        )
+    
+    def _generate_percentile_breakdown(self, scores: List[float]) -> List[dict]:
+        """Generate percentile breakdown from score distribution."""
+        if not scores:
+            return []
+        
+        # Create score ranges
+        ranges = [
+            {"range": "0-10%", "min": 0, "max": 10, "count": 0},
+            {"range": "10-25%", "min": 10, "max": 25, "count": 0},
+            {"range": "25-50%", "min": 25, "max": 50, "count": 0},
+            {"range": "50-75%", "min": 50, "max": 75, "count": 0},
+            {"range": "75-90%", "min": 75, "max": 90, "count": 0},
+            {"range": "90-100%", "min": 90, "max": 100, "count": 0},
+        ]
+        
+        # Normalize scores to 0-100 range for percentile calculation
+        max_score = max(scores) if scores else 100
+        normalized_scores = [(s / max_score) * 100 for s in scores]
+        
+        # Count scores in each range
+        for score in normalized_scores:
+            for r in ranges:
+                if r["min"] <= score < r["max"]:
+                    r["count"] += 1
+                    break
+        
+        return ranges
+    
+    async def get_exam_readiness(
+        self,
+        user_id: UUID
+    ) -> dict:
+        """Calculate exam readiness score combining academic (70%) and physical (30%).
+        
+        Returns:
+        - overall_readiness: 0-100 combined score
+        - academic_readiness: 0-100 academic score component (70% weight)
+        - physical_readiness: 0-100 physical score component (30% weight)
+        """
+        from .schemas import ExamReadinessResponse
+        
+        # Get academic readiness (based on overall accuracy)
+        attempts = await self.repo.get_user_attempts(user_id, limit=50)
+        
+        total_questions = 0
+        total_correct = 0
+        for attempt in attempts:
+            total_questions += attempt.total_questions or 0
+            total_correct += attempt.correct_count or 0
+        
+        academic_accuracy = (
+            (total_correct / total_questions * 100) if total_questions > 0 else 0
+        )
+        
+        # Get physical readiness
+        physical_data = await self.repo.get_physical_readiness_data(user_id)
+        
+        # Physical readiness calculation
+        physical_factors = 0
+        physical_completed = 0
+        
+        if physical_data["height_measured"]:
+            physical_completed += 1
+        physical_factors += 1  # Height always counts
+        
+        if physical_data["weight_measured"]:
+            physical_completed += 1
+        
+        if physical_data["pet_ready"]:
+            physical_completed += 1
+        
+        physical_readiness = (physical_completed / 3) * 100 if physical_factors > 0 else 0
+        
+        # Combined readiness: academic (70%) + physical (30%)
+        overall_readiness = (academic_accuracy * 0.7) + (physical_readiness * 0.3)
+        
+        # Determine readiness label
+        if overall_readiness >= 80:
+            readiness_label = "highly_ready"
+        elif overall_readiness >= 65:
+            readiness_label = "ready"
+        elif overall_readiness >= 50:
+            readiness_label = "moderately_ready"
+        else:
+            readiness_label = "needs_improvement"
+        
+        # Generate recommendations
+        recommendations = []
+        if academic_accuracy < 60:
+            recommendations.append("Focus on improving your mock test scores. Aim for at least 60% accuracy.")
+        if not physical_data["height_measured"]:
+            recommendations.append("Complete your physical measurements in your profile.")
+        if not physical_data["pet_ready"]:
+            recommendations.append("Start logging your physical training progress to track PET readiness.")
+        if overall_readiness < 50:
+            recommendations.append("Consider following a structured study and physical plan to improve readiness.")
+        
+        return ExamReadinessResponse(
+            overall_readiness=round(overall_readiness, 2),
+            academic_readiness=round(academic_accuracy, 2),
+            physical_readiness=round(physical_readiness, 2),
+            academic_breakdown={
+                "total_mocks": len(attempts),
+                "total_questions": total_questions,
+                "total_correct": total_correct,
+                "accuracy": round(academic_accuracy, 2)
+            },
+            physical_breakdown={
+                "height_measured": physical_data["height_measured"],
+                "weight_measured": physical_data["weight_measured"],
+                "pet_ready": physical_data["pet_ready"],
+                "running_progress": physical_data["has_running_progress"]
+            },
+            readiness_label=readiness_label,
+            recommendations=recommendations
+        )
+    
+    async def get_stage_readiness(
+        self,
+        user_id: UUID
+    ) -> dict:
+        """Calculate stage-wise readiness percentages (PST, PET, Document).
+        
+        Returns:
+        - pst_readiness: 0-100 percentage
+        - pet_readiness: 0-100 percentage
+        - document_readiness: 0-100 percentage
+        """
+        from .schemas import StageReadinessResponse
+        
+        # Get physical readiness data
+        physical_data = await self.repo.get_physical_readiness_data(user_id)
+        
+        # PST readiness: height, weight, chest (males) measured
+        pst_factors = 2  # height + weight minimum
+        pst_completed = 0
+        
+        if physical_data["height_measured"]:
+            pst_completed += 1
+        if physical_data["weight_measured"]:
+            pst_completed += 1
+        
+        pst_readiness = (pst_completed / pst_factors) * 100
+        
+        # PET readiness: running progress + other physical activities
+        pet_factors = 3  # running progress, total sessions, consistency
+        pet_completed = 0
+        
+        if physical_data["has_running_progress"]:
+            pet_completed += 1
+        if physical_data["total_progress_logs"] >= 5:
+            pet_completed += 1
+        if physical_data["running_sessions"] >= 3:
+            pet_completed += 1
+        
+        pet_readiness = (pet_completed / pet_factors) * 100
+        
+        # Document readiness: based on verified documents
+        doc_data = await self.repo.get_document_readiness_data(user_id)
+        document_readiness = doc_data["completion_percentage"]
+        
+        # Overall readiness: average of the three stages
+        overall_readiness = (pst_readiness + pet_readiness + document_readiness) / 3
+        
+        # Determine stage status
+        def get_stage_status(percentage: float) -> str:
+            if percentage >= 80:
+                return "ready"
+            elif percentage >= 30:
+                return "in_progress"
+            else:
+                return "not_started"
+        
+        return StageReadinessResponse(
+            pst_readiness=round(pst_readiness, 2),
+            pet_readiness=round(pet_readiness, 2),
+            document_readiness=round(document_readiness, 2),
+            overall_readiness=round(overall_readiness, 2),
+            pst_details={
+                "height_measured": physical_data["height_measured"],
+                "weight_measured": physical_data["weight_measured"],
+                "chest_measured": physical_data.get("chest_measured", False),
+                "gender": physical_data["gender"]
+            },
+            pet_details={
+                "has_running_progress": physical_data["has_running_progress"],
+                "total_progress_logs": physical_data["total_progress_logs"],
+                "running_sessions": physical_data["running_sessions"]
+            },
+            document_details={
+                "verified_count": doc_data["verified_count"],
+                "uploaded_count": doc_data["uploaded_count"],
+                "total_required": doc_data["total_required"]
+            },
+            stage_status={
+                "pst": get_stage_status(pst_readiness),
+                "pet": get_stage_status(pet_readiness),
+                "documents": get_stage_status(document_readiness)
+            }
+        )
+    
+    async def get_cohort_comparison(
+        self,
+        user_id: UUID
+    ) -> dict:
+        """Compare user's progress vs peers who started same date.
+        
+        Returns detailed comparison metrics.
+        """
+        from .schemas import CohortComparisonResponse
+        
+        # Get user's creation date
+        user_created = await self.repo.get_user_creation_date(user_id)
+        if not user_created:
+            return CohortComparisonResponse(
+                cohort_name="Unknown",
+                cohort_size=0,
+                cohort_start_date=datetime.utcnow(),
+                user_progress=0.0,
+                cohort_average_progress=0.0,
+                user_percentile=50.0,
+                progress_comparison={},
+                user_averages={},
+                cohort_distribution={}
+            )
+        
+        # Get cohort users
+        cohort_user_ids = await self.repo.get_cohort_users(user_id)
+        
+        # Calculate cohort progress
+        cohort_data = await self.repo.get_cohort_progress(cohort_user_ids)
+        
+        # Get user's attempts
+        attempts = await self.repo.get_user_attempts(user_id, limit=50)
+        
+        # Calculate user's metrics
+        user_total_questions = 0
+        user_total_correct = 0
+        for attempt in attempts:
+            user_total_questions += attempt.total_questions or 0
+            user_total_correct += attempt.correct_count or 0
+        
+        user_accuracy = (
+            (user_total_correct / user_total_questions * 100) 
+            if user_total_questions > 0 else 0
+        )
+        
+        # Estimate user progress (based on attempts and accuracy)
+        user_progress = min((len(attempts) / 10) * 100 * (user_accuracy / 100), 100)
+        
+        # Calculate cohort average progress
+        cohort_avg_progress = 0
+        if cohort_data["cohort_size"] > 0:
+            cohort_avg_progress = (
+                cohort_data["avg_mocks_taken"] / 10 * 100 * 
+                (cohort_data["avg_accuracy"] / 100)
+            )
+        
+        # Calculate user percentile in cohort
+        if cohort_data["cohort_size"] > 0:
+            # Estimate: user is above average if their progress > cohort average
+            if user_progress >= cohort_avg_progress:
+                user_percentile = 50 + min((user_progress - cohort_avg_progress), 50)
+            else:
+                user_percentile = max(50 - (cohort_avg_progress - user_progress), 10)
+        else:
+            user_percentile = 50.0
+        
+        # Cohort name based on start date
+        cohort_name = f"Started {user_created.strftime('%B %Y')}"
+        
+        return CohortComparisonResponse(
+            cohort_name=cohort_name,
+            cohort_size=cohort_data["cohort_size"] + 1,  # +1 for the user
+            cohort_start_date=user_created,
+            user_progress=round(user_progress, 2),
+            cohort_average_progress=round(min(cohort_avg_progress, 100), 2),
+            user_percentile=round(user_percentile, 2),
+            progress_comparison={
+                "user_mocks_taken": len(attempts),
+                "cohort_avg_mocks": round(cohort_data["avg_mocks_taken"], 1),
+                "user_accuracy": round(user_accuracy, 2),
+                "cohort_avg_accuracy": cohort_data["avg_accuracy"]
+            },
+            user_averages={
+                "total_questions": user_total_questions,
+                "total_correct": user_total_correct,
+                "accuracy": round(user_accuracy, 2)
+            },
+            cohort_distribution={
+                "top_10_percent": round(user_percentile >= 90, 2) if user_percentile else 0,
+                "above_average": round(user_percentile >= 50, 2) if user_percentile else 0
+            }
+        )
+    
+    async def get_comprehensive_report(
+        self,
+        user_id: UUID,
+        user_name: Optional[str] = None
+    ) -> dict:
+        """Generate comprehensive analytics report for export.
+        
+        Combines all advanced analytics into a single exportable report.
+        """
+        from .schemas import ComprehensiveReportResponse
+        from uuid import uuid4
+        
+        # Get all the data
+        percentile_rank = await self.get_percentile_rank(user_id)
+        exam_readiness = await self.get_exam_readiness(user_id)
+        stage_readiness = await self.get_stage_readiness(user_id)
+        cohort_comparison = await self.get_cohort_comparison(user_id)
+        
+        # Get subject performance
+        attempts = await self.repo.get_user_attempts(user_id, limit=10)
+        subject_accuracy = await self._calculate_subject_accuracy(
+            user_id, attempts, None, None
+        )
+        weak_areas = await self._calculate_weak_chapters(
+            user_id, attempts, None, None
+        )
+        recent_trends = await self._calculate_score_trend(attempts)
+        
+        # Report expiration (7 days from now)
+        valid_until = datetime.utcnow() + timedelta(days=7)
+        
+        return ComprehensiveReportResponse(
+            report_id=str(uuid4()),
+            generated_at=datetime.utcnow(),
+            user_id=user_id,
+            user_name=user_name,
+            percentile_rank=percentile_rank,
+            exam_readiness=exam_readiness,
+            stage_readiness=stage_readiness,
+            cohort_comparison=cohort_comparison,
+            subject_performance=subject_accuracy,
+            weak_areas=weak_areas,
+            recent_trends=recent_trends,
+            report_type="comprehensive",
+            valid_until=valid_until,
+            download_url=None  # Set by router if generating PDF
+        )

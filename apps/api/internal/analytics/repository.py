@@ -363,3 +363,279 @@ class AnalyticsRepository:
         longest_streak = max(longest_streak, temp_streak)
         
         return current_streak, longest_streak
+    
+    # ============ Percentile Rank Estimation ============
+    
+    async def get_all_user_scores_for_percentile(
+        self,
+        test_series_id: Optional[UUID] = None,
+        limit: int = 10000
+    ) -> List[dict]:
+        """Get all user scores for percentile rank estimation.
+        
+        Returns list of dicts with user_id and score.
+        If test_series_id is None, gets all completed attempts.
+        """
+        query = select(
+            MockAttempt.user_id,
+            MockAttempt.total_score,
+            MockAttempt.completed_at
+        ).where(
+            MockAttempt.is_completed == True,
+            MockAttempt.total_score.isnot(None)
+        )
+        
+        if test_series_id:
+            query = query.where(MockAttempt.test_series_id == test_series_id)
+        
+        query = query.order_by(MockAttempt.total_score.desc()).limit(limit)
+        result = await self.db.execute(query)
+        rows = result.all()
+        
+        return [
+            {"user_id": row.user_id, "score": row.total_score, "completed_at": row.completed_at}
+            for row in rows
+        ]
+    
+    async def calculate_percentile_rank(
+        self,
+        user_id: UUID,
+        user_score: float
+    ) -> dict:
+        """Calculate estimated percentile rank for a user.
+        
+        Uses normalized score distribution to estimate percentile.
+        """
+        all_scores = await self.get_all_user_scores_for_percentile()
+        
+        if not all_scores:
+            return {
+                "estimated_percentile": 50.0,
+                "total_test_takers": 0,
+                "user_score": user_score,
+                "rank_category": "below_avg"
+            }
+        
+        # Count how many scores are below user's score
+        scores_below = sum(1 for s in all_scores if s["score"] < user_score)
+        total_test_takers = len(all_scores)
+        
+        # Calculate percentile
+        percentile = (scores_below / total_test_takers) * 100 if total_test_takers > 0 else 50.0
+        
+        # Determine rank category
+        if percentile >= 90:
+            rank_category = "top_10"
+        elif percentile >= 75:
+            rank_category = "top_25"
+        elif percentile >= 50:
+            rank_category = "top_50"
+        elif percentile >= 25:
+            rank_category = "above_avg"
+        else:
+            rank_category = "below_avg"
+        
+        return {
+            "estimated_percentile": round(percentile, 2),
+            "total_test_takers": total_test_takers,
+            "user_score": user_score,
+            "cohort_scores": [s["score"] for s in all_scores],
+            "rank_category": rank_category
+        }
+    
+    # ============ Cohort Comparison ============
+    
+    async def get_user_creation_date(self, user_id: UUID) -> Optional[datetime]:
+        """Get the date when user was created."""
+        from ..users.models import User
+        result = await self.db.execute(
+            select(User.created_at).where(User.id == user_id)
+        )
+        return result.scalar_one_or_none()
+    
+    async def get_cohort_users(
+        self,
+        user_id: UUID,
+        cohort_months_back: int = 1
+    ) -> List[UUID]:
+        """Get users who started in the same month as the target user.
+        
+        Returns user IDs of cohort members.
+        """
+        user_created = await self.get_user_creation_date(user_id)
+        if not user_created:
+            return []
+        
+        # Calculate the month range
+        cohort_start = user_created.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        if cohort_start.month == 12:
+            cohort_end = cohort_start.replace(year=cohort_start.year + 1, month=1)
+        else:
+            cohort_end = cohort_start.replace(month=cohort_start.month + 1)
+        
+        # Allow some flexibility (±cohort_months_back months)
+        flexible_start = cohort_start - timedelta(days=30 * cohort_months_back)
+        flexible_end = cohort_end + timedelta(days=30 * cohort_months_back)
+        
+        from ..users.models import User
+        result = await self.db.execute(
+            select(User.id).where(
+                and_(
+                    User.created_at >= flexible_start,
+                    User.created_at < flexible_end,
+                    User.id != user_id
+                )
+            )
+        )
+        cohort_user_ids = [row[0] for row in result.all()]
+        
+        return cohort_user_ids
+    
+    async def get_cohort_progress(self, cohort_user_ids: List[UUID]) -> dict:
+        """Calculate average progress metrics for a cohort."""
+        if not cohort_user_ids:
+            return {
+                "cohort_size": 0,
+                "avg_mocks_taken": 0,
+                "avg_accuracy": 0,
+                "avg_readiness": 0
+            }
+        
+        # Get average mocks taken
+        result = await self.db.execute(
+            select(func.count(MockAttempt.id))
+            .where(
+                and_(
+                    MockAttempt.user_id.in_(cohort_user_ids),
+                    MockAttempt.is_completed == True
+                )
+            )
+        )
+        total_attempts = result.scalar() or 0
+        
+        # Get attempts by cohort users
+        attempts_result = await self.db.execute(
+            select(MockAttempt)
+            .where(
+                and_(
+                    MockAttempt.user_id.in_(cohort_user_ids),
+                    MockAttempt.is_completed == True
+                )
+            )
+        )
+        all_attempts = list(attempts_result.scalars().all())
+        
+        # Calculate average accuracy
+        total_questions = 0
+        total_correct = 0
+        for attempt in all_attempts:
+            total_questions += attempt.total_questions or 0
+            total_correct += attempt.correct_count or 0
+        
+        avg_accuracy = (total_correct / total_questions * 100) if total_questions > 0 else 0
+        
+        return {
+            "cohort_size": len(cohort_user_ids),
+            "total_attempts": total_attempts,
+            "avg_mocks_taken": total_attempts / len(cohort_user_ids) if cohort_user_ids else 0,
+            "avg_accuracy": round(avg_accuracy, 2)
+        }
+    
+    # ============ Physical Readiness ============
+    
+    async def get_physical_readiness_data(self, user_id: UUID) -> dict:
+        """Get physical readiness data for a user."""
+        from ..physical.models import PhysicalProgressLog
+        from ..users.models import Profile
+        
+        # Get user profile
+        result = await self.db.execute(
+            select(Profile).where(Profile.user_id == user_id)
+        )
+        profile = result.scalar_one_or_none()
+        
+        # Get physical progress logs
+        logs_result = await self.db.execute(
+            select(PhysicalProgressLog)
+            .where(
+                and_(
+                    PhysicalProgressLog.user_id == user_id,
+                    PhysicalProgressLog.is_completed == True
+                )
+            )
+        )
+        logs = list(logs_result.scalars().all())
+        
+        # Calculate readiness factors
+        height_measured = profile and profile.height_cm and profile.height_cm > 0
+        weight_measured = profile and profile.weight_kg and profile.weight_kg > 0
+        
+        # PET readiness - at least some progress logged
+        pet_ready = len(logs) > 0
+        
+        # Check for running progress (most important for PET)
+        running_logs = [l for l in logs if l.activity_type == "running"]
+        has_running_progress = len(running_logs) > 0
+        
+        return {
+            "height_measured": height_measured,
+            "weight_measured": weight_measured,
+            "pet_ready": pet_ready,
+            "has_running_progress": has_running_progress,
+            "total_progress_logs": len(logs),
+            "running_sessions": len(running_logs),
+            "gender": profile.gender if profile else "male"
+        }
+    
+    # ============ Document Readiness ============
+    
+    async def get_document_readiness_data(self, user_id: UUID) -> dict:
+        """Get document readiness data for a user."""
+        from ..documents.models import UserDocumentChecklist, DocumentChecklist, DocumentStatus
+        from ..users.models import Profile
+        
+        # Get user profile for gender
+        profile_result = await self.db.execute(
+            select(Profile).where(Profile.user_id == user_id)
+        )
+        profile = profile_result.scalar_one_or_none()
+        user_gender = profile.gender if profile else None
+        
+        # Get user's document submissions
+        user_docs_result = await self.db.execute(
+            select(UserDocumentChecklist)
+            .where(UserDocumentChecklist.user_id == user_id)
+        )
+        user_docs = list(user_docs_result.scalars().all())
+        
+        # Get relevant checklists
+        checklist_query = select(DocumentChecklist).where(
+            DocumentChecklist.is_active == True
+        )
+        if user_gender:
+            checklist_query = checklist_query.where(
+                (DocumentChecklist.is_required_for_all == True) |
+                (DocumentChecklist.is_required_for_gender == None) |
+                (DocumentChecklist.is_required_for_gender == user_gender)
+            )
+        
+        checklists_result = await self.db.execute(checklist_query)
+        checklists = list(checklists_result.scalars().all())
+        
+        # Count verified and pending
+        verified_count = sum(
+            1 for ud in user_docs 
+            if ud.status == DocumentStatus.VERIFIED
+        )
+        uploaded_count = sum(
+            1 for ud in user_docs 
+            if ud.status in [DocumentStatus.UPLOADED, DocumentStatus.UNDER_VERIFICATION, DocumentStatus.VERIFIED]
+        )
+        total_required = len(checklists)
+        
+        return {
+            "verified_count": verified_count,
+            "uploaded_count": uploaded_count,
+            "total_required": total_required,
+            "completion_percentage": (verified_count / total_required * 100) if total_required > 0 else 0
+        }

@@ -15,6 +15,11 @@ from .schemas import (
     DateRangeFilter,
     ExportFormat,
     AnalyticsExportResponse,
+    PercentileRankResponse,
+    ExamReadinessResponse,
+    StageReadinessResponse,
+    CohortComparisonResponse,
+    ComprehensiveReportResponse,
 )
 from .service import AnalyticsService
 from ..shared.exceptions import UnauthorizedException
@@ -111,3 +116,167 @@ async def export_analytics(
         format=format,
         expires_at=datetime.utcnow() + timedelta(hours=1),
     )
+
+
+# ============ Advanced Analytics Endpoints ============
+
+@router.get("/percentile-rank", response_model=PercentileRankResponse)
+async def get_percentile_rank(
+    test_series_id: Optional[UUID] = Query(
+        None, 
+        description="Optional test series ID to filter by specific test"
+    ),
+    current_user: TokenData = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Get estimated percentile rank based on mock scores vs all test-takers.
+    
+    Returns:
+    - estimated_percentile: 0-100 based on user's score vs all test-takers
+    - total_test_takers: Total number of test-takers in the cohort
+    - user_score: User's average/latest score
+    - cohort_scores: Distribution of scores for visualization
+    - rank_category: top_10, top_25, top_50, above_avg, below_avg
+    """
+    if not current_user:
+        raise UnauthorizedException()
+    
+    service = AnalyticsService(db)
+    
+    return await service.get_percentile_rank(
+        user_id=UUID(current_user.user_id),
+        test_series_id=test_series_id,
+    )
+
+
+@router.get("/exam-readiness", response_model=ExamReadinessResponse)
+async def get_exam_readiness(
+    current_user: TokenData = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Get exam readiness score combining academic (70%) and physical (30%) readiness.
+    
+    Returns:
+    - overall_readiness: 0-100 combined score
+    - academic_readiness: 0-100 academic score component (70% weight)
+    - physical_readiness: 0-100 physical score component (30% weight)
+    - readiness_label: highly_ready, ready, moderately_ready, needs_improvement
+    - recommendations: List of recommendations to improve readiness
+    """
+    if not current_user:
+        raise UnauthorizedException()
+    
+    service = AnalyticsService(db)
+    
+    return await service.get_exam_readiness(
+        user_id=UUID(current_user.user_id),
+    )
+
+
+@router.get("/stage-readiness", response_model=StageReadinessResponse)
+async def get_stage_readiness(
+    current_user: TokenData = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Get stage-wise readiness percentages (PST, PET, Document).
+    
+    Returns:
+    - pst_readiness: 0-100 percentage for Physical Standard Test
+    - pet_readiness: 0-100 percentage for Physical Efficiency Test
+    - document_readiness: 0-100 percentage for Document Verification
+    - overall_readiness: Combined 0-100
+    - stage_status: ready, in_progress, not_started for each stage
+    """
+    if not current_user:
+        raise UnauthorizedException()
+    
+    service = AnalyticsService(db)
+    
+    return await service.get_stage_readiness(
+        user_id=UUID(current_user.user_id),
+    )
+
+
+@router.get("/cohort-comparison", response_model=CohortComparisonResponse)
+async def get_cohort_comparison(
+    current_user: TokenData = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Compare user's progress vs peers who started same date.
+    
+    Returns:
+    - cohort_name: e.g., "Started January 2024"
+    - cohort_size: Number of users in the cohort
+    - user_progress: User's progress percentage (0-100)
+    - cohort_average_progress: Average progress of the cohort
+    - user_percentile: User's percentile within cohort
+    """
+    if not current_user:
+        raise UnauthorizedException()
+    
+    service = AnalyticsService(db)
+    
+    return await service.get_cohort_comparison(
+        user_id=UUID(current_user.user_id),
+    )
+
+
+@router.get("/comprehensive-report", response_model=ComprehensiveReportResponse)
+async def get_comprehensive_report(
+    current_user: TokenData = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Get comprehensive analytics report for export.
+    
+    Combines all advanced analytics into a single exportable report:
+    - Percentile rank
+    - Exam readiness (academic + physical)
+    - Stage readiness (PST, PET, Document)
+    - Cohort comparison
+    - Subject performance
+    - Weak areas
+    - Recent trends
+    
+    Report expires in 7 days.
+    """
+    if not current_user:
+        raise UnauthorizedException()
+    
+    service = AnalyticsService(db)
+    
+    return await service.get_comprehensive_report(
+        user_id=UUID(current_user.user_id),
+    )
+
+
+@router.get("/comprehensive-report/export")
+async def export_comprehensive_report(
+    format: ExportFormat = Query(ExportFormat.PDF, description="Export format"),
+    current_user: TokenData = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Export comprehensive analytics report as PDF or CSV.
+    
+    Returns a download URL for the exported comprehensive report.
+    """
+    if not current_user:
+        raise UnauthorizedException()
+    
+    service = AnalyticsService(db)
+    
+    # Get the comprehensive report
+    report = await service.get_comprehensive_report(
+        user_id=UUID(current_user.user_id),
+    )
+    
+    # Generate download URL
+    from datetime import timedelta
+    
+    return {
+        "report_id": report.report_id,
+        "download_url": f"/exports/comprehensive_report_{current_user.user_id}.{format.value}",
+        "format": format.value,
+        "generated_at": report.generated_at,
+        "valid_until": report.valid_until,
+        "status": "ready"
+    }
