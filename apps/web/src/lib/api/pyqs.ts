@@ -46,6 +46,13 @@ export interface SubjectTopicListResponse {
   data: SubjectTopic[]
 }
 
+export interface Subject {
+  id: string
+  name: string
+  code?: string
+  description?: string | null
+}
+
 export interface PYQFilters {
   year?: number
   subject_id?: string
@@ -83,6 +90,11 @@ export const pyqApi = {
 
   getSubjectTopics: async (subjectId: string): Promise<SubjectTopicListResponse> => {
     const response = await apiClient.get<SubjectTopicListResponse>(`/pyqs/subjects/${subjectId}/topics`)
+    return response.data
+  },
+
+  getSubjects: async (): Promise<Subject[]> => {
+    const response = await apiClient.get<Subject[]>('/subjects')
     return response.data
   },
 }

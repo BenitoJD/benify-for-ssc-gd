@@ -30,9 +30,9 @@ const navItems = [
   { id: 'tests', href: '/pyqs', icon: FileText, labelKey: 'nav.tests' },
   { id: 'physical', href: '/physical', icon: Activity, labelKey: 'nav.physical' },
   { id: 'documents', href: '/documents', icon: FileCheck, labelKey: 'nav.documents' },
-  { id: 'analytics', href: '/dashboard', icon: BarChart3, labelKey: 'nav.analytics' },
+  { id: 'analytics', href: '/analytics', icon: BarChart3, labelKey: 'nav.analytics' },
   { id: 'community', href: '/community', icon: Users, labelKey: 'nav.community' },
-  { id: 'profile', href: '/dashboard', icon: User, labelKey: 'nav.profile' },
+  { id: 'profile', href: '/profile', icon: User, labelKey: 'nav.profile' },
 ]
 
 export function Sidebar({ locale }: SidebarProps) {

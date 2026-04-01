@@ -1,29 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, type FormEvent } from 'react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { Search, Filter, Bookmark, Clock, ChevronRight, Loader2 } from 'lucide-react'
-import { pyqApi, PYQ } from '@/lib/api/pyqs'
-
-const AVAILABLE_YEARS = [2024, 2023, 2022, 2021, 2020, 2019]
-const MOCK_CREATED_AT = '2024-01-01T00:00:00.000Z'
-const YEAR_COUNTS: Record<number, number> = {
-  2024: 24,
-  2023: 31,
-  2022: 27,
-  2021: 22,
-  2020: 18,
-  2019: 15,
-}
-
-// Mock subjects for now - in production these would come from API
-const MOCK_SUBJECTS = [
-  { id: '1', name: 'General Intelligence & Reasoning', nameHi: 'सामान्य बुद्धिमत्ता एवं तर्कशक्ति' },
-  { id: '2', name: 'General Knowledge & General Awareness', nameHi: 'सामान्य ज्ञान एवं सामान्य जागरूकता' },
-  { id: '3', name: 'Elementary Mathematics', nameHi: 'प्रारंभिक गणित' },
-  { id: '4', name: 'English/Hindi', nameHi: 'अंग्रेजी/हिंदी' },
-]
+import { pyqApi, PYQ, Subject, SubjectTopic, YearCount } from '@/lib/api/pyqs'
 
 function isUuid(value: string | null): value is string {
   if (!value) return false
@@ -43,6 +24,46 @@ export default function PYQLibraryPage() {
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [totalCount, setTotalCount] = useState(0)
+  const [availableYears, setAvailableYears] = useState<YearCount[]>([])
+  const [subjects, setSubjects] = useState<Subject[]>([])
+  const [topics, setTopics] = useState<SubjectTopic[]>([])
+  const [loadError, setLoadError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const loadFilters = async () => {
+      try {
+        const [yearsResponse, subjectResponse] = await Promise.all([
+          pyqApi.getAvailableYears(),
+          pyqApi.getSubjects(),
+        ])
+        setAvailableYears(yearsResponse.data)
+        setSubjects(subjectResponse)
+      } catch (error) {
+        console.error('Failed to load PYQ filters:', error)
+      }
+    }
+
+    loadFilters()
+  }, [])
+
+  useEffect(() => {
+    const loadTopics = async () => {
+      if (!isUuid(selectedSubject)) {
+        setTopics([])
+        return
+      }
+
+      try {
+        const response = await pyqApi.getSubjectTopics(selectedSubject)
+        setTopics(response.data)
+      } catch (error) {
+        console.error('Failed to load subject topics:', error)
+        setTopics([])
+      }
+    }
+
+    loadTopics()
+  }, [selectedSubject])
 
   // Fetch PYQs when filters change
   useEffect(() => {
@@ -51,6 +72,7 @@ export default function PYQLibraryPage() {
 
   const fetchPYQs = async () => {
     setLoading(true)
+    setLoadError(null)
     try {
       const response = await pyqApi.getPYQs({
         year: selectedYear || undefined,
@@ -60,107 +82,18 @@ export default function PYQLibraryPage() {
         page,
         limit: 20,
       })
-      if (response.data.length === 0) {
-        const mockPyqs = generateMockPYQs()
-        setPyqs(mockPyqs)
-        setTotalPages(1)
-        setTotalCount(mockPyqs.length)
-      } else {
-        setPyqs(response.data)
-        setTotalPages(response.meta.total_pages)
-        setTotalCount(response.meta.total)
-      }
+      setPyqs(response.data)
+      setTotalPages(response.meta.total_pages)
+      setTotalCount(response.meta.total)
     } catch (error) {
       console.error('Failed to fetch PYQs:', error)
-      // Use mock data for demo
-      const mockPyqs = generateMockPYQs()
-      setPyqs(mockPyqs)
+      setPyqs([])
       setTotalPages(1)
-      setTotalCount(mockPyqs.length)
+      setTotalCount(0)
+      setLoadError('Unable to load previous year questions right now.')
     } finally {
       setLoading(false)
     }
-  }
-
-  // Generate mock PYQs for demo
-  const generateMockPYQs = (): PYQ[] => {
-    return [
-      {
-        id: '1',
-        topic_id: '1',
-        topic_name: 'Analogy',
-        subject_id: '1',
-        subject_name: 'General Intelligence & Reasoning',
-        question_text: 'Choose the correct option to complete the analogy: Book : Reading :: Food : ?',
-        question_type: 'mcq',
-        options: ['Hunger', 'Eating', 'Kitchen', 'Restaurant'],
-        correct_answer: 'B',
-        explanation: 'Just as reading is related to book, eating is related to food.',
-        source: 'SSC GD 2023',
-        exam_year: 2023,
-        created_at: MOCK_CREATED_AT,
-      },
-      {
-        id: '2',
-        topic_id: '2',
-        topic_name: 'History',
-        subject_id: '2',
-        subject_name: 'General Knowledge & General Awareness',
-        question_text: 'Who was the first Prime Minister of India?',
-        question_type: 'mcq',
-        options: ['Mahatma Gandhi', 'Jawaharlal Nehru', 'Sardar Patel', 'Dr. B.R. Ambedkar'],
-        correct_answer: 'B',
-        explanation: 'Jawaharlal Nehru was the first Prime Minister of India.',
-        source: 'SSC GD 2022',
-        exam_year: 2022,
-        created_at: MOCK_CREATED_AT,
-      },
-      {
-        id: '3',
-        topic_id: '3',
-        topic_name: 'Average',
-        subject_id: '3',
-        subject_name: 'Elementary Mathematics',
-        question_text: 'The average of first 10 natural numbers is:',
-        question_type: 'mcq',
-        options: ['5', '5.5', '6', '6.5'],
-        correct_answer: 'B',
-        explanation: 'Sum of first 10 natural numbers = 10*11/2 = 55. Average = 55/10 = 5.5',
-        source: 'SSC GD 2023',
-        exam_year: 2023,
-        created_at: MOCK_CREATED_AT,
-      },
-      {
-        id: '4',
-        topic_id: '4',
-        topic_name: 'Grammar',
-        subject_id: '4',
-        subject_name: 'English/Hindi',
-        question_text: 'Choose the correctly spelled word:',
-        question_type: 'mcq',
-        options: ['Accomodation', 'Accommodation', 'Acommodation', 'Acomodation'],
-        correct_answer: 'B',
-        explanation: 'The correct spelling is "Accommodation".',
-        source: 'SSC GD 2021',
-        exam_year: 2021,
-        created_at: MOCK_CREATED_AT,
-      },
-      {
-        id: '5',
-        topic_id: '1',
-        topic_name: 'Blood Relations',
-        subject_id: '1',
-        subject_name: 'General Intelligence & Reasoning',
-        question_text: 'Pointing to a man, a woman said, "His mother is the only daughter of my mother." How is the woman related to the man?',
-        question_type: 'mcq',
-        options: ['Mother', 'Daughter', 'Sister', 'Grandmother'],
-        correct_answer: 'A',
-        explanation: 'The only daughter of the woman\'s mother is the woman herself. So the woman is the man\'s mother.',
-        source: 'SSC GD 2020',
-        exam_year: 2020,
-        created_at: MOCK_CREATED_AT,
-      },
-    ]
   }
 
   const toggleBookmark = (id: string) => {
@@ -175,7 +108,7 @@ export default function PYQLibraryPage() {
     })
   }
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearch = (e: FormEvent) => {
     e.preventDefault()
     setPage(1)
     fetchPYQs()
@@ -193,8 +126,8 @@ export default function PYQLibraryPage() {
     setPage(1)
   }
 
-  const getYearCount = (_year: number): number => {
-    return YEAR_COUNTS[_year] ?? 0
+  const getYearCount = (year: number): number => {
+    return availableYears.find((entry) => entry.year === year)?.count ?? 0
   }
 
   return (
@@ -236,7 +169,7 @@ export default function PYQLibraryPage() {
                   >
                     {t('pyq.allYears')}
                   </button>
-                  {AVAILABLE_YEARS.map(year => (
+                  {availableYears.map(({ year }) => (
                     <button
                       key={year}
                       onClick={() => handleYearFilter(year)}
@@ -262,7 +195,7 @@ export default function PYQLibraryPage() {
                   className="w-full px-3 py-2 bg-white border border-[#EAEAEA] rounded-[8px] text-sm text-[#111827] focus:outline-none focus:border-[#111827] focus:ring-1 focus:ring-[#111827] transition-shadow"
                 >
                   <option value="">{t('pyq.allSubjects')}</option>
-                  {MOCK_SUBJECTS.map(subject => (
+                  {subjects.map(subject => (
                     <option key={subject.id} value={subject.id}>
                       {subject.name}
                     </option>
@@ -283,10 +216,11 @@ export default function PYQLibraryPage() {
                     className="w-full px-3 py-2 bg-white border border-[#EAEAEA] rounded-[8px] text-sm text-[#111827] focus:outline-none focus:border-[#111827] focus:ring-1 focus:ring-[#111827] transition-shadow"
                   >
                     <option value="">{t('pyq.allTopics')}</option>
-                    <option value="1">Analogy</option>
-                    <option value="2">Blood Relations</option>
-                    <option value="3">Coding-Decoding</option>
-                    <option value="4">Series</option>
+                    {topics.map((topic) => (
+                      <option key={topic.id} value={topic.id}>
+                        {topic.name}
+                      </option>
+                    ))}
                   </select>
                 </div>
               )}
@@ -310,6 +244,11 @@ export default function PYQLibraryPage() {
 
           {/* Main Content */}
           <main className="flex-1">
+            {loadError && (
+              <div className="bg-red-50 border border-red-200 rounded-[12px] px-4 py-3 mb-6 text-sm text-red-700">
+                {loadError}
+              </div>
+            )}
             {/* Search Bar */}
             <div className="bg-white rounded-[12px] shadow-sm p-4 mb-6 border border-[#EAEAEA]">
               <form onSubmit={handleSearch} className="flex gap-3">
@@ -359,7 +298,7 @@ export default function PYQLibraryPage() {
                   )}
                   {selectedSubject && (
                     <span className="inline-flex items-center px-2 py-1.5 rounded-[6px] text-[10px] font-bold uppercase tracking-wider bg-[#FAFAFA] border border-[#EAEAEA] text-[#111827]">
-                      {MOCK_SUBJECTS.find(s => s.id === selectedSubject)?.name}
+                      {subjects.find((subject) => subject.id === selectedSubject)?.name ?? selectedSubject}
                       <button
                         onClick={() => handleSubjectFilter(null)}
                         className="ml-1.5 hover:text-red-500"

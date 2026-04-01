@@ -1,5 +1,6 @@
 'use client'
 
+import type { ComponentType } from 'react'
 import { useTranslations } from 'next-intl'
 import { clsx } from 'clsx'
 import { BookOpen, Calculator, Globe, Languages } from 'lucide-react'
@@ -17,7 +18,7 @@ interface ProgressCardsProps {
   subjects: SubjectProgress[]
 }
 
-const subjectIcons: Record<string, React.ComponentType<{ className?: string }>> = {
+const subjectIcons: Record<string, ComponentType<{ className?: string }>> = {
   'general-intelligence': BookOpen,
   'mathematics': Calculator,
   'general-knowledge': Globe,
@@ -40,6 +41,12 @@ export function ProgressCards({ subjects }: ProgressCardsProps) {
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-[15px] font-semibold text-[#111827] tracking-tight">{t('progress')}</h2>
       </div>
+
+      {subjects.length === 0 && (
+        <div className="rounded-[8px] border border-[#EAEAEA] bg-[#FAFAFA] p-6 text-sm text-[#6B7280]">
+          No subject progress is available yet. Your dashboard will update after you complete lessons or tests.
+        </div>
+      )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {subjects.map((subject) => {

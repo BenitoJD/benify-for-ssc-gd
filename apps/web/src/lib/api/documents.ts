@@ -196,8 +196,7 @@ export async function getMedicalGuidelines(): Promise<MedicalGuideline[]> {
  * Get medical self-assessment questions.
  */
 export async function getMedicalSelfAssessment(): Promise<MedicalSelfAssessment[]> {
-  const response = await apiClient.get<MedicalSelfAssessment[]>('/documents/medical/self-assessment')
-  return response.data
+  throw new Error('Medical self-assessment is not available in the current API.')
 }
 
 /**
@@ -210,10 +209,8 @@ export async function submitSelfAssessment(
   disqualification_reasons: string[]
   can_proceed: boolean
 }> {
-  const response = await apiClient.post('/documents/medical/self-assessment', {
-    responses,
-  })
-  return response.data
+  void responses
+  throw new Error('Medical self-assessment is not available in the current API.')
 }
 
 /**
@@ -224,28 +221,25 @@ export async function setReminder(
   reminderDate: string,
   reminderType: 'email' | 'in_app' | 'both' = 'in_app'
 ): Promise<Reminder> {
-  const response = await apiClient.post<Reminder>('/documents/reminders', {
-    document_item_id: documentItemId,
-    reminder_date: reminderDate,
-    reminder_type: reminderType,
-  })
-  return response.data
+  void documentItemId
+  void reminderDate
+  void reminderType
+  throw new Error('Document reminders are not available in the current API.')
 }
 
 /**
  * Get user's reminders.
  */
 export async function getMyReminders(): Promise<Reminder[]> {
-  const response = await apiClient.get<Reminder[]>('/documents/reminders/me')
-  return response.data
+  throw new Error('Document reminders are not available in the current API.')
 }
 
 /**
  * Delete a reminder.
  */
 export async function deleteReminder(reminderId: string): Promise<{ success: boolean }> {
-  const response = await apiClient.delete<{ success: boolean }>(`/documents/reminders/${reminderId}`)
-  return response.data
+  void reminderId
+  throw new Error('Document reminders are not available in the current API.')
 }
 
 // ============ Utility Functions ============

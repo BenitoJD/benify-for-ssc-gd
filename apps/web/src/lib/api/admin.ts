@@ -1,3 +1,4 @@
+import axios from 'axios'
 import apiClient from './client'
 
 // ============ Content Management Types ============
@@ -100,7 +101,7 @@ export interface SubjectCreateDTO {
   status?: ContentStatus['status']
 }
 
-export interface SubjectUpdateDTO extends Partial<SubjectCreateDTO> {}
+export type SubjectUpdateDTO = Partial<SubjectCreateDTO>
 
 export interface TopicCreateDTO {
   subject_id: string
@@ -111,7 +112,7 @@ export interface TopicCreateDTO {
   status?: ContentStatus['status']
 }
 
-export interface TopicUpdateDTO extends Partial<TopicCreateDTO> {}
+export type TopicUpdateDTO = Partial<TopicCreateDTO>
 
 export interface LessonCreateDTO {
   topic_id: string
@@ -124,7 +125,7 @@ export interface LessonCreateDTO {
   status?: ContentStatus['status']
 }
 
-export interface LessonUpdateDTO extends Partial<LessonCreateDTO> {}
+export type LessonUpdateDTO = Partial<LessonCreateDTO>
 
 export interface QuestionCreateDTO {
   topic_id: string
@@ -142,7 +143,7 @@ export interface QuestionCreateDTO {
   status?: ContentStatus['status']
 }
 
-export interface QuestionUpdateDTO extends Partial<QuestionCreateDTO> {}
+export type QuestionUpdateDTO = Partial<QuestionCreateDTO>
 
 export interface TestSeriesCreateDTO {
   title: string
@@ -162,7 +163,7 @@ export interface TestSeriesCreateDTO {
   status?: ContentStatus['status']
 }
 
-export interface TestSeriesUpdateDTO extends Partial<TestSeriesCreateDTO> {}
+export type TestSeriesUpdateDTO = Partial<TestSeriesCreateDTO>
 
 export interface BulkQuestionImportDTO {
   questions: Array<{
@@ -231,6 +232,173 @@ export interface PaginatedResponse<T> {
   }
 }
 
+type PublicSubjectResponse = {
+  id: string
+  name: string
+  code?: string
+  description?: string | null
+  icon_url?: string | null
+  order_index?: number
+  topic_count?: number
+  created_at?: string
+  updated_at?: string
+}
+
+type PublicTopicResponse = {
+  id: string
+  subject_id: string
+  name: string
+  description?: string | null
+  order_index?: number
+  estimated_hours?: number | null
+  lesson_count?: number
+  created_at?: string
+  updated_at?: string
+}
+
+type PublicLessonResponse = {
+  id: string
+  topic_id: string
+  title: string
+  content?: string | null
+  video_url?: string | null
+  order_index?: number
+  estimated_minutes?: number | null
+  is_premium?: boolean
+  created_at?: string
+  updated_at?: string
+}
+
+type PublicTestSeriesResponse = {
+  id: string
+  title: string
+  description?: string | null
+  test_type: AdminTestSeries['test_type']
+  duration_minutes?: number
+  total_questions?: number
+  marks_per_question?: number
+  negative_marking?: boolean
+  negative_marks_per_question?: number
+  is_premium?: boolean
+  is_active?: boolean
+  instructions?: string | null
+  passing_percentage?: number
+  created_at?: string
+  updated_at?: string
+}
+
+function getAdminAccessToken(): string | null {
+  if (typeof window === 'undefined') return null
+  return localStorage.getItem('admin_access_token')
+}
+
+async function adminPublicGet<T>(path: string, params?: Record<string, string | number | boolean | undefined>): Promise<T> {
+  const token = getAdminAccessToken()
+  const response = await axios.get<T>(`${apiClient.defaults.baseURL}${path}`, {
+    params,
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+  })
+  return response.data
+}
+
+function toPaginatedResponse<T>(data: T[], page = 1, limit = 20): PaginatedResponse<T> {
+  return {
+    data,
+    meta: {
+      page,
+      limit,
+      total: data.length,
+      pages: data.length === 0 ? 0 : Math.ceil(data.length / limit),
+    },
+  }
+}
+
+function filterBySearch<T extends object>(items: T[], search?: string): T[] {
+  if (!search) return items
+  const needle = search.trim().toLowerCase()
+  if (!needle) return items
+
+  return items.filter((item) =>
+    Object.values(item as Record<string, unknown>).some(
+      (value) => typeof value === 'string' && value.toLowerCase().includes(needle)
+    )
+  )
+}
+
+function toAdminSubject(subject: PublicSubjectResponse): AdminSubject {
+  return {
+    id: subject.id,
+    name: subject.name,
+    code: subject.code ?? '',
+    description: subject.description ?? '',
+    icon_url: subject.icon_url ?? '',
+    order_index: subject.order_index ?? 0,
+    topic_count: subject.topic_count ?? 0,
+    status: 'published',
+    created_at: subject.created_at ?? '',
+    updated_at: subject.updated_at ?? subject.created_at ?? '',
+  }
+}
+
+function toAdminTopic(topic: PublicTopicResponse, subjectName?: string): AdminTopic {
+  return {
+    id: topic.id,
+    subject_id: topic.subject_id,
+    subject_name: subjectName,
+    name: topic.name,
+    description: topic.description ?? '',
+    order_index: topic.order_index ?? 0,
+    estimated_hours: topic.estimated_hours ?? undefined,
+    lesson_count: topic.lesson_count ?? 0,
+    status: 'published',
+    created_at: topic.created_at ?? '',
+    updated_at: topic.updated_at ?? topic.created_at ?? '',
+  }
+}
+
+function toAdminLesson(lesson: PublicLessonResponse, topicName?: string, subjectName?: string): AdminLesson {
+  return {
+    id: lesson.id,
+    topic_id: lesson.topic_id,
+    topic_name: topicName,
+    subject_name: subjectName,
+    title: lesson.title,
+    content: lesson.content ?? '',
+    video_url: lesson.video_url ?? '',
+    order_index: lesson.order_index ?? 0,
+    estimated_minutes: lesson.estimated_minutes ?? undefined,
+    is_premium: lesson.is_premium ?? false,
+    status: 'published',
+    created_at: lesson.created_at ?? '',
+    updated_at: lesson.updated_at ?? lesson.created_at ?? '',
+  }
+}
+
+function toAdminTestSeries(testSeries: PublicTestSeriesResponse): AdminTestSeries {
+  return {
+    id: testSeries.id,
+    title: testSeries.title,
+    description: testSeries.description ?? '',
+    test_type: testSeries.test_type,
+    duration_minutes: testSeries.duration_minutes ?? 0,
+    total_questions: testSeries.total_questions ?? 0,
+    marks_per_question: testSeries.marks_per_question ?? 0,
+    negative_marking: testSeries.negative_marking ?? false,
+    negative_marks_per_question: testSeries.negative_marks_per_question ?? 0,
+    is_premium: testSeries.is_premium ?? false,
+    is_active: testSeries.is_active ?? true,
+    instructions: testSeries.instructions ?? '',
+    passing_percentage: testSeries.passing_percentage ?? 0,
+    status: testSeries.is_active === false ? 'draft' : 'published',
+    created_at: testSeries.created_at ?? '',
+    updated_at: testSeries.updated_at ?? testSeries.created_at ?? '',
+  }
+}
+
+function unsupportedAdminContentOperation(resource: string): never {
+  throw new Error(`${resource} management is not available because the backend does not expose admin CRUD endpoints for it.`)
+}
+
 export const adminApi = {
   login: async (data: AdminLoginRequest): Promise<AdminLoginResponse> => {
     const response = await apiClient.post<AdminLoginResponse>('/admin/login', data)
@@ -279,27 +447,30 @@ export const adminApi = {
     status?: string
     search?: string
   }): Promise<PaginatedResponse<AdminSubject>> => {
-    const response = await apiClient.get('/admin/subjects', { params })
-    return response.data
+    const subjects = await adminPublicGet<PublicSubjectResponse[]>('/subjects')
+    const mapped = filterBySearch(subjects.map(toAdminSubject), params?.search)
+    return toPaginatedResponse(mapped, params?.page, params?.limit)
   },
 
   getSubject: async (id: string): Promise<AdminSubject> => {
-    const response = await apiClient.get(`/admin/subjects/${id}`)
-    return response.data
+    const subject = await adminPublicGet<PublicSubjectResponse>(`/subjects/${id}`)
+    return toAdminSubject(subject)
   },
 
   createSubject: async (data: SubjectCreateDTO): Promise<AdminSubject> => {
-    const response = await apiClient.post('/admin/subjects', data)
-    return response.data
+    void data
+    unsupportedAdminContentOperation('Subject')
   },
 
   updateSubject: async (id: string, data: SubjectUpdateDTO): Promise<AdminSubject> => {
-    const response = await apiClient.put(`/admin/subjects/${id}`, data)
-    return response.data
+    void id
+    void data
+    unsupportedAdminContentOperation('Subject')
   },
 
   deleteSubject: async (id: string): Promise<void> => {
-    await apiClient.delete(`/admin/subjects/${id}`)
+    void id
+    unsupportedAdminContentOperation('Subject')
   },
 
   // Topics
@@ -310,27 +481,44 @@ export const adminApi = {
     status?: string
     search?: string
   }): Promise<PaginatedResponse<AdminTopic>> => {
-    const response = await apiClient.get('/admin/topics', { params })
-    return response.data
+    const subjects = await adminPublicGet<PublicSubjectResponse[]>('/subjects')
+    const subjectMap = new Map(subjects.map((subject) => [subject.id, subject.name]))
+
+    const sourceSubjects = params?.subject_id
+      ? subjects.filter((subject) => subject.id === params.subject_id)
+      : subjects
+
+    const topicGroups = await Promise.all(
+      sourceSubjects.map(async (subject) => {
+        const topics = await adminPublicGet<PublicTopicResponse[]>(`/subjects/${subject.id}/topics`)
+        return topics.map((topic) => toAdminTopic(topic, subjectMap.get(topic.subject_id)))
+      })
+    )
+
+    const mapped = filterBySearch(topicGroups.flat(), params?.search)
+    return toPaginatedResponse(mapped, params?.page, params?.limit)
   },
 
   getTopic: async (id: string): Promise<AdminTopic> => {
-    const response = await apiClient.get(`/admin/topics/${id}`)
-    return response.data
+    const topic = await adminPublicGet<PublicTopicResponse>(`/topics/${id}`)
+    const subject = await adminPublicGet<PublicSubjectResponse>(`/subjects/${topic.subject_id}`)
+    return toAdminTopic(topic, subject.name)
   },
 
   createTopic: async (data: TopicCreateDTO): Promise<AdminTopic> => {
-    const response = await apiClient.post('/admin/topics', data)
-    return response.data
+    void data
+    unsupportedAdminContentOperation('Topic')
   },
 
   updateTopic: async (id: string, data: TopicUpdateDTO): Promise<AdminTopic> => {
-    const response = await apiClient.put(`/admin/topics/${id}`, data)
-    return response.data
+    void id
+    void data
+    unsupportedAdminContentOperation('Topic')
   },
 
   deleteTopic: async (id: string): Promise<void> => {
-    await apiClient.delete(`/admin/topics/${id}`)
+    void id
+    unsupportedAdminContentOperation('Topic')
   },
 
   // Lessons
@@ -341,27 +529,49 @@ export const adminApi = {
     status?: string
     search?: string
   }): Promise<PaginatedResponse<AdminLesson>> => {
-    const response = await apiClient.get('/admin/lessons', { params })
-    return response.data
+    const subjects = await adminPublicGet<PublicSubjectResponse[]>('/subjects')
+    const topicsBySubject = await Promise.all(
+      subjects.map(async (subject) => {
+        const topics = await adminPublicGet<PublicTopicResponse[]>(`/subjects/${subject.id}/topics`)
+        return topics.map((topic) => ({ ...topic, subject_name: subject.name }))
+      })
+    )
+
+    const topics = topicsBySubject.flat()
+    const sourceTopics = params?.topic_id
+      ? topics.filter((topic) => topic.id === params.topic_id)
+      : topics
+
+    const lessonGroups = await Promise.all(
+      sourceTopics.map(async (topic) => {
+        const lessons = await adminPublicGet<PublicLessonResponse[]>(`/topics/${topic.id}/lessons`)
+        return lessons.map((lesson) => toAdminLesson(lesson, topic.name, topic.subject_name))
+      })
+    )
+
+    const mapped = filterBySearch(lessonGroups.flat(), params?.search)
+    return toPaginatedResponse(mapped, params?.page, params?.limit)
   },
 
   getLesson: async (id: string): Promise<AdminLesson> => {
-    const response = await apiClient.get(`/admin/lessons/${id}`)
-    return response.data
+    const lesson = await adminPublicGet<PublicLessonResponse>(`/lessons/${id}`)
+    return toAdminLesson(lesson)
   },
 
   createLesson: async (data: LessonCreateDTO): Promise<AdminLesson> => {
-    const response = await apiClient.post('/admin/lessons', data)
-    return response.data
+    void data
+    unsupportedAdminContentOperation('Lesson')
   },
 
   updateLesson: async (id: string, data: LessonUpdateDTO): Promise<AdminLesson> => {
-    const response = await apiClient.put(`/admin/lessons/${id}`, data)
-    return response.data
+    void id
+    void data
+    unsupportedAdminContentOperation('Lesson')
   },
 
   deleteLesson: async (id: string): Promise<void> => {
-    await apiClient.delete(`/admin/lessons/${id}`)
+    void id
+    unsupportedAdminContentOperation('Lesson')
   },
 
   // Questions
@@ -373,8 +583,8 @@ export const adminApi = {
     status?: string
     search?: string
   }): Promise<PaginatedResponse<AdminQuestion>> => {
-    const response = await apiClient.get('/admin/questions', { params })
-    return response.data
+    void params
+    unsupportedAdminContentOperation('Question')
   },
 
   getQuestion: async (id: string): Promise<AdminQuestion> => {
@@ -383,17 +593,19 @@ export const adminApi = {
   },
 
   createQuestion: async (data: QuestionCreateDTO): Promise<AdminQuestion> => {
-    const response = await apiClient.post('/admin/questions', data)
-    return response.data
+    void data
+    unsupportedAdminContentOperation('Question')
   },
 
   updateQuestion: async (id: string, data: QuestionUpdateDTO): Promise<AdminQuestion> => {
-    const response = await apiClient.put(`/admin/questions/${id}`, data)
-    return response.data
+    void id
+    void data
+    unsupportedAdminContentOperation('Question')
   },
 
   deleteQuestion: async (id: string): Promise<void> => {
-    await apiClient.delete(`/admin/questions/${id}`)
+    void id
+    unsupportedAdminContentOperation('Question')
   },
 
   bulkImportQuestions: async (data: BulkQuestionImportDTO): Promise<{
@@ -401,8 +613,8 @@ export const adminApi = {
     failed: number
     errors?: Array<{ row: number; error: string }>
   }> => {
-    const response = await apiClient.post('/admin/questions/bulk-import', data)
-    return response.data
+    void data
+    unsupportedAdminContentOperation('Question')
   },
 
   // Test Series
@@ -413,27 +625,37 @@ export const adminApi = {
     status?: string
     search?: string
   }): Promise<PaginatedResponse<AdminTestSeries>> => {
-    const response = await apiClient.get('/admin/test-series', { params })
-    return response.data
+    const response = await adminPublicGet<PaginatedResponse<PublicTestSeriesResponse>>('/test-series', {
+      page: params?.page,
+      limit: params?.limit,
+      test_type: params?.test_type,
+      search: params?.search,
+    })
+
+    return {
+      data: response.data.map(toAdminTestSeries),
+      meta: response.meta,
+    }
   },
 
   getTestSeries: async (id: string): Promise<AdminTestSeries> => {
-    const response = await apiClient.get(`/admin/test-series/${id}`)
-    return response.data
+    const response = await adminPublicGet<PublicTestSeriesResponse>(`/test-series/${id}`)
+    return toAdminTestSeries(response)
   },
 
   createTestSeries: async (data: TestSeriesCreateDTO): Promise<AdminTestSeries> => {
-    const response = await apiClient.post('/admin/test-series', data)
-    return response.data
+    const response = await apiClient.post<PublicTestSeriesResponse>('/test-series', data)
+    return toAdminTestSeries(response.data)
   },
 
   updateTestSeries: async (id: string, data: TestSeriesUpdateDTO): Promise<AdminTestSeries> => {
-    const response = await apiClient.put(`/admin/test-series/${id}`, data)
-    return response.data
+    const response = await apiClient.patch<PublicTestSeriesResponse>(`/test-series/${id}`, data)
+    return toAdminTestSeries(response.data)
   },
 
   deleteTestSeries: async (id: string): Promise<void> => {
-    await apiClient.delete(`/admin/test-series/${id}`)
+    void id
+    unsupportedAdminContentOperation('Test series')
   },
 
   // File Upload (MinIO)
@@ -456,7 +678,10 @@ export const adminApi = {
     id: string,
     status: ContentStatus['status']
   ): Promise<void> => {
-    await apiClient.patch(`/admin/${type}/${id}/status`, { status })
+    void type
+    void id
+    void status
+    unsupportedAdminContentOperation('Content status')
   },
 
   // ============ Physical Training Management ============

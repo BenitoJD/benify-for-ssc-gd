@@ -6,11 +6,11 @@ import {
   BookOpen,
   List,
   FileCheck,
-  HelpCircle,
   ClipboardList,
   ArrowRight,
   FileText
 } from 'lucide-react'
+import { adminApi } from '@/lib/api/admin'
 
 interface ContentStats {
   subjects: number
@@ -22,6 +22,7 @@ interface ContentStats {
 }
 
 export default function AdminContentPage() {
+  const [isLoading, setIsLoading] = useState(true)
   const [stats, setStats] = useState<ContentStats>({
     subjects: 0,
     topics: 0,
@@ -32,17 +33,31 @@ export default function AdminContentPage() {
   })
 
   useEffect(() => {
-    // Mock data - in production this would come from API
-    setTimeout(() => {
-      setStats({
-        subjects: 4,
-        topics: 42,
-        lessons: 256,
-        questions: 1250,
-        testSeries: 18,
-        pendingReview: 7,
-      })
-    }, 500)
+    const loadStats = async () => {
+      try {
+        const [subjects, topics, lessons, testSeries] = await Promise.all([
+          adminApi.listSubjects({ limit: 100 }),
+          adminApi.listTopics({ limit: 100 }),
+          adminApi.listLessons({ limit: 100 }),
+          adminApi.listTestSeries({ limit: 100 }),
+        ])
+
+        setStats({
+          subjects: subjects.meta.total,
+          topics: topics.meta.total,
+          lessons: lessons.meta.total,
+          questions: 0,
+          testSeries: testSeries.meta.total,
+          pendingReview: 0,
+        })
+      } catch (error) {
+        console.error('Failed to load content stats:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    loadStats()
   }, [])
 
   const contentCards = [
@@ -77,16 +92,6 @@ export default function AdminContentPage() {
       textColor: 'text-purple-600',
     },
     {
-      title: 'Question Bank',
-      description: 'Create MCQ questions with options, difficulty, topics',
-      href: '/admin/content/questions',
-      icon: HelpCircle,
-      count: stats.questions,
-      color: 'bg-orange-500',
-      bgColor: 'bg-orange-50',
-      textColor: 'text-orange-600',
-    },
-    {
       title: 'Test Series',
       description: 'Create tests with type, duration, question count',
       href: '/admin/content/test-series',
@@ -103,6 +108,10 @@ export default function AdminContentPage() {
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Content Management</h1>
         <p className="text-gray-600">Manage all platform content - subjects, topics, lessons, questions, and tests</p>
+      </div>
+
+      <div className="bg-white rounded-xl shadow-sm p-4 border border-gray-100 text-sm text-gray-600">
+        Live counts are shown for resources with real backend APIs. Question-bank admin endpoints are not currently exposed, so that section is hidden from the main admin workflow.
       </div>
 
       {/* Pending Review Alert */}
@@ -143,7 +152,7 @@ export default function AdminContentPage() {
                 <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition" />
               </div>
               <h3 className="font-semibold text-gray-900">{card.title}</h3>
-              <p className="text-2xl font-bold text-gray-900 mt-1">{card.count.toLocaleString()}</p>
+              <p className="text-2xl font-bold text-gray-900 mt-1">{isLoading ? '...' : card.count.toLocaleString()}</p>
             </Link>
           )
         })}
@@ -168,7 +177,7 @@ export default function AdminContentPage() {
                 </h3>
                 <p className="text-gray-600 text-sm mb-4">{card.description}</p>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-500">{card.count} total</span>
+                  <span className="text-sm text-gray-500">{isLoading ? 'Loading…' : `${card.count} total`}</span>
                   <span className="text-sm font-medium text-primary-600 group-hover:underline">
                     Manage →
                   </span>
@@ -182,31 +191,7 @@ export default function AdminContentPage() {
       {/* Quick Actions */}
       <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Link
-            href="/admin/content/questions?action=import"
-            className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition"
-          >
-            <div className="p-2 bg-green-100 rounded-lg">
-              <FileText className="w-5 h-5 text-green-600" />
-            </div>
-            <div>
-              <p className="font-medium text-gray-900">Bulk Import Questions</p>
-              <p className="text-sm text-gray-500">Import via CSV</p>
-            </div>
-          </Link>
-          <Link
-            href="/admin/content/questions?action=create"
-            className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition"
-          >
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <HelpCircle className="w-5 h-5 text-blue-600" />
-            </div>
-            <div>
-              <p className="font-medium text-gray-900">Add New Question</p>
-              <p className="text-sm text-gray-500">Create single question</p>
-            </div>
-          </Link>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Link
             href="/admin/content/test-series?action=create"
             className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition"
@@ -217,6 +202,18 @@ export default function AdminContentPage() {
             <div>
               <p className="font-medium text-gray-900">Create Test Series</p>
               <p className="text-sm text-gray-500">New mock test</p>
+            </div>
+          </Link>
+          <Link
+            href="/admin/content/subjects"
+            className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition"
+          >
+            <div className="p-2 bg-green-100 rounded-lg">
+              <FileText className="w-5 h-5 text-green-600" />
+            </div>
+            <div>
+              <p className="font-medium text-gray-900">Review Subjects</p>
+              <p className="text-sm text-gray-500">View live syllabus structure</p>
             </div>
           </Link>
         </div>

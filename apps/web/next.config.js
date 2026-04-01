@@ -34,16 +34,6 @@ const nextConfig = {
         permanent: false,
       },
       {
-        source: '/analytics',
-        destination: '/dashboard',
-        permanent: false,
-      },
-      {
-        source: '/profile',
-        destination: '/dashboard',
-        permanent: false,
-      },
-      {
         source: '/features',
         destination: '/',
         permanent: false,

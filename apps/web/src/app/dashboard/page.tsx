@@ -13,138 +13,28 @@ import { StreakCounter } from '@/components/ui/StreakCounter'
 import { OfflineIndicator } from '@/components/ui/OfflineIndicator'
 import { NotificationPermissionPrompt } from '@/components/ui/NotificationPermissionPrompt'
 import { fetchCurrentUser } from '@/lib/auth'
+import { getProfile } from '@/lib/api/users'
+import { analyticsApi } from '@/lib/api/analytics'
+
+function buildExamDate(targetExamYear?: number): Date {
+  const today = new Date()
+  const fallbackYear = today.getFullYear() + (today.getMonth() > 5 ? 1 : 0)
+  return new Date(targetExamYear ?? fallbackYear, 11, 31, 23, 59, 59)
+}
 
 export default function DashboardPage() {
   const t = useTranslations()
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(true)
   const [userName, setUserName] = useState<string>('')
-  const locale: 'en' = 'en'
-
-  // Mock data for demonstration - in production, this would come from API
-  const mockSubjects: SubjectProgress[] = [
-    {
-      id: '1',
-      name: 'General Intelligence',
-      code: 'general-intelligence',
-      completionPercentage: 65,
-      totalLessons: 50,
-      completedLessons: 33,
-    },
-    {
-      id: '2',
-      name: 'Mathematics',
-      code: 'mathematics',
-      completionPercentage: 42,
-      totalLessons: 45,
-      completedLessons: 19,
-    },
-    {
-      id: '3',
-      name: 'General Knowledge',
-      code: 'general-knowledge',
-      completionPercentage: 78,
-      totalLessons: 60,
-      completedLessons: 47,
-    },
-    {
-      id: '4',
-      name: 'English',
-      code: 'english',
-      completionPercentage: 30,
-      totalLessons: 40,
-      completedLessons: 12,
-    },
-  ]
-
-  const mockTasks: Task[] = [
-    {
-      id: '1',
-      title: 'Number Series',
-      subject: 'Mathematics',
-      topic: 'Quantitative Aptitude',
-      type: 'lesson',
-      status: 'pending',
-    },
-    {
-      id: '2',
-      title: 'Coding-Decoding',
-      subject: 'General Intelligence',
-      topic: 'Reasoning',
-      type: 'test',
-      status: 'in_progress',
-    },
-    {
-      id: '3',
-      title: 'Ancient History Revision',
-      subject: 'General Knowledge',
-      topic: 'History',
-      type: 'revision',
-      status: 'pending',
-    },
-  ]
-
-  const mockWeakAreas: WeakArea[] = [
-    {
-      id: '1',
-      topicName: 'Percentage',
-      subjectName: 'Mathematics',
-      accuracy: 45,
-      totalQuestions: 20,
-      correctAnswers: 9,
-    },
-    {
-      id: '2',
-      topicName: 'Blood Relations',
-      subjectName: 'General Intelligence',
-      accuracy: 38,
-      totalQuestions: 15,
-      correctAnswers: 6,
-    },
-    {
-      id: '3',
-      topicName: 'Active/Passive Voice',
-      subjectName: 'English',
-      accuracy: 52,
-      totalQuestions: 25,
-      correctAnswers: 13,
-    },
-  ]
-
-  const mockActivities: Activity[] = [
-    {
-      id: '1',
-      type: 'lesson_completed',
-      title: 'Completed lesson: Profit & Loss',
-      description: 'Mathematics • 45 mins',
-      timestamp: new Date(Date.now() - 1000 * 60 * 30), // 30 mins ago
-    },
-    {
-      id: '2',
-      type: 'test_completed',
-      title: 'Scored 72% in Mock Test 5',
-      description: 'General Intelligence • 45 mins',
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 3), // 3 hours ago
-    },
-    {
-      id: '3',
-      type: 'streak_started',
-      title: 'Started a 5-day streak!',
-      metadata: { streakDays: 5 },
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24), // 1 day ago
-    },
-    {
-      id: '4',
-      type: 'lesson_completed',
-      title: 'Completed lesson: Ancient History',
-      description: 'General Knowledge • 30 mins',
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 26), // 26 hours ago
-    },
-  ]
-
-  // Mock exam date - 6 months from now
-  const examDate = new Date()
-  examDate.setMonth(examDate.getMonth() + 6)
+  const [subjects, setSubjects] = useState<SubjectProgress[]>([])
+  const [tasks, setTasks] = useState<Task[]>([])
+  const [weakAreas, setWeakAreas] = useState<WeakArea[]>([])
+  const [activities, setActivities] = useState<Activity[]>([])
+  const [currentStreak, setCurrentStreak] = useState(0)
+  const [longestStreak, setLongestStreak] = useState(0)
+  const [examDate, setExamDate] = useState<Date>(() => buildExamDate())
+  const locale = 'en' as const
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -156,6 +46,54 @@ export default function DashboardPage() {
         }
 
         setUserName(user.name || user.email?.split('@')[0] || 'Student')
+        const [profile, stats, analytics] = await Promise.all([
+          getProfile(),
+          analyticsApi.getUserStats(),
+          analyticsApi.getUserAnalytics(),
+        ])
+
+        setExamDate(buildExamDate(profile.target_exam_year))
+        setCurrentStreak(stats.current_streak)
+        setLongestStreak(stats.longest_streak)
+        setSubjects(
+          analytics.subject_accuracy.map((subject) => ({
+            id: subject.subject_id,
+            name: subject.subject_name,
+            code: subject.subject_name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+            completionPercentage: Math.round(subject.accuracy),
+            totalLessons: subject.total_questions,
+            completedLessons: subject.correct_answers,
+          }))
+        )
+        setWeakAreas(
+          analytics.weak_chapters.slice(0, 5).map((chapter) => ({
+            id: chapter.topic_id,
+            topicName: chapter.topic_name,
+            subjectName: chapter.subject_name,
+            accuracy: Math.round(chapter.accuracy),
+            totalQuestions: chapter.questions_attempted,
+            correctAnswers: chapter.questions_attempted - chapter.questions_incorrect,
+          }))
+        )
+        setTasks(
+          analytics.recommendations.slice(0, 3).map((recommendation) => ({
+            id: recommendation.topic_id,
+            title: recommendation.topic_name,
+            subject: recommendation.subject_name,
+            topic: `${recommendation.questions_to_practice} questions recommended`,
+            type: 'revision',
+            status: recommendation.status === 'completed' ? 'completed' : 'pending',
+          }))
+        )
+        setActivities(
+          analytics.score_trend.slice(0, 4).map((attempt) => ({
+            id: attempt.attempt_id,
+            type: 'test_completed',
+            title: attempt.test_title,
+            description: `${Math.round(attempt.percentage)}% score`,
+            timestamp: new Date(attempt.completed_at),
+          }))
+        )
       } catch {
         router.push('/login')
         return
@@ -215,25 +153,25 @@ export default function DashboardPage() {
             </div>
 
             {/* Progress Cards */}
-            <ProgressCards subjects={mockSubjects} />
+            <ProgressCards subjects={subjects} />
 
             {/* Second Row: Today's Tasks + Weak Areas */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <TodaysTasks tasks={mockTasks} locale={locale} />
-              <WeakAreasWidget weakAreas={mockWeakAreas} locale={locale} />
+              <TodaysTasks tasks={tasks} locale={locale} />
+              <WeakAreasWidget weakAreas={weakAreas} locale={locale} />
             </div>
 
             {/* Third Row: Streak Counter + Recent Activity */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-1">
                 <StreakCounter 
-                  currentStreak={5}
-                  longestStreak={12}
-                  isActive={true}
+                  currentStreak={currentStreak}
+                  longestStreak={longestStreak}
+                  isActive={currentStreak > 0}
                 />
               </div>
               <div className="lg:col-span-2">
-                <RecentActivity activities={mockActivities} />
+                <RecentActivity activities={activities} />
               </div>
             </div>
           </div>

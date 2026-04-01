@@ -3,14 +3,17 @@
 import { initializeApp, getApps, FirebaseApp } from 'firebase/app'
 import { getMessaging, Messaging, getToken, onMessage, NextFn, MessagePayload } from 'firebase/messaging'
 
-// Firebase configuration - in production, use environment variables
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FCM_API_KEY || 'demo-api-key',
-  authDomain: process.env.NEXT_PUBLIC_FCM_AUTH_DOMAIN || 'demo-project.firebaseapp.com',
-  projectId: process.env.NEXT_PUBLIC_FCM_PROJECT_ID || 'demo-project',
-  storageBucket: process.env.NEXT_PUBLIC_FCM_STORAGE_BUCKET || 'demo-project.appspot.com',
-  messagingSenderId: process.env.NEXT_PUBLIC_FCM_MESSAGING_SENDER_ID || '123456789',
-  appId: process.env.NEXT_PUBLIC_FCM_APP_ID || '1:123456789:web:abcdef',
+  apiKey: process.env.NEXT_PUBLIC_FCM_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FCM_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FCM_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FCM_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FCM_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FCM_APP_ID,
+}
+
+function hasFirebaseConfig(): boolean {
+  return Object.values(firebaseConfig).every((value) => Boolean(value))
 }
 
 // Initialize Firebase app (singleton)
@@ -22,9 +25,13 @@ export function initializeFirebase(): { app: FirebaseApp; messaging: Messaging }
     return null
   }
 
+  if (!hasFirebaseConfig()) {
+    return null
+  }
+
   try {
     if (!app) {
-      app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0]
+      app = getApps().length === 0 ? initializeApp(firebaseConfig as Required<typeof firebaseConfig>) : getApps()[0]
     }
     
     if (!messaging) {
@@ -60,6 +67,7 @@ export function isPushSupported(): boolean {
   }
   
   return (
+    hasFirebaseConfig() &&
     'serviceWorker' in navigator &&
     'PushManager' in window &&
     'Notification' in window
@@ -86,14 +94,14 @@ export async function requestNotificationPermission(): Promise<NotificationPermi
 
 // Get FCM VAPID key from environment
 function getVapidKey(): string {
-  return process.env.NEXT_PUBLIC_FCM_VAPID_KEY || 'BPdA_1nB5G2bKQjZ8xPqL3RvT4nW2mK9jH7sDfG1cE='
+  return process.env.NEXT_PUBLIC_FCM_VAPID_KEY || ''
 }
 
 // Subscribe to FCM push notifications
 export async function subscribeToPush(): Promise<string | null> {
   const firebase = initializeFirebase()
   if (!firebase) {
-    console.error('Firebase not initialized')
+    console.warn('Firebase messaging is not configured')
     return null
   }
 

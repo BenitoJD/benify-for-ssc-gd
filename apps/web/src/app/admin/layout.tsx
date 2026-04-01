@@ -16,7 +16,6 @@ import {
   BookOpen,
   List,
   FileCheck,
-  HelpCircle,
   ClipboardList
 } from 'lucide-react'
 
@@ -37,7 +36,6 @@ const contentNavItems = [
   { href: '/admin/content/subjects', icon: FileText, label: 'Subjects', exact: false },
   { href: '/admin/content/topics', icon: List, label: 'Topics', exact: false },
   { href: '/admin/content/lessons', icon: FileCheck, label: 'Lessons', exact: false },
-  { href: '/admin/content/questions', icon: HelpCircle, label: 'Questions', exact: false },
   { href: '/admin/content/test-series', icon: ClipboardList, label: 'Test Series', exact: false },
 ]
 
@@ -47,8 +45,14 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   const [adminUser, setAdminUser] = useState<AdminUser | null>(null)
   const [isMobileOpen, setIsMobileOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const isLoginRoute = pathname === '/admin/login'
 
   useEffect(() => {
+    if (isLoginRoute) {
+      setIsLoading(false)
+      return
+    }
+
     // Check for admin access token
     const token = localStorage.getItem('admin_access_token')
     const userStr = localStorage.getItem('admin_user')
@@ -70,7 +74,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     } finally {
       setIsLoading(false)
     }
-  }, [router])
+  }, [isLoginRoute, router])
 
   const handleLogout = () => {
     localStorage.removeItem('admin_access_token')
@@ -83,6 +87,10 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       return pathname === href
     }
     return pathname.startsWith(href)
+  }
+
+  if (isLoginRoute) {
+    return <>{children}</>
   }
 
   if (isLoading) {

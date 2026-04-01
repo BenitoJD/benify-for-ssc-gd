@@ -465,7 +465,7 @@ export default function AdminTopicsPage() {
                   </div>
                   <div>
                     <p className="text-sm font-medium text-gray-500 mb-1">Created</p>
-                    <p className="text-gray-900">{new Date(selectedTopic.created_at).toLocaleDateString()}</p>
+                    <p className="text-gray-900">{selectedTopic.created_at ? new Date(selectedTopic.created_at).toLocaleDateString() : 'Not provided by API'}</p>
                   </div>
                 </div>
 
