@@ -3,9 +3,10 @@
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { clsx } from 'clsx'
 import { BrandLogo } from '@/components/ui/BrandLogo'
+import { clearStudentSession } from '@/lib/session'
 import { 
   LayoutDashboard, 
   BookOpen, 
@@ -38,9 +39,16 @@ export function Sidebar({ locale }: SidebarProps) {
   void locale
   const t = useTranslations()
   const pathname = usePathname()
+  const router = useRouter()
   const [isMobileOpen, setIsMobileOpen] = useState(false)
 
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + '/')
+
+  const handleLogout = () => {
+    clearStudentSession()
+    setIsMobileOpen(false)
+    router.push('/login')
+  }
 
   return (
     <>
@@ -111,12 +119,13 @@ export function Sidebar({ locale }: SidebarProps) {
 
           {/* Footer */}
           <div className="p-5 border-t border-[#EAEAEA]">
-            <Link
-              href="/"
+            <button
+              type="button"
+              onClick={handleLogout}
               className="flex items-center gap-3 px-3 py-2.5 text-[#6B7280] hover:text-[#111827] hover:bg-[#FAFAFA] rounded-[8px] transition-colors text-sm font-medium"
             >
               <span>{t('nav.logout')}</span>
-            </Link>
+            </button>
           </div>
         </div>
       </aside>

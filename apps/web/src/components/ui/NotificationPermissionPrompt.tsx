@@ -9,9 +9,7 @@ import {
   getNotificationPermission,
   requestNotificationPermission,
   subscribeToPush,
-  unsubscribeFromPush,
   storeFCMToken,
-  removeFCMToken,
 } from '@/lib/fcm'
 
 interface NotificationPermissionPromptProps {
@@ -106,22 +104,6 @@ export function NotificationPermissionPrompt({
     }
   }, [handleClose, onSubscriptionChange])
 
-  const handleOptOut = useCallback(async () => {
-    setIsLoading(true)
-    try {
-      await unsubscribeFromPush()
-      await removeFCMToken()
-      setIsSubscribed(false)
-      setPermissionStatus('denied')
-      onSubscriptionChange?.(false)
-    } catch (error) {
-      console.error('Error opting out of notifications:', error)
-    } finally {
-      setIsLoading(false)
-      handleClose()
-    }
-  }, [handleClose, onSubscriptionChange])
-
   const toggleNotificationType = useCallback((type: string) => {
     setSelectedTypes((prev) => ({
       ...prev,
@@ -204,7 +186,7 @@ export function NotificationPermissionPrompt({
             </div>
           </div>
           <button
-            onClick={handleOptOut}
+            onClick={handleClose}
             className="p-2 hover:bg-white/20 rounded-full transition-colors"
             aria-label={t('close')}
           >
@@ -271,7 +253,7 @@ export function NotificationPermissionPrompt({
       {/* Actions */}
       <div className="px-6 pb-6 flex gap-3">
         <button
-          onClick={handleOptOut}
+          onClick={handleClose}
           disabled={isLoading}
           className={clsx(
             'flex-1 py-3 px-4 rounded-xl font-medium transition-colors',

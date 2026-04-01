@@ -10,8 +10,6 @@ import {
   LayoutDashboard,
   Users,
   FileText,
-  BarChart3,
-  Settings,
   Menu,
   X,
   LogOut,
@@ -41,11 +39,6 @@ const contentNavItems = [
   { href: '/admin/content/lessons', icon: FileCheck, label: 'Lessons', exact: false },
   { href: '/admin/content/questions', icon: HelpCircle, label: 'Questions', exact: false },
   { href: '/admin/content/test-series', icon: ClipboardList, label: 'Test Series', exact: false },
-]
-
-const adminNavItems = [
-  { href: '/admin/analytics', icon: BarChart3, label: 'Analytics', exact: false },
-  { href: '/admin/settings', icon: Settings, label: 'Settings', exact: false },
 ]
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
@@ -210,31 +203,6 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
               })}
             </div>
 
-            {/* Admin Tools */}
-            <div className="space-y-1">
-              <p className="px-3 text-xs font-semibold text-[#9CA3AF] uppercase tracking-wider mb-3">Admin</p>
-              {adminNavItems.map((item) => {
-                const Icon = item.icon
-                const active = isActive(item.href, item.exact)
-
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={() => setIsMobileOpen(false)}
-                    className={clsx(
-                      'flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors text-sm',
-                      active
-                        ? 'bg-[#FAFAFA] text-[#111827] font-semibold'
-                        : 'text-[#6B7280] hover:bg-[#FAFAFA] hover:text-[#111827] font-medium'
-                    )}
-                  >
-                    <Icon className={clsx('w-[18px] h-[18px]', active ? 'text-[#111827]' : 'text-[#9CA3AF]')} />
-                    <span>{item.label}</span>
-                  </Link>
-                )
-              })}
-            </div>
           </nav>
 
           {/* Footer */}

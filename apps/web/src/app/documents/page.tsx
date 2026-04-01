@@ -358,6 +358,7 @@ export default function DocumentsPage() {
             <button
               onClick={() => router.push('/dashboard')}
               className="text-[#6B7280] hover:text-[#111827] p-1.5 hover:bg-[#FAFAFA] rounded-full transition-colors"
+              aria-label="Back to dashboard"
             >
               <ChevronRight className="w-5 h-5 rotate-180" />
             </button>
