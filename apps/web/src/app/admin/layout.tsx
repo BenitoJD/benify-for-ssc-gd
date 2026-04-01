@@ -1,9 +1,11 @@
 'use client'
 
+import type { ReactNode } from 'react'
 import { useEffect, useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { clsx } from 'clsx'
+import { BrandLogo } from '@/components/ui/BrandLogo'
 import {
   LayoutDashboard,
   Users,
@@ -13,7 +15,6 @@ import {
   Menu,
   X,
   LogOut,
-  Shield,
   BookOpen,
   List,
   FileCheck,
@@ -47,7 +48,7 @@ const adminNavItems = [
   { href: '/admin/settings', icon: Settings, label: 'Settings', exact: false },
 ]
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+export default function AdminLayout({ children }: { children: ReactNode }) {
   const router = useRouter()
   const pathname = usePathname()
   const [adminUser, setAdminUser] = useState<AdminUser | null>(null)
@@ -134,10 +135,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className="flex flex-col h-full">
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b border-gray-800">
-            <Link href="/admin" className="flex items-center gap-2">
-              <Shield className="w-8 h-8 text-primary-400" />
-              <span className="text-xl font-bold">Admin Panel</span>
-            </Link>
+            <BrandLogo
+              href="/admin"
+              size="md"
+              imageClassName="drop-shadow-[0_4px_12px_rgba(255,255,255,0.12)]"
+            />
             <button
               type="button"
               onClick={() => setIsMobileOpen(false)}

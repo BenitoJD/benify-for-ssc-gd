@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { clsx } from 'clsx'
+import { BrandLogo } from '@/components/ui/BrandLogo'
 import { 
   LayoutDashboard, 
   BookOpen, 
@@ -14,7 +15,6 @@ import {
   User, 
   Menu, 
   X,
-  Flame,
   Activity,
   FileCheck
 } from 'lucide-react'
@@ -35,6 +35,7 @@ const navItems = [
 ]
 
 export function Sidebar({ locale }: SidebarProps) {
+  void locale
   const t = useTranslations()
   const pathname = usePathname()
   const [isMobileOpen, setIsMobileOpen] = useState(false)
@@ -72,12 +73,7 @@ export function Sidebar({ locale }: SidebarProps) {
         <div className="flex flex-col h-full">
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b">
-            <Link href="/dashboard" className="flex items-center gap-2">
-              <Flame className="w-8 h-8 text-primary-600" />
-              <span className="text-xl font-bold text-primary-600">
-                {t('common.appName')}
-              </span>
-            </Link>
+            <BrandLogo href="/dashboard" size="md" />
             <button
               type="button"
               onClick={() => setIsMobileOpen(false)}

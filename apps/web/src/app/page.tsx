@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
+import { BrandLogo } from '@/components/ui/BrandLogo'
 
 export default async function HomePage() {
   const t = await getTranslations()
@@ -9,7 +10,7 @@ export default async function HomePage() {
       {/* Header */}
       <header className="border-b">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="text-2xl font-bold text-primary-600">{t('common.appName')}</div>
+          <BrandLogo href="/" priority size="md" />
           <nav className="hidden md:flex items-center gap-6">
             <Link href="#features" className="text-gray-600 hover:text-gray-900">{t('nav.features')}</Link>
             <Link href="/dashboard" className="text-gray-600 hover:text-gray-900">{t('nav.dashboard')}</Link>
@@ -185,7 +186,7 @@ export default async function HomePage() {
         <div className="container mx-auto px-4 py-12">
           <div className="grid md:grid-cols-4 gap-8">
             <div>
-              <div className="text-2xl font-bold text-primary-600 mb-4">{t('common.appName')}</div>
+              <BrandLogo href="/" size="md" className="mb-4" />
               <p className="text-gray-600">{t('landing.footer.tagline')}</p>
             </div>
             <div>

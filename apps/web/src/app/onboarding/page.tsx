@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
-import Link from 'next/link'
+import { BrandLogo } from '@/components/ui/BrandLogo'
 import { OnboardingProgress } from '@/components/ui/OnboardingProgress'
 import { YearSelector } from '@/components/ui/YearSelector'
 import { DiagnosticQuiz } from '@/components/ui/DiagnosticQuiz'
@@ -199,9 +199,7 @@ export default function OnboardingPage() {
       {/* Header */}
       <header className="bg-white border-b">
         <div className="container mx-auto px-4 py-4">
-          <Link href="/" className="text-2xl font-bold text-primary-600">
-            {t('common.appName')}
-          </Link>
+          <BrandLogo href="/" size="md" />
         </div>
       </header>
 
