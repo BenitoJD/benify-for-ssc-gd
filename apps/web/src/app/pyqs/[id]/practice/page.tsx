@@ -117,6 +117,19 @@ export default function PracticeModePage() {
   const answeredCurrent = state.answers[currentPYQ?.id] !== undefined
   const isCurrentCorrect = state.answers[currentPYQ?.id] === currentPYQ?.correct_answer
 
+  useEffect(() => {
+    if (!currentPYQ) {
+      setSelectedAnswer(null)
+      setAnswerRevealed(false)
+      setIsBookmarked(false)
+      return
+    }
+
+    setSelectedAnswer(state.answers[currentPYQ.id] || null)
+    setAnswerRevealed(state.revealed[currentPYQ.id] || false)
+    setIsBookmarked(state.bookmarked.has(currentPYQ.id))
+  }, [currentPYQ, state.answers, state.revealed, state.bookmarked])
+
   const handleSelectAnswer = (option: string) => {
     if (answeredCurrent) return
     setSelectedAnswer(option)
@@ -164,8 +177,8 @@ export default function PracticeModePage() {
     const nextIndex = Math.min(currentIndex + 1, pyqs.length - 1)
     if (nextIndex < pyqs.length) {
       const nextPYQ = pyqs[nextIndex]
-      setSelectedAnswer(state.answers[nextPYQ.id] || null)
-      setAnswerRevealed(state.revealed[nextPYQ.id] || false)
+      const query = searchParams.toString()
+      router.push(`/pyqs/${nextPYQ.id}/practice${query ? `?${query}` : ''}`)
     }
   }
 
@@ -173,8 +186,8 @@ export default function PracticeModePage() {
     const prevIndex = Math.max(currentIndex - 1, 0)
     if (prevIndex >= 0) {
       const prevPYQ = pyqs[prevIndex]
-      setSelectedAnswer(state.answers[prevPYQ.id] || null)
-      setAnswerRevealed(state.revealed[prevPYQ.id] || false)
+      const query = searchParams.toString()
+      router.push(`/pyqs/${prevPYQ.id}/practice${query ? `?${query}` : ''}`)
     }
   }
 
@@ -435,8 +448,8 @@ export default function PracticeModePage() {
                   <button
                     key={pyq.id}
                     onClick={() => {
-                      setSelectedAnswer(state.answers[pyq.id] || null)
-                      setAnswerRevealed(state.revealed[pyq.id] || false)
+                      const query = searchParams.toString()
+                      router.push(`/pyqs/${pyq.id}/practice${query ? `?${query}` : ''}`)
                     }}
                     className={`w-9 h-9 rounded-[8px] text-sm font-semibold border ${bgClass} transition-colors flex items-center justify-center`}
                   >

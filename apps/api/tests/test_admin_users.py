@@ -3,30 +3,28 @@ Tests for admin user management endpoints.
 """
 import pytest
 from httpx import AsyncClient
-from internal.main import app
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 class TestAdminUserEndpoints:
     """Tests for admin user list and detail endpoints."""
     
     @pytest.fixture
-    async def admin_user_token(self, client: AsyncClient):
+    async def admin_user_token(self, client: AsyncClient, test_db: AsyncSession):
         """Create an admin user and return access token."""
         from internal.auth.service import get_password_hash
-        from internal.database import AsyncSessionLocal
         from internal.auth.models import User
         from internal.auth.schemas import UserRole
         
         # Create admin user directly in DB
-        async with AsyncSessionLocal() as db:
-            admin = User(
-                email="admin@example.com",
-                password_hash=get_password_hash("Admin123"),
-                name="Admin User",
-                role=UserRole.ADMIN,
-            )
-            db.add(admin)
-            await db.commit()
+        admin = User(
+            email="admin@example.com",
+            password_hash=get_password_hash("Admin123"),
+            name="Admin User",
+            role=UserRole.ADMIN,
+        )
+        test_db.add(admin)
+        await test_db.commit()
         
         # Login as admin
         response = await client.post(

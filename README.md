@@ -122,6 +122,9 @@ MINIO_SECURE=false
 # JWT Authentication (REQUIRED in production - generate a secure random string)
 JWT_SECRET_KEY=your-super-secret-key-change-in-production
 
+# Optional: API key for OpenCloud admin automation
+OPENCLOUD_ADMIN_API_KEY=replace-with-a-long-random-secret
+
 # Application
 DEBUG=false
 LOG_LEVEL=INFO
@@ -276,6 +279,21 @@ The API follows RESTful conventions with versioning (`/api/v1/`).
 - `/api/v1/ai` - AI assistant
 - `/api/v1/referral` - Referral system
 - `/api/v1/admin` - Admin operations
+- `/api/v1/admin/opencloud` - Agent-friendly admin automation endpoints
+
+#### OpenCloud Admin Automation
+
+The backend now exposes a machine-friendly admin ingestion surface for agent-driven content ops.
+
+- `GET /api/v1/admin/opencloud/capabilities` - discover supported auth modes and resources
+- `POST /api/v1/admin/opencloud/content/sync` - bulk upsert `subjects`, `topics`, `lessons`, `questions`, and `test_series`
+
+Authentication options:
+
+1. Admin bearer token via the normal admin auth flow
+2. `X-OpenCloud-Api-Key` header when `OPENCLOUD_ADMIN_API_KEY` is configured
+
+The sync endpoint is idempotent on natural content keys, so OpenCloud can safely retry imports without duplicating content.
 
 #### API Response Format
 

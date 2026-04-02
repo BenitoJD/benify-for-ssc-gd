@@ -72,6 +72,9 @@ class Settings(BaseSettings):
     # OAuth
     GOOGLE_CLIENT_ID: Optional[str] = None
     GOOGLE_CLIENT_SECRET: Optional[str] = None
+
+    # Agent automation
+    OPENCLOUD_ADMIN_API_KEY: Optional[str] = None
     
     @property
     def computed_database_url(self) -> str:

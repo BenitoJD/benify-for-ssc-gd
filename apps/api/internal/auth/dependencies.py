@@ -5,7 +5,14 @@ from typing import Optional
 
 from ..database import get_db
 from .schemas import TokenData, UserRole
-from .service import get_current_user, decode_token, require_roles, require_admin, require_super_admin
+from .service import (
+    get_current_user,
+    decode_token,
+    require_roles,
+    require_admin,
+    require_super_admin,
+    require_admin_or_opencloud,
+)
 
 # Re-export for convenience
 __all__ = [
@@ -14,6 +21,7 @@ __all__ = [
     "require_roles",
     "require_admin",
     "require_super_admin",
+    "require_admin_or_opencloud",
     "decode_token",
     "TokenData",
     "UserRole",

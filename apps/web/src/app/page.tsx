@@ -209,7 +209,6 @@ export default async function HomePage() {
                 { q: t('landing.faq.duration.question'), a: t('landing.faq.duration.answer') },
                 { q: t('landing.faq.subscription.question'), a: t('landing.faq.subscription.answer') },
                 { q: t('landing.faq.physical.question'), a: t('landing.faq.physical.answer') },
-                { q: t('landing.faq.hindi.question'), a: t('landing.faq.hindi.answer') },
               ].map((item, i) => (
                 <details key={i} className="group border-b-2 border-gray-100 last:border-b-0">
                   <summary className="flex justify-between items-center py-5 cursor-pointer font-bold text-lg select-none hover:text-green-600 transition-colors">

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import {
@@ -14,12 +14,12 @@ import {
   Award,
   Plus,
   ChevronRight,
-  ArrowRight,
   Dumbbell,
   Zap,
   Heart,
 } from 'lucide-react'
 import { Sidebar } from '@/components/ui/Sidebar'
+import { PhysicalPlansSection } from '@/components/physical/PhysicalPlansSection'
 import { fetchCurrentUser } from '@/lib/auth'
 import { getProfile } from '@/lib/api/users'
 import {
@@ -58,12 +58,32 @@ interface MockTestForm {
   high_jump_m: string
 }
 
+function getErrorMessage(error: unknown, fallback: string) {
+  if (
+    error &&
+    typeof error === 'object' &&
+    'response' in error &&
+    error.response &&
+    typeof error.response === 'object' &&
+    'data' in error.response &&
+    error.response.data &&
+    typeof error.response.data === 'object' &&
+    'detail' in error.response.data &&
+    typeof error.response.data.detail === 'string'
+  ) {
+    return error.response.data.detail
+  }
+
+  return fallback
+}
+
 export default function PhysicalPage() {
   const t = useTranslations()
   const router = useRouter()
-  const [isLoading, setIsLoading] = useState(true)
+  const [isAuthLoading, setIsAuthLoading] = useState(true)
+  const [isDataLoading, setIsDataLoading] = useState(true)
   const [userGender, setUserGender] = useState<'male' | 'female'>('male')
-  const locale: 'en' = 'en'
+  const locale = 'en' as const
   const [activeTab, setActiveTab] = useState<TabType>('overview')
   
   // Data states
@@ -72,6 +92,7 @@ export default function PhysicalPage() {
   const [petRequirements, setPetRequirements] = useState<PETRequirements | null>(null)
   const [plans, setPlans] = useState<PhysicalPlan[]>([])
   const [enduranceData, setEnduranceData] = useState<EnduranceDataPoint[]>([])
+  const [loadError, setLoadError] = useState<string | null>(null)
   
   // Form states
   const [progressForm, setProgressForm] = useState<ProgressLogForm>({
@@ -91,8 +112,11 @@ export default function PhysicalPage() {
     high_jump_m: '',
   })
   const [mockTestResult, setMockTestResult] = useState<MockPETResult | null>(null)
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isLoggingProgress, setIsLoggingProgress] = useState(false)
+  const [isCalculatingMockTest, setIsCalculatingMockTest] = useState(false)
   const [submitSuccess, setSubmitSuccess] = useState(false)
+  const [progressError, setProgressError] = useState<string | null>(null)
+  const [mockTestError, setMockTestError] = useState<string | null>(null)
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -116,44 +140,70 @@ export default function PhysicalPage() {
         router.push('/login')
         return
       } finally {
-        setIsLoading(false)
+        setIsAuthLoading(false)
       }
     }
 
     checkAuth()
   }, [router])
 
-  // Load data based on active tab
   useEffect(() => {
     const loadData = async () => {
+      setIsDataLoading(true)
+      setLoadError(null)
+
       try {
-        const [readinessData, pstData, petData, plansData, endurance] = await Promise.all([
+        const [readinessData, pstData, petData, plansData, endurance] = await Promise.allSettled([
           getPhysicalReadiness(),
           getPSTRequirements(),
           getPETRequirements(),
           getPhysicalPlans(),
           getEnduranceData(30),
         ])
-        
-        setReadiness(readinessData)
-        setPstRequirements(pstData)
-        setPetRequirements(petData)
-        setPlans(plansData)
-        setEnduranceData(endurance)
+
+        if (readinessData.status === 'fulfilled') {
+          setReadiness(readinessData.value)
+        }
+        if (pstData.status === 'fulfilled') {
+          setPstRequirements(pstData.value)
+        }
+        if (petData.status === 'fulfilled') {
+          setPetRequirements(petData.value)
+        }
+        if (plansData.status === 'fulfilled') {
+          setPlans(plansData.value)
+        }
+        if (endurance.status === 'fulfilled') {
+          setEnduranceData(endurance.value)
+        }
+
+        if (
+          readinessData.status === 'rejected' ||
+          pstData.status === 'rejected' ||
+          petData.status === 'rejected' ||
+          plansData.status === 'rejected' ||
+          endurance.status === 'rejected'
+        ) {
+          setLoadError('Some physical data could not be loaded. Available sections are still usable.')
+        }
       } catch (error) {
         console.error('Failed to load physical data:', error)
+        setLoadError('Physical data could not be loaded right now. Please refresh the page.')
+      } finally {
+        setIsDataLoading(false)
       }
     }
     
-    if (!isLoading) {
+    if (!isAuthLoading) {
       loadData()
     }
-  }, [isLoading])
+  }, [isAuthLoading])
 
-  const handleLogProgress = async (e: React.FormEvent) => {
+  const handleLogProgress = async (e: FormEvent) => {
     e.preventDefault()
-    setIsSubmitting(true)
+    setIsLoggingProgress(true)
     setSubmitSuccess(false)
+    setProgressError(null)
     
     try {
       const duration = parseInt(progressForm.duration_minutes) || 0
@@ -182,15 +232,17 @@ export default function PhysicalPage() {
       setEnduranceData(newEndurance)
     } catch (error) {
       console.error('Failed to log progress:', error)
+      setProgressError(getErrorMessage(error, 'Training session could not be logged. Please check your values and try again.'))
     } finally {
-      setIsSubmitting(false)
+      setIsLoggingProgress(false)
     }
   }
 
-  const handleMockTest = async (e: React.FormEvent) => {
+  const handleMockTest = async (e: FormEvent) => {
     e.preventDefault()
-    setIsSubmitting(true)
+    setIsCalculatingMockTest(true)
     setMockTestResult(null)
+    setMockTestError(null)
     
     try {
       const runMinutes = parseInt(mockTestForm.run_time_minutes) || 0
@@ -209,20 +261,24 @@ export default function PhysicalPage() {
       setMockTestResult(result)
     } catch (error) {
       console.error('Failed to calculate mock test:', error)
+      setMockTestError(getErrorMessage(error, 'Mock test could not be calculated. Please review your inputs and try again.'))
     } finally {
-      setIsSubmitting(false)
+      setIsCalculatingMockTest(false)
     }
   }
 
   const handleProgressFormChange = (field: keyof ProgressLogForm, value: string) => {
+    setProgressError(null)
+    setSubmitSuccess(false)
     setProgressForm(prev => ({ ...prev, [field]: value }))
   }
 
   const handleMockTestFormChange = (field: keyof MockTestForm, value: string) => {
+    setMockTestError(null)
     setMockTestForm(prev => ({ ...prev, [field]: value }))
   }
 
-  if (isLoading) {
+  if (isAuthLoading || isDataLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#FAFAFA]">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#111827]" />
@@ -230,6 +286,7 @@ export default function PhysicalPage() {
     )
   }
 
+  const maxDistance = enduranceData.reduce((max, point) => Math.max(max, point.distance_km), 0)
   const tabs = [
     { id: 'overview' as const, label: t('physical.tabs.overview'), icon: Activity },
     { id: 'plans' as const, label: t('physical.tabs.plans'), icon: Dumbbell },
@@ -244,7 +301,6 @@ export default function PhysicalPage() {
       {/* Main Content */}
       <main className="flex-1 p-4 lg:p-10 pt-20 lg:pt-10 overflow-y-auto">
         <div className="max-w-7xl mx-auto mb-20">
-          
           <div className="flex items-center gap-4 mb-8">
             <button
               onClick={() => router.push('/dashboard')}
@@ -257,6 +313,12 @@ export default function PhysicalPage() {
               {t('physical.title')}
             </h1>
           </div>
+
+          {loadError && (
+            <div className="mb-6 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-900">
+              {loadError}
+            </div>
+          )}
 
           <div className="space-y-6">
             {/* Tabs */}
@@ -442,65 +504,7 @@ export default function PhysicalPage() {
             {/* Plans Tab */}
             {activeTab === 'plans' && (
               <div className="space-y-6">
-                <div className="card-brilliant p-8">
-                  <div className="flex items-center justify-between mb-8 border-b-2 border-[var(--border-light)] pb-4">
-                    <h2 className="font-display text-2xl font-bold text-[var(--text-main)]">{t('physical.plans.current')}</h2>
-                    <span className="px-4 py-2 bg-yellow-100 text-yellow-800 rounded-xl text-sm font-bold tracking-widest uppercase">
-                      {t('physical.plans.week')} 3/12
-                    </span>
-                  </div>
-
-                  <div className="space-y-4">
-                    {[1, 2, 3, 4, 5, 6, 7].map((day) => (
-                      <div key={day} className="card-brilliant p-6 hover:shadow-md transition-shadow group ring-2 ring-transparent hover:ring-[var(--border-light)]">
-                        <div className="flex items-start justify-between">
-                          <div className="flex items-start gap-4">
-                            <div className="mt-1">
-                              {day <= 2 ? (
-                                <div className="p-1 rounded-full bg-green-100"><CheckCircle2 className="w-6 h-6 text-green-600" /></div>
-                              ) : day === 3 ? (
-                                <div className="w-8 h-8 rounded-full border-[3px] border-[var(--brilliant-blue)] border-t-transparent animate-spin" />
-                              ) : (
-                                <div className="w-8 h-8 rounded-full border-4 border-gray-200" />
-                              )}
-                            </div>
-                            <div>
-                              <h3 className="font-bold text-[17px] text-[var(--text-main)] mb-1">
-                                {t('physical.plans.day')} {day}: {day === 7 ? t('physical.plans.rest') : t('physical.plans.trainingCardio')}
-                              </h3>
-                              {day !== 7 && (
-                                <p className="text-[var(--text-muted)] font-medium text-sm mb-3 group-hover:text-black">
-                                  {day % 2 === 0 ? '5km Run (Target: 25 mins) + Core' : 'Intervals: 400m x 8 + Legs'}
-                                </p>
-                              )}
-                              <div className="flex gap-2">
-                                <span className={`px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-widest ${
-                                  day === 7 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                                }`}>
-                                  {day === 7 ? t('physical.plans.recovery') : t('physical.plans.highIntensity')}
-                                </span>
-                                {day !== 7 && (
-                                  <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-lg text-xs font-bold uppercase tracking-widest">
-                                    60 {t('physical.plans.mins')}
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                          {day === 3 && (
-                            <button className="btn-3d btn-3d-blue px-6 py-2.5 text-sm rounded-xl">
-                              {t('physical.plans.start')}
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  <button className="btn-3d w-full mt-6 py-4 bg-white border-2 border-[var(--border-light)] rounded-2xl text-[15px] font-bold text-[var(--text-main)] flex items-center justify-center gap-2 hover:-translate-y-0.5 active:translate-y-1 shadow-[0_4px_0_var(--border-light)] active:shadow-none hover:bg-gray-50">
-                    {t('physical.plans.viewFull')} <ArrowRight className="w-5 h-5" />
-                  </button>
-                </div>
+                <PhysicalPlansSection plans={plans} t={t} />
               </div>
             )}
 
@@ -583,14 +587,17 @@ export default function PhysicalPage() {
                     </div>
                     <button
                       type="submit"
-                      disabled={isSubmitting}
+                      disabled={isLoggingProgress}
                       className="w-full py-2.5 bg-[#111827] text-white rounded-[8px] font-medium hover:bg-black transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                     >
                       <Plus className="w-4 h-4" />
-                      {isSubmitting ? t('common.submitting') : t('physical.progress.log')}
+                      {isLoggingProgress ? t('common.submitting') : t('physical.progress.log')}
                     </button>
                     {submitSuccess && (
                       <p className="text-green-600 text-sm font-medium">{t('physical.progress.loggedSuccess')}</p>
+                    )}
+                    {progressError && (
+                      <p className="text-sm font-medium text-red-600">{progressError}</p>
                     )}
                   </form>
                 </div>
@@ -607,7 +614,7 @@ export default function PhysicalPage() {
                             <div
                               className="w-full bg-[var(--brilliant-blue)] hover:bg-[var(--brilliant-green)] rounded-t-xl transition-colors"
                               style={{
-                                height: `${Math.min((point.distance_km / Math.max(...enduranceData.map(d => d.distance_km))) * 100, 100)}%`,
+                                height: `${maxDistance > 0 ? Math.min((point.distance_km / maxDistance) * 100, 100) : 0}%`,
                               }}
                             />
                           </div>
@@ -730,12 +737,15 @@ export default function PhysicalPage() {
                     
                     <button
                       type="submit"
-                      disabled={isSubmitting}
+                      disabled={isCalculatingMockTest}
                       className="w-full py-2.5 bg-[#111827] text-white rounded-[8px] font-medium hover:bg-black transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                     >
                       <Award className="w-4 h-4" />
-                      {isSubmitting ? t('common.submitting') : t('physical.mockTest.calculate')}
+                      {isCalculatingMockTest ? t('common.submitting') : t('physical.mockTest.calculate')}
                     </button>
+                    {mockTestError && (
+                      <p className="text-sm font-medium text-red-600">{mockTestError}</p>
+                    )}
                   </form>
                 </div>
 

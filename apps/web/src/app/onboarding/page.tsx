@@ -181,9 +181,18 @@ export default function OnboardingPage() {
     }
   }
 
-  const handleAssessmentComplete = (answers: Record<string, string>, level: 'beginner' | 'intermediate' | 'advanced') => {
+  const handleAssessmentComplete = async (
+    _answers: Record<string, string>,
+    level: 'beginner' | 'intermediate' | 'advanced'
+  ) => {
     setProfile((prev) => ({ ...prev, assessmentLevel: level }))
-    handleNext()
+
+    const success = await saveProfile({ assessmentLevel: level })
+    if (!success) {
+      return
+    }
+
+    setCurrentStep((prev) => prev + 1)
   }
 
   if (isLoading) {

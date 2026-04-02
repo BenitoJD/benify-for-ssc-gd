@@ -1,3 +1,5 @@
+'use client'
+
 import { useState, useEffect, useCallback } from 'react'
 import { useTranslations } from 'next-intl'
 import { useParams, useSearchParams, useRouter } from 'next/navigation'
@@ -13,8 +15,6 @@ interface ExamState {
   timeRemaining: number // in seconds
   isSubmitted: boolean
 }
-
-'use client'
 export default function ExamModePage() {
   const t = useTranslations()
   const params = useParams()
@@ -169,6 +169,15 @@ export default function ExamModePage() {
   const currentPYQ = pyqs.find(q => q.id === pyqId) || pyqs[0]
   const currentIndex = pyqs.findIndex(q => q.id === (currentPYQ?.id))
 
+  useEffect(() => {
+    if (!currentPYQ) {
+      setSelectedAnswer(null)
+      return
+    }
+
+    setSelectedAnswer(state.answers[currentPYQ.id] || null)
+  }, [currentPYQ, state.answers])
+
   const formatTime = (seconds: number): string => {
     const mins = Math.floor(seconds / 60)
     const secs = seconds % 60
@@ -201,7 +210,8 @@ export default function ExamModePage() {
     const nextIndex = Math.min(currentIndex + 1, pyqs.length - 1)
     if (nextIndex < pyqs.length) {
       const nextPYQ = pyqs[nextIndex]
-      setSelectedAnswer(state.answers[nextPYQ.id] || null)
+      const query = searchParams.toString()
+      router.push(`/pyqs/${nextPYQ.id}/exam${query ? `?${query}` : ''}`)
     }
   }
 
@@ -209,7 +219,8 @@ export default function ExamModePage() {
     const prevIndex = Math.max(currentIndex - 1, 0)
     if (prevIndex >= 0) {
       const prevPYQ = pyqs[prevIndex]
-      setSelectedAnswer(state.answers[prevPYQ.id] || null)
+      const query = searchParams.toString()
+      router.push(`/pyqs/${prevPYQ.id}/exam${query ? `?${query}` : ''}`)
     }
   }
 
@@ -554,7 +565,10 @@ export default function ExamModePage() {
                   return (
                     <button
                       key={pyq.id}
-                      onClick={() => setSelectedAnswer(state.answers[pyq.id] || null)}
+                      onClick={() => {
+                        const query = searchParams.toString()
+                        router.push(`/pyqs/${pyq.id}/exam${query ? `?${query}` : ''}`)
+                      }}
                       className={`w-8 h-8 rounded text-sm font-medium ${bgClass} transition-all relative`}
                     >
                       {index + 1}

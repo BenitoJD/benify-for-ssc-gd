@@ -4,7 +4,7 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from fastapi import HTTPException, status, Depends
+from fastapi import HTTPException, status, Depends, Header
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 from ..config import settings
@@ -113,6 +113,43 @@ def require_roles(*roles: UserRole):
 # Pre-built role dependencies
 require_admin = require_roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
 require_super_admin = require_roles(UserRole.SUPER_ADMIN)
+
+
+async def require_admin_or_opencloud(
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(bearer_scheme),
+    opencloud_api_key: Optional[str] = Header(default=None, alias="X-OpenCloud-Api-Key"),
+) -> TokenData:
+    """Allow access through an admin JWT or the configured OpenCloud API key."""
+    configured_api_key = settings.OPENCLOUD_ADMIN_API_KEY
+
+    if configured_api_key:
+        if opencloud_api_key == configured_api_key:
+            return TokenData(
+                user_id="opencloud-agent",
+                email="opencloud@system.local",
+                role=UserRole.ADMIN,
+            )
+
+        if opencloud_api_key is not None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid OpenCloud API key",
+            )
+
+    if credentials is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated",
+        )
+
+    token_data = decode_token(credentials.credentials)
+    if token_data.role not in {UserRole.ADMIN, UserRole.SUPER_ADMIN}:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not enough permissions",
+        )
+
+    return token_data
 
 
 class RateLimiter:
