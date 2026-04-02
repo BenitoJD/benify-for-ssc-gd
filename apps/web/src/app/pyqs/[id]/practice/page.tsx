@@ -6,7 +6,7 @@ import { useParams, useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, ArrowRight, Check, X, Eye, EyeOff, Bookmark, Loader2, LogOut } from 'lucide-react'
 import { pyqApi, PYQ } from '@/lib/api/pyqs'
-import { clearStudentSession } from '@/lib/session'
+import { logout } from '@/lib/auth'
 
 interface PracticeState {
   currentIndex: number
@@ -296,7 +296,13 @@ export default function PracticeModePage() {
               </button>
               {/* Logout */}
               <button
-                onClick={() => { clearStudentSession(); router.push('/login') }}
+                onClick={async () => {
+                  try {
+                    await logout()
+                  } finally {
+                    router.push('/login')
+                  }
+                }}
                 className="flex items-center gap-2 px-3 py-2 text-sm font-bold text-red-600 bg-red-50 hover:bg-red-100 border-2 border-red-200 rounded-xl transition-all shadow-[0_3px_0_rgb(254,202,202)] hover:-translate-y-0.5 active:translate-y-0.5 active:shadow-none"
               >
                 <LogOut className="w-4 h-4" />

@@ -8,7 +8,8 @@ import { fetchCurrentUser } from '@/lib/auth'
 import {
   getDiscussions,
   Discussion,
-  TOPIC_TAGS
+  TOPIC_TAGS,
+  toggleDiscussionUpvote,
 } from '@/lib/api/community'
 
 export default function CommunityPage() {
@@ -103,6 +104,46 @@ export default function CommunityPage() {
         month: 'short',
         year: 'numeric'
       })
+    }
+  }
+
+  const handleToggleUpvote = async (discussionId: string) => {
+    const previousDiscussions = discussions
+
+    const target = discussions.find((discussion) => discussion.id === discussionId)
+    if (!target) return
+
+    const optimisticUpvoted = !target.has_upvoted
+    const optimisticCount = optimisticUpvoted ? target.upvotes + 1 : Math.max(target.upvotes - 1, 0)
+
+    setDiscussions((current) =>
+      current.map((discussion) =>
+        discussion.id === discussionId
+          ? {
+              ...discussion,
+              has_upvoted: optimisticUpvoted,
+              upvotes: optimisticCount,
+            }
+          : discussion
+      )
+    )
+
+    try {
+      const response = await toggleDiscussionUpvote(discussionId)
+      setDiscussions((current) =>
+        current.map((discussion) =>
+          discussion.id === discussionId
+            ? {
+                ...discussion,
+                has_upvoted: response.upvoted,
+                upvotes: response.upvotes,
+              }
+            : discussion
+        )
+      )
+    } catch (error) {
+      console.error('Failed to toggle upvote:', error)
+      setDiscussions(previousDiscussions)
     }
   }
 
@@ -218,7 +259,11 @@ export default function CommunityPage() {
                               ? 'bg-[var(--brilliant-blue)] text-white border-blue-700'
                               : 'bg-gray-100 border-gray-300 text-[var(--text-main)] hover:bg-white'
                           }`}
-                          onClick={(e) => { e.stopPropagation() }}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            void handleToggleUpvote(discussion.id)
+                          }}
+                          aria-label={discussion.has_upvoted ? 'Remove upvote' : 'Upvote discussion'}
                         >
                           <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="3">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" />

@@ -75,6 +75,10 @@ class Settings(BaseSettings):
 
     # Agent automation
     OPENCLOUD_ADMIN_API_KEY: Optional[str] = None
+
+    @property
+    def COOKIE_SECURE(self) -> bool:
+        return self.APP_URL.startswith("https://") and not self.DEBUG
     
     @property
     def computed_database_url(self) -> str:

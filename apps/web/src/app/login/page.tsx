@@ -4,7 +4,6 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { authApi } from '@/lib/api/auth'
-import { storeStudentTokens } from '@/lib/session'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -19,8 +18,7 @@ export default function LoginPage() {
     setIsLoading(true)
 
     try {
-      const response = await authApi.login({ email, password })
-      storeStudentTokens(response.access_token, response.refresh_token)
+      await authApi.login({ email, password })
       router.push('/dashboard')
     } catch (err: unknown) {
       if (err && typeof err === 'object' && 'response' in err) {

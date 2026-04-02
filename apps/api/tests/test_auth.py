@@ -372,6 +372,37 @@ class TestTokenRefresh:
         assert "invalidated" in second_refresh.json()["detail"].lower() or \
                "invalid" in second_refresh.json()["detail"].lower()
 
+    @pytest.mark.asyncio
+    async def test_refresh_token_uses_cookie_when_body_missing(self, client: AsyncClient):
+        """Test refresh can rotate tokens from the httpOnly cookie only."""
+        await client.post(
+            "/api/v1/auth/register",
+            json={
+                "email": "cookie-refresh@example.com",
+                "password": "Test1234"
+            }
+        )
+
+        login_response = await client.post(
+            "/api/v1/auth/login",
+            json={
+                "email": "cookie-refresh@example.com",
+                "password": "Test1234"
+            }
+        )
+        assert login_response.status_code == 200
+        refresh_token = login_response.json()["refresh_token"]
+        client.cookies.set("refresh_token", refresh_token)
+
+        response = await client.post(
+            "/api/v1/auth/refresh",
+            json={},
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert "access_token" in data
+        assert "refresh_token" in data
+
 
 class TestLogout:
     """Tests for logout endpoint."""
@@ -482,6 +513,33 @@ class TestGetCurrentUser:
         data = response.json()
         assert data["email"] == "test@example.com"
         assert data["name"] == "Test User"
+
+    @pytest.mark.asyncio
+    async def test_get_me_authenticated_via_access_cookie(self, client: AsyncClient):
+        """Test cookie-only authentication for the current user endpoint."""
+        await client.post(
+            "/api/v1/auth/register",
+            json={
+                "email": "cookie-user@example.com",
+                "password": "Cookie123",
+                "name": "Cookie User"
+            }
+        )
+
+        login_response = await client.post(
+            "/api/v1/auth/login",
+            json={
+                "email": "cookie-user@example.com",
+                "password": "Cookie123"
+            }
+        )
+        assert login_response.status_code == 200
+
+        response = await client.get("/api/v1/auth/me")
+        assert response.status_code == 200
+        data = response.json()
+        assert data["email"] == "cookie-user@example.com"
+        assert data["name"] == "Cookie User"
     
     @pytest.mark.asyncio
     async def test_get_me_unauthenticated(self, client: AsyncClient):

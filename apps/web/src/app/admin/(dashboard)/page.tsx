@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
 import { adminApi, AdminDashboardStats, AdminUser } from '@/lib/api/admin'
 import { Users, CreditCard, Activity, FileText } from 'lucide-react'
 
@@ -78,7 +79,75 @@ export default function AdminDashboardPage() {
     <div className="space-y-8">
       <div>
         <h1 className="font-display text-4xl font-bold tracking-tight text-[var(--text-main)] mb-2">Dashboard</h1>
-        <p className="font-bold text-[var(--text-muted)] text-sm uppercase tracking-widest">Platform overview and statistics</p>
+        <p className="font-bold text-[var(--text-muted)] text-sm uppercase tracking-widest">Platform overview, content operations, and agent-ready admin controls</p>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-[2fr_1fr]">
+        <div className="card-brilliant p-8">
+          <div className="flex items-center justify-between gap-4 border-b-2 border-[var(--border-light)] pb-4">
+            <div>
+              <h2 className="font-display text-xl font-bold tracking-tight text-[var(--text-main)]">Quick Actions</h2>
+              <p className="mt-1 text-sm font-medium text-[var(--text-muted)]">
+                The fastest routes for the jobs admins perform most often.
+              </p>
+            </div>
+          </div>
+          <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
+            {[
+              {
+                title: 'Manage Questions',
+                description: 'Add or clean up the question bank students actually practice against.',
+                href: '/admin/content/questions',
+              },
+              {
+                title: 'Review Users',
+                description: 'Inspect students, admins, and account details without hunting through menus.',
+                href: '/admin/users',
+              },
+              {
+                title: 'Update Test Series',
+                description: 'Keep drills and mock exams aligned with the latest content plan.',
+                href: '/admin/content/test-series',
+              },
+              {
+                title: 'Check Documents',
+                description: 'Maintain document verification requirements and support checklists.',
+                href: '/admin/documents',
+              },
+            ].map((action) => (
+              <Link
+                key={action.href}
+                href={action.href}
+                className="rounded-2xl border-2 border-[var(--border-light)] bg-white p-5 transition-all hover:-translate-y-0.5 hover:border-black"
+              >
+                <h3 className="font-bold text-[var(--text-main)]">{action.title}</h3>
+                <p className="mt-2 text-sm font-medium leading-relaxed text-[var(--text-muted)]">{action.description}</p>
+              </Link>
+            ))}
+          </div>
+        </div>
+
+        <div className="card-brilliant p-8">
+          <div className="border-b-2 border-[var(--border-light)] pb-4">
+            <h2 className="font-display text-xl font-bold tracking-tight text-[var(--text-main)]">OpenCloud API</h2>
+            <p className="mt-1 text-sm font-medium text-[var(--text-muted)]">
+              Admin automation is available directly through the backend.
+            </p>
+          </div>
+          <div className="mt-5 space-y-4 text-sm">
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-widest text-[var(--text-muted)]">Content Sync</p>
+              <code className="mt-1 block rounded-xl bg-gray-50 px-3 py-2 font-mono text-[13px] text-[var(--text-main)]">POST /api/v1/admin/opencloud/content/sync</code>
+            </div>
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-widest text-[var(--text-muted)]">Audit Logs</p>
+              <code className="mt-1 block rounded-xl bg-gray-50 px-3 py-2 font-mono text-[13px] text-[var(--text-main)]">GET /api/v1/admin/opencloud/audit-logs</code>
+            </div>
+            <p className="rounded-2xl border-2 border-green-200 bg-green-50 px-4 py-3 font-medium text-green-800">
+              Use these endpoints for bulk content updates instead of the browser UI when OpenCloud is operating the platform.
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Stats Grid */}

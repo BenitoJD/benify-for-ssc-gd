@@ -18,13 +18,7 @@ export default function AdminLoginPage() {
     setIsLoading(true)
 
     try {
-      const response = await adminApi.login({ email, password })
-      
-      // Store the admin access token
-      localStorage.setItem('admin_access_token', response.access_token)
-      localStorage.setItem('admin_user', JSON.stringify(response.user))
-      
-      // Redirect to admin dashboard
+      await adminApi.login({ email, password })
       router.push('/admin')
     } catch (err: unknown) {
       if (err && typeof err === 'object' && 'response' in err) {

@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { LogOut, User, ChevronUp } from 'lucide-react'
-import { clearStudentSession, getStudentAccessToken } from '@/lib/session'
+import { fetchCurrentUser, logout } from '@/lib/auth'
 
 /**
  * A floating action button pinned to the bottom-right corner.
@@ -16,15 +16,25 @@ export function FloatingUserMenu() {
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    try {
-      const token = getStudentAccessToken()
-      if (!token) return
-      // Decode JWT payload (base64url middle segment) without a library
-      const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')))
-      const name: string = payload.name || payload.full_name || payload.email || ''
-      setUsername(name)
-    } catch {
-      // token absent or malformed — no name shown
+    let cancelled = false
+
+    const loadCurrentUser = async () => {
+      try {
+        const user = await fetchCurrentUser()
+        if (!cancelled) {
+          setUsername(user?.name || user?.email || null)
+        }
+      } catch {
+        if (!cancelled) {
+          setUsername(null)
+        }
+      }
+    }
+
+    void loadCurrentUser()
+
+    return () => {
+      cancelled = true
     }
   }, [])
 
@@ -39,9 +49,12 @@ export function FloatingUserMenu() {
     return () => document.removeEventListener('mousedown', handler)
   }, [])
 
-  const handleLogout = () => {
-    clearStudentSession()
-    router.push('/login')
+  const handleLogout = async () => {
+    try {
+      await logout()
+    } finally {
+      router.push('/login')
+    }
   }
 
   const initials = username

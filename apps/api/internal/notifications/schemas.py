@@ -1,7 +1,7 @@
 """
 Pydantic schemas for notifications.
 """
-from pydantic import BaseModel, Field
+from pydantic import ConfigDict, BaseModel, Field
 from typing import Optional, List
 from datetime import datetime
 from uuid import UUID
@@ -45,8 +45,7 @@ class NotificationResponse(NotificationBase):
     is_read: bool
     created_at: datetime
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class NotificationListResponse(BaseModel):
@@ -104,8 +103,7 @@ class NotificationPreferenceResponse(NotificationPreferenceBase):
     created_at: datetime
     updated_at: datetime
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
     
     @property
     def preferences(self) -> dict:
@@ -142,8 +140,7 @@ class PushTokenResponse(BaseModel):
     message: str
     token_id: Optional[UUID] = None
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class PushTokenDeleteResponse(BaseModel):

@@ -4,7 +4,7 @@ Pydantic schemas for physical training module.
 Includes request/response schemas for physical plans,
 progress logging, and mock physical tests.
 """
-from pydantic import BaseModel, Field
+from pydantic import ConfigDict, BaseModel, Field
 from typing import Optional, List
 from datetime import datetime
 from uuid import UUID
@@ -48,8 +48,7 @@ class PhysicalPlanResponse(PhysicalPlanBase):
     is_active: bool = True
     created_at: datetime
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class PhysicalPlanListResponse(BaseModel):
@@ -64,8 +63,7 @@ class PhysicalPlanListResponse(BaseModel):
     is_premium: bool
     is_active: bool
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ExerciseItem(BaseModel):
@@ -92,8 +90,7 @@ class PhysicalPlanDetailResponse(BaseModel):
     schedule: Optional[dict] = None
     targets: Optional[dict] = None
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # ============ Physical Progress Schemas ============
@@ -125,8 +122,7 @@ class PhysicalProgressLogResponse(PhysicalProgressLogBase):
     is_completed: bool = True
     created_at: datetime
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class PhysicalProgressLogWithPlanResponse(PhysicalProgressLogResponse):
@@ -256,8 +252,7 @@ class AdminPhysicalPlanResponse(PhysicalPlanBase):
     created_at: datetime
     updated_at: datetime
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class AdminPhysicalPlanListItem(BaseModel):
@@ -273,8 +268,7 @@ class AdminPhysicalPlanListItem(BaseModel):
     is_active: bool
     created_at: datetime
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # ============ Admin Compliance & Statistics Schemas ============

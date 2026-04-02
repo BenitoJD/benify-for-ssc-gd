@@ -3,6 +3,7 @@
 import type { ComponentType } from 'react'
 import { useTranslations } from 'next-intl'
 import { clsx } from 'clsx'
+import Link from 'next/link'
 import { BookOpen, Calculator, Globe, Languages } from 'lucide-react'
 
 export interface SubjectProgress {
@@ -44,7 +45,15 @@ export function ProgressCards({ subjects }: ProgressCardsProps) {
 
       {subjects.length === 0 && (
         <div className="rounded-[8px] border border-[#EAEAEA] bg-[#FAFAFA] p-6 text-sm text-[#6B7280]">
-          No subject progress is available yet. Your dashboard will update after you complete lessons or tests.
+          <p className="mb-4">
+            No subject progress is available yet. Your dashboard will update after you complete lessons or tests.
+          </p>
+          <Link
+            href="/pyqs"
+            className="inline-flex items-center rounded-[8px] bg-[#111827] px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-black"
+          >
+            Start your first practice set
+          </Link>
         </div>
       )}
 

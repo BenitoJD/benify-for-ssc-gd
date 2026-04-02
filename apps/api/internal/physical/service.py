@@ -788,21 +788,26 @@ class PhysicalService:
     
     async def admin_get_compliance_stats(self) -> PhysicalComplianceStats:
         """Get overall physical compliance statistics for all users."""
-        from ..users.models import Profile, User
+        from ..users.models import Profile
+        from ..auth.models import User
         
         # Total users with profiles
         total_result = await self.db.execute(
-            select(func.count(Profile.user_id)).where(Profile.deleted_at.is_(None))
+            select(func.count(Profile.user_id))
+            .join(User, User.id == Profile.user_id)
+            .where(User.deleted_at.is_(None))
         )
         total_users = total_result.scalar() or 0
         
         # Count users with height measured (PST ready)
         height_result = await self.db.execute(
-            select(func.count(Profile.user_id)).where(
+            select(func.count(Profile.user_id))
+            .join(User, User.id == Profile.user_id)
+            .where(
                 and_(
                     Profile.height_cm.isnot(None),
                     Profile.height_cm > 0,
-                    Profile.deleted_at.is_(None)
+                    User.deleted_at.is_(None),
                 )
             )
         )
@@ -811,6 +816,8 @@ class PhysicalService:
         # Count users with physical progress logged (PET ready)
         pet_result = await self.db.execute(
             select(func.count(func.distinct(PhysicalProgressLog.user_id)))
+            .join(User, User.id == PhysicalProgressLog.user_id)
+            .where(User.deleted_at.is_(None))
         )
         pet_ready_count = pet_result.scalar() or 0
         
@@ -818,13 +825,14 @@ class PhysicalService:
         fully_ready_result = await self.db.execute(
             select(func.count(func.distinct(PhysicalProgressLog.user_id)))
             .join(Profile, Profile.user_id == PhysicalProgressLog.user_id)
+            .join(User, User.id == PhysicalProgressLog.user_id)
             .where(
                 and_(
                     Profile.height_cm.isnot(None),
                     Profile.height_cm > 0,
                     Profile.weight_kg.isnot(None),
                     Profile.weight_kg > 0,
-                    Profile.deleted_at.is_(None)
+                    User.deleted_at.is_(None),
                 )
             )
         )
@@ -843,6 +851,7 @@ class PhysicalService:
     async def admin_get_compliance_by_gender(self) -> List[PhysicalComplianceByGender]:
         """Get compliance statistics broken down by gender."""
         from ..users.models import Profile
+        from ..auth.models import User
         
         genders = ["male", "female"]
         results = []
@@ -850,10 +859,12 @@ class PhysicalService:
         for gender in genders:
             # Total users with this gender
             total_result = await self.db.execute(
-                select(func.count(Profile.user_id)).where(
+                select(func.count(Profile.user_id))
+                .join(User, User.id == Profile.user_id)
+                .where(
                     and_(
                         Profile.gender == gender,
-                        Profile.deleted_at.is_(None)
+                        User.deleted_at.is_(None),
                     )
                 )
             )
@@ -864,12 +875,14 @@ class PhysicalService:
             
             # PST ready (height measured)
             pst_result = await self.db.execute(
-                select(func.count(Profile.user_id)).where(
+                select(func.count(Profile.user_id))
+                .join(User, User.id == Profile.user_id)
+                .where(
                     and_(
                         Profile.gender == gender,
                         Profile.height_cm.isnot(None),
                         Profile.height_cm > 0,
-                        Profile.deleted_at.is_(None)
+                        User.deleted_at.is_(None),
                     )
                 )
             )
@@ -879,10 +892,11 @@ class PhysicalService:
             pet_result = await self.db.execute(
                 select(func.count(func.distinct(PhysicalProgressLog.user_id)))
                 .join(Profile, Profile.user_id == PhysicalProgressLog.user_id)
+                .join(User, User.id == PhysicalProgressLog.user_id)
                 .where(
                     and_(
                         Profile.gender == gender,
-                        Profile.deleted_at.is_(None)
+                        User.deleted_at.is_(None),
                     )
                 )
             )
@@ -892,6 +906,7 @@ class PhysicalService:
             fully_result = await self.db.execute(
                 select(func.count(func.distinct(PhysicalProgressLog.user_id)))
                 .join(Profile, Profile.user_id == PhysicalProgressLog.user_id)
+                .join(User, User.id == PhysicalProgressLog.user_id)
                 .where(
                     and_(
                         Profile.gender == gender,
@@ -899,7 +914,7 @@ class PhysicalService:
                         Profile.height_cm > 0,
                         Profile.weight_kg.isnot(None),
                         Profile.weight_kg > 0,
-                        Profile.deleted_at.is_(None)
+                        User.deleted_at.is_(None),
                     )
                 )
             )

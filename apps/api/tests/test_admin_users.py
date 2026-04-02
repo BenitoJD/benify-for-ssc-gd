@@ -69,6 +69,49 @@ class TestAdminUserEndpoints:
         assert "pages" in data["meta"]
         # data should be a list
         assert isinstance(data["data"], list)
+
+    @pytest.mark.asyncio
+    async def test_get_admin_me_as_admin(self, client: AsyncClient, admin_user_token: str):
+        """Test admin can fetch their own admin session identity."""
+        response = await client.get(
+            "/api/v1/admin/me",
+            headers={"Authorization": f"Bearer {admin_user_token}"}
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert data["email"] == "admin@example.com"
+        assert data["role"] == "admin"
+
+    @pytest.mark.asyncio
+    async def test_get_admin_me_via_cookie_session(self, client: AsyncClient, test_db: AsyncSession):
+        """Test admin session bootstrap works with cookie-only auth."""
+        from internal.auth.models import User
+        from internal.auth.schemas import UserRole
+        from internal.auth.service import get_password_hash
+
+        admin = User(
+            email="cookie-admin@example.com",
+            password_hash=get_password_hash("Admin123"),
+            name="Cookie Admin",
+            role=UserRole.ADMIN,
+        )
+        test_db.add(admin)
+        await test_db.commit()
+
+        login_response = await client.post(
+            "/api/v1/admin/login",
+            json={
+                "email": "cookie-admin@example.com",
+                "password": "Admin123"
+            }
+        )
+        assert login_response.status_code == 200
+
+        response = await client.get("/api/v1/admin/me")
+        assert response.status_code == 200
+        data = response.json()
+        assert data["email"] == "cookie-admin@example.com"
+        assert data["role"] == "admin"
     
     @pytest.mark.asyncio
     async def test_list_users_with_pagination(self, client: AsyncClient, admin_user_token: str):

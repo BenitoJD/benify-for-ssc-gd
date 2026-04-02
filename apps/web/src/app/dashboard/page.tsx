@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Sidebar } from '@/components/ui/Sidebar'
 import { ExamCountdown } from '@/components/ui/ExamCountdown'
@@ -128,6 +129,33 @@ export default function DashboardPage() {
             <h1 className="font-display text-4xl lg:text-5xl font-bold tracking-tight text-[var(--text-main)]">
               {t('dashboard.welcome', { name: userName })}
             </h1>
+            <p className="mt-3 max-w-2xl text-base font-medium leading-relaxed text-[var(--text-muted)]">
+              Start with one focused action: solve PYQs, track physical prep, or verify your documents before the exam rush.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            <Link href="/pyqs" className="card-brilliant p-6 transition-transform hover:-translate-y-1">
+              <p className="text-[11px] font-bold uppercase tracking-widest text-[var(--text-muted)]">Start Here</p>
+              <h2 className="mt-2 font-display text-2xl font-bold tracking-tight text-[var(--text-main)]">Practice PYQs</h2>
+              <p className="mt-2 text-sm font-medium leading-relaxed text-[var(--text-muted)]">
+                Solve previous-year questions first if you want the fastest signal on your written exam readiness.
+              </p>
+            </Link>
+            <Link href="/physical" className="card-brilliant p-6 transition-transform hover:-translate-y-1">
+              <p className="text-[11px] font-bold uppercase tracking-widest text-[var(--text-muted)]">Daily Prep</p>
+              <h2 className="mt-2 font-display text-2xl font-bold tracking-tight text-[var(--text-main)]">Train Physical</h2>
+              <p className="mt-2 text-sm font-medium leading-relaxed text-[var(--text-muted)]">
+                Log your running and endurance work so the PET/PST side does not become last-minute stress.
+              </p>
+            </Link>
+            <Link href="/documents" className="card-brilliant p-6 transition-transform hover:-translate-y-1">
+              <p className="text-[11px] font-bold uppercase tracking-widest text-[var(--text-muted)]">Stay Ready</p>
+              <h2 className="mt-2 font-display text-2xl font-bold tracking-tight text-[var(--text-main)]">Check Documents</h2>
+              <p className="mt-2 text-sm font-medium leading-relaxed text-[var(--text-muted)]">
+                Review the required documents early so verification does not block you after the written exam.
+              </p>
+            </Link>
           </div>
 
           {/* Top Row: Exam Countdown + Access Status */}
@@ -158,8 +186,8 @@ export default function DashboardPage() {
 
           {/* Second Row: Today's Tasks + Weak Areas */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <TodaysTasks tasks={tasks} locale={locale} />
-            <WeakAreasWidget weakAreas={weakAreas} locale={locale} />
+            <TodaysTasks tasks={tasks} locale={locale} viewAllHref="/pyqs" emptyStateHref="/pyqs" />
+            <WeakAreasWidget weakAreas={weakAreas} locale={locale} viewAllHref="/analytics" emptyStateHref="/pyqs" />
           </div>
 
           {/* Third Row: Streak Counter + Recent Activity */}

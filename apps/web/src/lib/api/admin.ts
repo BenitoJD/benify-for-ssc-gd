@@ -1,4 +1,3 @@
-import axios from 'axios'
 import apiClient from './client'
 
 // ============ Content Management Types ============
@@ -287,17 +286,8 @@ type PublicTestSeriesResponse = {
   updated_at?: string
 }
 
-function getAdminAccessToken(): string | null {
-  if (typeof window === 'undefined') return null
-  return localStorage.getItem('admin_access_token')
-}
-
 async function adminPublicGet<T>(path: string, params?: Record<string, string | number | boolean | undefined>): Promise<T> {
-  const token = getAdminAccessToken()
-  const response = await axios.get<T>(`${apiClient.defaults.baseURL}${path}`, {
-    params,
-    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-  })
+  const response = await apiClient.get<T>(path, { params })
   return response.data
 }
 
@@ -412,6 +402,15 @@ export const adminApi = {
   }> => {
     const response = await apiClient.get('/admin/dashboard')
     return response.data
+  },
+
+  getMe: async (): Promise<AdminLoginResponse['user']> => {
+    const response = await apiClient.get('/admin/me')
+    return response.data
+  },
+
+  logout: async (): Promise<void> => {
+    await apiClient.post('/auth/logout')
   },
 
   listUsers: async (params: {

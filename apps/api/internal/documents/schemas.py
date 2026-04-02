@@ -4,7 +4,7 @@ Pydantic schemas for document checklist module.
 Includes request/response schemas for document checklists,
 user document status, and medical guidelines.
 """
-from pydantic import BaseModel, Field
+from pydantic import ConfigDict, BaseModel, Field
 from typing import Optional, List
 from datetime import datetime
 from uuid import UUID
@@ -51,8 +51,7 @@ class DocumentChecklistResponse(DocumentChecklistBase):
     is_active: bool = True
     created_at: datetime
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class DocumentChecklistListResponse(BaseModel):
@@ -72,8 +71,7 @@ class DocumentChecklistListResponse(BaseModel):
     is_active: bool
     created_at: datetime
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # ============ User Document Status Schemas ============
@@ -91,8 +89,7 @@ class UserDocumentStatusResponse(BaseModel):
     updated_at: datetime
     checklist_item: DocumentChecklistListResponse
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class DocumentReadinessSummary(BaseModel):
@@ -134,8 +131,7 @@ class MedicalGuidelineResponse(MedicalGuidelineBase):
     id: UUID
     created_at: datetime
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class MedicalGuidelineListResponse(BaseModel):
@@ -147,8 +143,7 @@ class MedicalGuidelineListResponse(BaseModel):
     order_index: int
     created_at: datetime
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # ============ Admin Document Schemas ============
@@ -192,8 +187,7 @@ class AdminDocumentChecklistResponse(DocumentChecklistBase):
     created_at: datetime
     updated_at: datetime
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class AdminDocumentChecklistListItem(BaseModel):
@@ -213,8 +207,7 @@ class AdminDocumentChecklistListItem(BaseModel):
     is_active: bool
     created_at: datetime
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # ============ Admin Medical Guideline Schemas ============
@@ -241,8 +234,7 @@ class AdminMedicalGuidelineResponse(MedicalGuidelineBase):
     created_at: datetime
     updated_at: datetime
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # ============ Admin Document Compliance Schemas ============
@@ -314,8 +306,7 @@ class AnnouncementResponse(AnnouncementBase):
     is_active: bool = True
     created_at: datetime
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class AdminAnnouncementCreate(AnnouncementBase):
@@ -343,8 +334,7 @@ class AdminAnnouncementResponse(AnnouncementBase):
     created_at: datetime
     updated_at: datetime
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class AdminAnnouncementListItem(BaseModel):
@@ -361,5 +351,4 @@ class AdminAnnouncementListItem(BaseModel):
     end_date: Optional[datetime] = None
     created_at: datetime
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

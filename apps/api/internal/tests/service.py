@@ -41,6 +41,7 @@ from sqlalchemy import select
 
 class TestSeriesService:
     """Service layer for test series operations."""
+    __test__ = False
     
     def __init__(self, db: AsyncSession):
         self.db = db

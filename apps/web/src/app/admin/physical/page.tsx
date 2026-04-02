@@ -16,6 +16,7 @@ import {
   CheckCircle,
   Users
 } from 'lucide-react'
+import apiClient from '@/lib/api/client'
 
 // Types
 interface ExerciseItem {
@@ -77,95 +78,40 @@ async function fetchPhysicalPlans(params: {
   plan_type?: string
   is_active?: boolean
   search?: string
-}): Promise<{ data: AdminPhysicalPlan[] }> {
-  const searchParams = new URLSearchParams()
-  if (params.page) searchParams.set('page', params.page.toString())
-  if (params.limit) searchParams.set('limit', params.limit.toString())
-  if (params.target_gender) searchParams.set('target_gender', params.target_gender)
-  if (params.plan_type) searchParams.set('plan_type', params.plan_type)
-  if (params.is_active !== undefined) searchParams.set('is_active', params.is_active.toString())
-  if (params.search) searchParams.set('search', params.search)
-
-  const response = await fetch(`/api/v1/admin/physical/plans?${searchParams}`, {
-    headers: {
-      'Authorization': `Bearer ${localStorage.getItem('admin_access_token')}`
-    }
+}): Promise<AdminPhysicalPlan[]> {
+  const response = await apiClient.get<AdminPhysicalPlan[]>('/admin/physical/plans', {
+    params,
   })
-  
-  if (!response.ok) throw new Error('Failed to fetch plans')
-  return response.json()
+  return response.data
 }
 
 async function fetchPhysicalPlan(id: string): Promise<AdminPhysicalPlanDetail> {
-  const response = await fetch(`/api/v1/admin/physical/plans/${id}`, {
-    headers: {
-      'Authorization': `Bearer ${localStorage.getItem('admin_access_token')}`
-    }
-  })
-  
-  if (!response.ok) throw new Error('Failed to fetch plan')
-  return response.json()
+  const response = await apiClient.get<AdminPhysicalPlanDetail>(`/admin/physical/plans/${id}`)
+  return response.data
 }
 
 async function createPhysicalPlan(data: Partial<AdminPhysicalPlanDetail>): Promise<AdminPhysicalPlan> {
-  const response = await fetch('/api/v1/admin/physical/plans', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${localStorage.getItem('admin_access_token')}`
-    },
-    body: JSON.stringify(data)
-  })
-  
-  if (!response.ok) throw new Error('Failed to create plan')
-  return response.json()
+  const response = await apiClient.post<AdminPhysicalPlan>('/admin/physical/plans', data)
+  return response.data
 }
 
 async function updatePhysicalPlan(id: string, data: Partial<AdminPhysicalPlanDetail>): Promise<AdminPhysicalPlan> {
-  const response = await fetch(`/api/v1/admin/physical/plans/${id}`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${localStorage.getItem('admin_access_token')}`
-    },
-    body: JSON.stringify(data)
-  })
-  
-  if (!response.ok) throw new Error('Failed to update plan')
-  return response.json()
+  const response = await apiClient.put<AdminPhysicalPlan>(`/admin/physical/plans/${id}`, data)
+  return response.data
 }
 
 async function deletePhysicalPlan(id: string): Promise<void> {
-  const response = await fetch(`/api/v1/admin/physical/plans/${id}`, {
-    method: 'DELETE',
-    headers: {
-      'Authorization': `Bearer ${localStorage.getItem('admin_access_token')}`
-    }
-  })
-  
-  if (!response.ok) throw new Error('Failed to delete plan')
+  await apiClient.delete(`/admin/physical/plans/${id}`)
 }
 
 async function fetchComplianceStats(): Promise<PhysicalComplianceStats> {
-  const response = await fetch('/api/v1/admin/physical/compliance', {
-    headers: {
-      'Authorization': `Bearer ${localStorage.getItem('admin_access_token')}`
-    }
-  })
-  
-  if (!response.ok) throw new Error('Failed to fetch compliance stats')
-  return response.json()
+  const response = await apiClient.get<PhysicalComplianceStats>('/admin/physical/compliance')
+  return response.data
 }
 
 async function fetchComplianceByGender(): Promise<PhysicalComplianceByGender[]> {
-  const response = await fetch('/api/v1/admin/physical/compliance/by-gender', {
-    headers: {
-      'Authorization': `Bearer ${localStorage.getItem('admin_access_token')}`
-    }
-  })
-  
-  if (!response.ok) throw new Error('Failed to fetch compliance by gender')
-  return response.json()
+  const response = await apiClient.get<PhysicalComplianceByGender[]>('/admin/physical/compliance/by-gender')
+  return response.data
 }
 
 export default function AdminPhysicalPage() {
@@ -223,9 +169,9 @@ export default function AdminPhysicalPage() {
         is_active: activeFilter === '' ? undefined : activeFilter === 'true'
       }
       const response = await fetchPhysicalPlans(params)
-      setPlans(response.data)
-      setTotalPages(Math.ceil(response.data.length / 20) || 1)
-      setTotal(response.data.length)
+      setPlans(response)
+      setTotalPages(Math.ceil(response.length / 20) || 1)
+      setTotal(response.length)
     } catch (err) {
       setError('Failed to load physical plans')
       console.error(err)

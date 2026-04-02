@@ -1,7 +1,7 @@
 """
 Pydantic schemas for community API.
 """
-from pydantic import BaseModel, Field, field_validator
+from pydantic import ConfigDict, BaseModel, Field, field_validator
 from typing import Optional, List
 from datetime import datetime
 from uuid import UUID
@@ -65,8 +65,7 @@ class DiscussionResponse(BaseModel):
     user_avatar: Optional[str] = None
     has_upvoted: bool = False  # Current user's upvote status
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class DiscussionDetailResponse(DiscussionResponse):
@@ -121,8 +120,7 @@ class ReplyResponse(BaseModel):
     user_avatar: Optional[str] = None
     has_upvoted: bool = False  # Current user's upvote status
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # ============================================================================
@@ -205,8 +203,7 @@ class ReportResponse(BaseModel):
     action_taken: Optional[str] = None
     created_at: datetime
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ReportListResponse(BaseModel):

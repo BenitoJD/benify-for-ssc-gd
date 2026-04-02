@@ -46,6 +46,13 @@ class CacheService:
     async def delete(self, key: str) -> None:
         """Delete key from cache."""
         await self.redis.delete(key)
+
+    async def increment(self, key: str, ttl: int) -> int:
+        """Increment a counter and apply TTL on first write."""
+        value = await self.redis.incr(key)
+        if value == 1:
+            await self.redis.expire(key, ttl)
+        return int(value)
     
     async def exists(self, key: str) -> bool:
         """Check if key exists in cache."""

@@ -3,7 +3,7 @@ Pydantic schemas for study plans API.
 
 Defines request/response models for study plan endpoints.
 """
-from pydantic import BaseModel, Field
+from pydantic import ConfigDict, BaseModel, Field
 from typing import Optional, List
 from datetime import datetime, date
 from enum import Enum
@@ -55,8 +55,7 @@ class TaskResponse(BaseModel):
     time_spent_minutes: Optional[int] = None
     created_at: datetime
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class StudyPlanBase(BaseModel):
@@ -92,8 +91,7 @@ class StudyPlanResponse(BaseModel):
     updated_at: Optional[datetime] = None
     tasks: List[TaskResponse] = []
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class StudyPlanSummary(BaseModel):
@@ -113,8 +111,7 @@ class StudyPlanSummary(BaseModel):
     completion_percentage: float = 0.0
     created_at: datetime
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class TaskUpdate(BaseModel):

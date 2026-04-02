@@ -27,8 +27,7 @@ from .service import (
     create_refresh_token,
     decode_token,
     get_current_user,
-    auth_rate_limiter,
-    otp_rate_limiter,
+    is_rate_limited,
     generate_otp,
     send_otp_mock,
     store_otp,
@@ -40,6 +39,30 @@ from .models import User
 from sqlalchemy import select
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
+
+
+def set_auth_cookies(response: Response, *, access_token: str, refresh_token: str) -> None:
+    response.set_cookie(
+        key="access_token",
+        value=access_token,
+        httponly=True,
+        secure=settings.COOKIE_SECURE,
+        samesite="lax",
+        max_age=15 * 60,
+    )
+    response.set_cookie(
+        key="refresh_token",
+        value=refresh_token,
+        httponly=True,
+        secure=settings.COOKIE_SECURE,
+        samesite="lax",
+        max_age=7 * 24 * 60 * 60,
+    )
+
+
+def clear_auth_cookies(response: Response) -> None:
+    response.delete_cookie(key="access_token", httponly=True, secure=settings.COOKIE_SECURE, samesite="lax")
+    response.delete_cookie(key="refresh_token", httponly=True, secure=settings.COOKIE_SECURE, samesite="lax")
 
 
 def validate_password_strength(password: str) -> bool:
@@ -103,14 +126,7 @@ async def register(
     tokens = create_tokens(user)
     
     # Set refresh token in httpOnly cookie
-    response.set_cookie(
-        key="refresh_token",
-        value=tokens.refresh_token,
-        httponly=True,
-        secure=True,
-        samesite="lax",
-        max_age=7 * 24 * 60 * 60,  # 7 days
-    )
+    set_auth_cookies(response, access_token=tokens.access_token, refresh_token=tokens.refresh_token)
     
     # Track referral if code was provided
     if request.referral_code:
@@ -151,7 +167,7 @@ async def login(
     """Login with email and password."""
     # Rate limiting
     rate_key = f"login:{request.email}"
-    if auth_rate_limiter.is_rate_limited(rate_key):
+    if await is_rate_limited(cache, rate_key):
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
             detail="Too many login attempts. Please try again later.",
@@ -174,27 +190,23 @@ async def login(
     await cache.set(f"refresh_family:{user.id}", tokens.refresh_token, ttl=7 * 24 * 60 * 60)
     
     # Set refresh token in httpOnly cookie
-    response.set_cookie(
-        key="refresh_token",
-        value=tokens.refresh_token,
-        httponly=True,
-        secure=True,
-        samesite="lax",
-        max_age=7 * 24 * 60 * 60,
-    )
+    set_auth_cookies(response, access_token=tokens.access_token, refresh_token=tokens.refresh_token)
     
     return tokens
 
 
 @router.post("/refresh", response_model=TokenResponse)
 async def refresh_token(
-    request: RefreshTokenRequest,
     response: Response,
+    request: Optional[RefreshTokenRequest] = None,
+    refresh_token_cookie: Optional[str] = Cookie(default=None, alias="refresh_token"),
     db: AsyncSession = Depends(get_db),
     cache: CacheService = Depends(get_cache),
 ):
     """Refresh access token using refresh token."""
-    if not request.refresh_token:
+    refresh_token = request.refresh_token if request and request.refresh_token else refresh_token_cookie
+
+    if not refresh_token:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Refresh token required",
@@ -202,7 +214,7 @@ async def refresh_token(
     
     # Decode the refresh token to get user info
     try:
-        token_data = decode_token(request.refresh_token)
+        token_data = decode_token(refresh_token)
     except HTTPException:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -221,7 +233,7 @@ async def refresh_token(
     
     # Check if refresh token is the latest one (for reuse detection)
     stored_refresh_token = await cache.get(f"refresh_family:{user.id}")
-    if stored_refresh_token is None or stored_refresh_token != request.refresh_token:
+    if stored_refresh_token is None or stored_refresh_token != refresh_token:
         # Token family invalid - either expired or reused
         # Invalidate the entire family
         await cache.delete(f"refresh_family:{user.id}")
@@ -237,14 +249,7 @@ async def refresh_token(
     await cache.set(f"refresh_family:{user.id}", tokens.refresh_token, ttl=7 * 24 * 60 * 60)
     
     # Set new refresh token in cookie
-    response.set_cookie(
-        key="refresh_token",
-        value=tokens.refresh_token,
-        httponly=True,
-        secure=True,
-        samesite="lax",
-        max_age=7 * 24 * 60 * 60,
-    )
+    set_auth_cookies(response, access_token=tokens.access_token, refresh_token=tokens.refresh_token)
     
     return tokens
 
@@ -259,7 +264,7 @@ async def logout(
     # Delete refresh token family
     await cache.delete(f"refresh_family:{current_user.user_id}")
     
-    response.delete_cookie(key="refresh_token")
+    clear_auth_cookies(response)
     
     return {"success": True, "data": {"success": True}}
 
@@ -406,14 +411,7 @@ async def google_auth(
     await cache.set(f"refresh_family:{user.id}", tokens.refresh_token, ttl=7 * 24 * 60 * 60)
     
     # Set refresh token in httpOnly cookie
-    response.set_cookie(
-        key="refresh_token",
-        value=tokens.refresh_token,
-        httponly=True,
-        secure=True,
-        samesite="lax",
-        max_age=7 * 24 * 60 * 60,
-    )
+    set_auth_cookies(response, access_token=tokens.access_token, refresh_token=tokens.refresh_token)
     
     logger.info(f"Google OAuth: Successfully authenticated user {email}")
     
@@ -428,7 +426,7 @@ async def request_otp(
     """Request OTP for phone verification."""
     # Rate limiting - 3 OTP attempts per phone per hour
     rate_key = f"otp:{request.phone}"
-    if otp_rate_limiter.is_rate_limited(rate_key, max_attempts=3, window_seconds=3600):
+    if await is_rate_limited(cache, rate_key, max_attempts=3, window_seconds=3600):
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
             detail="Too many OTP requests. Please try again later.",
@@ -486,14 +484,7 @@ async def verify_otp(
     await cache.set(f"refresh_family:{user.id}", tokens.refresh_token, ttl=7 * 24 * 60 * 60)
     
     # Set refresh token in httpOnly cookie
-    response.set_cookie(
-        key="refresh_token",
-        value=tokens.refresh_token,
-        httponly=True,
-        secure=True,
-        samesite="lax",
-        max_age=7 * 24 * 60 * 60,
-    )
+    set_auth_cookies(response, access_token=tokens.access_token, refresh_token=tokens.refresh_token)
     
     return OTPVerifyResponse(
         message="OTP verified successfully",

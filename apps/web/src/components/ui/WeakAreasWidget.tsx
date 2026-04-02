@@ -17,9 +17,16 @@ export interface WeakArea {
 interface WeakAreasWidgetProps {
   weakAreas: WeakArea[]
   locale: 'en'
+  viewAllHref?: string
+  emptyStateHref?: string
 }
 
-export function WeakAreasWidget({ weakAreas, locale }: WeakAreasWidgetProps) {
+export function WeakAreasWidget({
+  weakAreas,
+  locale,
+  viewAllHref = '/analytics',
+  emptyStateHref = '/pyqs',
+}: WeakAreasWidgetProps) {
   const t = useTranslations('dashboard')
 
   const getAccuracyColor = (accuracy: number) => {
@@ -35,7 +42,7 @@ export function WeakAreasWidget({ weakAreas, locale }: WeakAreasWidgetProps) {
           <h2 className="text-[15px] font-semibold tracking-tight text-[#111827]">{t('weakAreas')}</h2>
         </div>
         <Link
-          href="/dashboard"
+          href={viewAllHref}
           className="text-sm text-[#6B7280] hover:text-[#111827] font-medium transition-colors"
         >
           {t('viewAll')}
@@ -47,7 +54,13 @@ export function WeakAreasWidget({ weakAreas, locale }: WeakAreasWidgetProps) {
           <div className="w-16 h-16 mx-auto mb-4 bg-green-100 rounded-full flex items-center justify-center">
             <TrendingDown className="w-8 h-8 text-green-500" />
           </div>
-          <p className="text-gray-600 font-medium">🎉 {t('noWeakAreas')}</p>
+          <p className="text-gray-600 font-medium mb-4">🎉 {t('noWeakAreas')}</p>
+          <Link
+            href={emptyStateHref}
+            className="inline-flex items-center justify-center rounded-[6px] border border-[#EAEAEA] bg-white px-4 py-2 text-xs font-semibold text-[#111827] transition-colors hover:bg-[#FAFAFA]"
+          >
+            {t('practiceNow')}
+          </Link>
         </div>
       ) : (
         <div className="space-y-3">

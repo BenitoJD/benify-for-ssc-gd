@@ -7,13 +7,12 @@ import { usePathname, useRouter } from 'next/navigation'
 import { clsx } from 'clsx'
 import { BrandLogo } from '@/components/ui/BrandLogo'
 import { FloatingUserMenu } from '@/components/ui/FloatingUserMenu'
-import { clearStudentSession } from '@/lib/session'
-import { 
-  LayoutDashboard, 
-  BookOpen, 
-  FileText, 
-  BarChart3, 
-  Users, 
+import { logout } from '@/lib/auth'
+import {
+  LayoutDashboard,
+  BookOpen,
+  BarChart3,
+  Users,
   User, 
   Menu, 
   X,
@@ -29,7 +28,6 @@ interface SidebarProps {
 const navItems = [
   { id: 'dashboard', href: '/dashboard', icon: LayoutDashboard, labelKey: 'nav.dashboard' },
   { id: 'study', href: '/pyqs', icon: BookOpen, labelKey: 'nav.study' },
-  { id: 'tests', href: '/pyqs', icon: FileText, labelKey: 'nav.tests' },
   { id: 'physical', href: '/physical', icon: Activity, labelKey: 'nav.physical' },
   { id: 'documents', href: '/documents', icon: FileCheck, labelKey: 'nav.documents' },
   { id: 'analytics', href: '/analytics', icon: BarChart3, labelKey: 'nav.analytics' },
@@ -46,10 +44,13 @@ export function Sidebar({ locale }: SidebarProps) {
 
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + '/')
 
-  const handleLogout = () => {
-    clearStudentSession()
-    setIsMobileOpen(false)
-    router.push('/login')
+  const handleLogout = async () => {
+    try {
+      await logout()
+    } finally {
+      setIsMobileOpen(false)
+      router.push('/login')
+    }
   }
 
   return (

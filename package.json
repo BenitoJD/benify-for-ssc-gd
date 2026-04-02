@@ -11,6 +11,7 @@
     "dev:infra": "docker compose up -d",
     "dev:infra:down": "docker compose down",
     "build:web": "npm run build --workspace olli-academy-ssc-gd-web",
+    "test:api": "cd apps/api && python3 -m pytest tests -q --disable-warnings -p no:warnings -o asyncio_default_fixture_loop_scope=function",
     "test:web": "npm run test --workspace olli-academy-ssc-gd-web",
     "lint:web": "npm run lint --workspace olli-academy-ssc-gd-web",
     "dev": "docker compose up -d"

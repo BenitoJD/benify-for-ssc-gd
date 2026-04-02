@@ -6,6 +6,7 @@ import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { clsx } from 'clsx'
 import { BrandLogo } from '@/components/ui/BrandLogo'
+import { adminApi } from '@/lib/api/admin'
 import {
   LayoutDashboard,
   Users,
@@ -16,7 +17,10 @@ import {
   BookOpen,
   List,
   FileCheck,
-  ClipboardList
+  ClipboardList,
+  Megaphone,
+  Activity,
+  FolderOpen
 } from 'lucide-react'
 
 interface AdminUser {
@@ -29,6 +33,7 @@ interface AdminUser {
 const navItems = [
   { href: '/admin', icon: LayoutDashboard, label: 'Dashboard', exact: true },
   { href: '/admin/users', icon: Users, label: 'Users', exact: false },
+  { href: '/admin/announcements', icon: Megaphone, label: 'Announcements', exact: false },
 ]
 
 const contentNavItems = [
@@ -36,7 +41,13 @@ const contentNavItems = [
   { href: '/admin/content/subjects', icon: FileText, label: 'Subjects', exact: false },
   { href: '/admin/content/topics', icon: List, label: 'Topics', exact: false },
   { href: '/admin/content/lessons', icon: FileCheck, label: 'Lessons', exact: false },
+  { href: '/admin/content/questions', icon: FileText, label: 'Questions', exact: false },
   { href: '/admin/content/test-series', icon: ClipboardList, label: 'Test Series', exact: false },
+]
+
+const operationsNavItems = [
+  { href: '/admin/documents', icon: FolderOpen, label: 'Documents', exact: false },
+  { href: '/admin/physical', icon: Activity, label: 'Physical', exact: false },
 ]
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
@@ -48,38 +59,48 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   const isLoginRoute = pathname === '/admin/login'
 
   useEffect(() => {
-    if (isLoginRoute) {
-      setIsLoading(false)
-      return
-    }
+    let cancelled = false
 
-    // Check for admin access token
-    const token = localStorage.getItem('admin_access_token')
-    const userStr = localStorage.getItem('admin_user')
-    
-    if (!token || !userStr) {
-      router.push('/admin/login')
-      return
-    }
-
-    try {
-      const user = JSON.parse(userStr) as AdminUser
-      if (user.role !== 'admin' && user.role !== 'super_admin') {
-        router.push('/admin/login')
+    const bootAdmin = async () => {
+      if (isLoginRoute) {
+        setIsLoading(false)
         return
       }
-      setAdminUser(user)
-    } catch {
-      router.push('/admin/login')
-    } finally {
-      setIsLoading(false)
+
+      try {
+        const user = await adminApi.getMe()
+        if (user.role !== 'admin' && user.role !== 'super_admin') {
+          throw new Error('Invalid admin role')
+        }
+
+        if (!cancelled) {
+          setAdminUser(user)
+        }
+      } catch {
+        if (!cancelled) {
+          router.push('/admin/login')
+        }
+        return
+      } finally {
+        if (!cancelled) {
+          setIsLoading(false)
+        }
+      }
+    }
+
+    void bootAdmin()
+
+    return () => {
+      cancelled = true
     }
   }, [isLoginRoute, router])
 
-  const handleLogout = () => {
-    localStorage.removeItem('admin_access_token')
-    localStorage.removeItem('admin_user')
-    router.push('/admin/login')
+  const handleLogout = async () => {
+    try {
+      await adminApi.logout()
+    } finally {
+      router.push('/admin/login')
+    }
   }
 
   const isActive = (href: string, exact: boolean) => {
@@ -188,6 +209,31 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             <div className="space-y-1">
               <p className="px-3 text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-widest mb-3">Content</p>
               {contentNavItems.map((item) => {
+                const Icon = item.icon
+                const active = isActive(item.href, item.exact)
+
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setIsMobileOpen(false)}
+                    className={clsx(
+                      'flex items-center gap-3 px-4 py-3 rounded-2xl transition-all text-sm font-bold border-2',
+                      active
+                        ? 'bg-[var(--text-main)] text-white border-black shadow-[0_4px_0_rgba(0,0,0,0.2)] -translate-y-0.5'
+                        : 'border-transparent text-[var(--text-muted)] hover:bg-gray-50 hover:text-black hover:border-[var(--border-light)]'
+                    )}
+                  >
+                    <Icon className={clsx('w-5 h-5', active ? 'text-white' : 'text-gray-400')} />
+                    <span>{item.label}</span>
+                  </Link>
+                )
+              })}
+            </div>
+
+            <div className="space-y-1">
+              <p className="px-3 text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-widest mb-3">Operations</p>
+              {operationsNavItems.map((item) => {
                 const Icon = item.icon
                 const active = isActive(item.href, item.exact)
 

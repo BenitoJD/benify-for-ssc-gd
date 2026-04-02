@@ -4,7 +4,7 @@ Pydantic schemas for syllabus module.
 Includes request/response schemas for subjects, topics, lessons,
 notes, bookmarks, and progress tracking.
 """
-from pydantic import BaseModel, Field
+from pydantic import ConfigDict, BaseModel, Field
 from typing import Optional, List
 from datetime import datetime
 from uuid import UUID
@@ -41,8 +41,7 @@ class SubjectResponse(SubjectBase):
     completed_count: int = 0  # Computed field for user's progress
     progress_percentage: float = 0.0  # Computed field
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class SubjectListResponse(BaseModel):
@@ -55,8 +54,7 @@ class SubjectListResponse(BaseModel):
     topic_count: int = 0
     progress_percentage: float = 0.0
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # ============ Topic Schemas ============
@@ -91,8 +89,7 @@ class TopicResponse(TopicBase):
     completed_count: int = 0  # Computed field for user's progress
     progress_percentage: float = 0.0  # Computed field
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class TopicListResponse(BaseModel):
@@ -105,8 +102,7 @@ class TopicListResponse(BaseModel):
     completed_count: int = 0
     progress_percentage: float = 0.0
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # ============ Lesson Schemas ============
@@ -144,8 +140,7 @@ class LessonResponse(LessonBase):
     is_completed: bool = False  # Computed: user's completion status
     is_bookmarked: bool = False  # Computed: user's bookmark status
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class LessonListResponse(BaseModel):
@@ -158,8 +153,7 @@ class LessonListResponse(BaseModel):
     is_completed: bool = False
     is_bookmarked: bool = False
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class LessonDetailResponse(LessonBase):
@@ -171,8 +165,7 @@ class LessonDetailResponse(LessonBase):
     is_bookmarked: bool = False
     personal_note: Optional[str] = None  # User's note if exists
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # ============ Note Schemas ============
@@ -201,8 +194,7 @@ class NoteResponse(BaseModel):
     created_at: datetime
     updated_at: Optional[datetime] = None
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class NoteWithLessonResponse(BaseModel):
@@ -218,8 +210,7 @@ class NoteWithLessonResponse(BaseModel):
     created_at: datetime
     updated_at: Optional[datetime] = None
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # ============ Bookmark Schemas ============
@@ -231,8 +222,7 @@ class BookmarkResponse(BaseModel):
     lesson_id: UUID
     created_at: datetime
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class BookmarkWithDetailsResponse(BaseModel):
@@ -249,8 +239,7 @@ class BookmarkWithDetailsResponse(BaseModel):
     is_completed: bool = False
     created_at: datetime
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # ============ Progress Schemas ============
@@ -262,8 +251,7 @@ class LessonProgressResponse(BaseModel):
     lesson_id: UUID
     completed_at: datetime
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class TopicProgressResponse(BaseModel):

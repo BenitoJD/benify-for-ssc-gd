@@ -1,9 +1,6 @@
 import axios from 'axios'
 import {
   clearStudentSession,
-  getStudentAccessToken,
-  getStudentRefreshToken,
-  storeStudentTokens,
 } from '@/lib/session'
 
 function resolveApiBaseUrl(): string {
@@ -36,26 +33,8 @@ export const apiClient = axios.create({
   },
 })
 
-// Request interceptor to add admin token for admin routes
 apiClient.interceptors.request.use(
-  (config) => {
-    // Check if this is an admin API request
-    if (config.url?.startsWith('/admin')) {
-      const adminToken = typeof window !== 'undefined' 
-        ? localStorage.getItem('admin_access_token') 
-        : null
-      if (adminToken) {
-        config.headers.Authorization = `Bearer ${adminToken}`
-      }
-      return config
-    }
-
-    const studentToken = getStudentAccessToken()
-    if (studentToken) {
-      config.headers.Authorization = `Bearer ${studentToken}`
-    }
-    return config
-  },
+  (config) => config,
   (error) => Promise.reject(error)
 )
 
@@ -69,33 +48,29 @@ apiClient.interceptors.response.use(
       requestUrl.startsWith('/auth/login') ||
       requestUrl.startsWith('/auth/register') ||
       requestUrl.startsWith('/auth/refresh') ||
-      requestUrl.startsWith('/admin')
+      requestUrl.startsWith('/admin/login')
 
     // If 401 and not already retrying, try to refresh token
     if (error.response?.status === 401 && !originalRequest._retry && !shouldSkipRefresh) {
       originalRequest._retry = true
 
       try {
-        const refreshToken = getStudentRefreshToken()
-        if (!refreshToken) {
-          throw new Error('Missing refresh token')
-        }
-
-        const refreshResponse = await axios.post(`${API_BASE_URL}/auth/refresh`, {
-          refresh_token: refreshToken,
-        })
-
-        storeStudentTokens(
-          refreshResponse.data.access_token,
-          refreshResponse.data.refresh_token
+        const refreshResponse = await axios.post(
+          `${API_BASE_URL}/auth/refresh`,
+          {},
+          {
+            withCredentials: true,
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          }
         )
-
-        originalRequest.headers.Authorization = `Bearer ${refreshResponse.data.access_token}`
+        void refreshResponse
         return apiClient(originalRequest)
       } catch (refreshError) {
         clearStudentSession()
         if (typeof window !== 'undefined') {
-          window.location.href = '/login'
+          window.location.href = requestUrl.startsWith('/admin') ? '/admin/login' : '/login'
         }
         return Promise.reject(refreshError)
       }

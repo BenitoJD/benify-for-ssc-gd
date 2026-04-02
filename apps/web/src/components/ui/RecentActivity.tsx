@@ -2,6 +2,7 @@
 
 import { useTranslations } from 'next-intl'
 import { clsx } from 'clsx'
+import Link from 'next/link'
 import { BookOpen, FileText, Flame, Clock } from 'lucide-react'
 
 export interface Activity {
@@ -70,7 +71,13 @@ export function RecentActivity({ activities }: RecentActivityProps) {
           <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
             <Clock className="w-8 h-8 text-gray-400" />
           </div>
-          <p className="text-gray-500">{t('noRecentActivity')}</p>
+          <p className="text-gray-500 mb-4">{t('noRecentActivity')}</p>
+          <Link
+            href="/pyqs"
+            className="inline-flex items-center justify-center rounded-[6px] bg-[#111827] px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-black"
+          >
+            {t('practiceNow')}
+          </Link>
         </div>
       ) : (
         <div className="space-y-4">

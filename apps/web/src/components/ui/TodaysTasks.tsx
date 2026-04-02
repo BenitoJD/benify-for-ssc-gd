@@ -18,6 +18,8 @@ export interface Task {
 interface TodaysTasksProps {
   tasks: Task[]
   locale: 'en'
+  viewAllHref?: string
+  emptyStateHref?: string
 }
 
 const taskTypeIcons = {
@@ -32,7 +34,12 @@ const taskTypeColors = {
   revision: 'bg-[#FAFAFA] text-[#111827] border border-[#EAEAEA]',
 }
 
-export function TodaysTasks({ tasks, locale }: TodaysTasksProps) {
+export function TodaysTasks({
+  tasks,
+  locale,
+  viewAllHref = '/pyqs',
+  emptyStateHref = '/pyqs',
+}: TodaysTasksProps) {
   const t = useTranslations('dashboard')
 
   return (
@@ -40,7 +47,7 @@ export function TodaysTasks({ tasks, locale }: TodaysTasksProps) {
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-[15px] font-semibold text-[#111827] tracking-tight">{t('todayTasks')}</h2>
         <Link
-          href="/dashboard"
+          href={viewAllHref}
           className="text-sm text-[#6B7280] hover:text-[#111827] font-medium transition-colors"
         >
           {t('viewAll')}
@@ -52,7 +59,13 @@ export function TodaysTasks({ tasks, locale }: TodaysTasksProps) {
           <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
             <CheckCircle className="w-8 h-8 text-gray-400" />
           </div>
-          <p className="text-gray-500">{t('noTasksToday')}</p>
+          <p className="text-gray-500 mb-4">{t('noTasksToday')}</p>
+          <Link
+            href={emptyStateHref}
+            className="inline-flex items-center justify-center rounded-[6px] bg-[#111827] px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-black"
+          >
+            {t('practiceNow')}
+          </Link>
         </div>
       ) : (
         <div className="space-y-3">

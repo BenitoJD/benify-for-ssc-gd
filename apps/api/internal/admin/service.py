@@ -136,6 +136,30 @@ class AdminService:
             total_lessons_completed=total_lessons_completed,
             total_tests_taken=total_tests_taken,
         )
+
+    async def get_admin_user(self, user_id: UUID) -> dict:
+        """Return the authenticated admin user payload."""
+        result = await self.db.execute(select(User).where(User.id == user_id, User.deleted_at.is_(None)))
+        user = result.scalar_one_or_none()
+
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Admin user not found",
+            )
+
+        if user.role not in [UserRole.ADMIN, UserRole.SUPER_ADMIN]:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Access denied. Admin privileges required.",
+            )
+
+        return {
+            "id": str(user.id),
+            "email": user.email,
+            "name": user.name,
+            "role": user.role.value,
+        }
     
     async def get_recent_registrations(self, limit: int = 5) -> list:
         """Get recent user registrations."""
@@ -224,7 +248,8 @@ class AdminService:
                 pass  # Ignore invalid role values
         
         # Get total count
-        count_query = select(func.count(User.id)).select_from(query.subquery())
+        user_subquery = query.subquery()
+        count_query = select(func.count()).select_from(user_subquery)
         total_result = await self.db.execute(count_query)
         total = total_result.scalar() or 0
         

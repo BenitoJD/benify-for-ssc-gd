@@ -1,7 +1,7 @@
 """
 Pydantic schemas for gamification endpoints.
 """
-from pydantic import BaseModel, Field
+from pydantic import ConfigDict, BaseModel, Field
 from typing import Optional, List
 from datetime import datetime
 from uuid import UUID
@@ -77,8 +77,7 @@ class BadgeResponse(BadgeBase):
     is_active: bool
     created_at: datetime
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class UserBadgeResponse(BaseModel):
@@ -88,8 +87,7 @@ class UserBadgeResponse(BaseModel):
     earned_at: datetime
     badge: BadgeResponse
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class UserBadgesResponse(BaseModel):
@@ -116,8 +114,7 @@ class AchievementResponse(AchievementBase):
     is_active: bool
     created_at: datetime
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class UserAchievementResponse(BaseModel):
@@ -127,8 +124,7 @@ class UserAchievementResponse(BaseModel):
     unlocked_at: datetime
     achievement: AchievementResponse
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class UserAchievementsResponse(BaseModel):
@@ -158,8 +154,7 @@ class StreakFreezeResponse(BaseModel):
     freeze_date: datetime
     used_at: datetime
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # ============================================================================
@@ -222,8 +217,7 @@ class PomodoroSessionResponse(BaseModel):
     study_type: Optional[str] = None
     study_reference_id: Optional[UUID] = None
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class PomodoroActiveResponse(BaseModel):
@@ -265,8 +259,7 @@ class DailyMissionResponse(DailyMissionBase):
     date: datetime
     completed_at: Optional[datetime] = None
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class DailyMissionsResponse(BaseModel):

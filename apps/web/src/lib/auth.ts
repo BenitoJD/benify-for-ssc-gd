@@ -1,7 +1,7 @@
 // Auth utilities for Next.js
 // Note: This file replaces the old Vite-based auth.ts
 import apiClient from './api/client'
-import { clearStudentSession, getStudentAccessToken, storeStudentTokens } from './session'
+import { clearStudentSession } from './session'
 
 // Backend API response types
 export interface ApiUser {
@@ -90,11 +90,6 @@ async function readEnvelope<T>(response: Response): Promise<T> {
 }
 
 export async function fetchCurrentUser(): Promise<User | null> {
-  const accessToken = getStudentAccessToken()
-  if (!accessToken) {
-    return null
-  }
-
   try {
     const response = await apiClient.get('/auth/me')
     return transformUser(response.data as ApiUser)
@@ -129,8 +124,7 @@ export async function signInWithGoogle(credential: string): Promise<User> {
     throw new Error(payload.detail || 'Google sign-in failed')
   }
 
-  const tokens = (await response.json()) as ApiTokenResponse
-  storeStudentTokens(tokens.access_token, tokens.refresh_token)
+  await response.json() as ApiTokenResponse
 
   // After successful Google auth, fetch the user info
   const user = await fetchCurrentUser()
@@ -141,11 +135,9 @@ export async function signInWithGoogle(credential: string): Promise<User> {
 }
 
 export async function logout(): Promise<{ status: string }> {
-  const accessToken = getStudentAccessToken()
   const response = await fetch(createApiUrl('/api/v1/auth/logout'), {
     method: 'POST',
     credentials: 'include',
-    headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
   })
 
   clearStudentSession()

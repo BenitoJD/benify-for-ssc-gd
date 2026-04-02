@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import ConfigDict, BaseModel, Field
 from typing import Optional, List
 from datetime import datetime
 from enum import Enum
@@ -45,8 +45,7 @@ class ProfileResponse(ProfileBase):
     created_at: datetime
     updated_at: Optional[datetime] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class OnboardingRequest(BaseModel):
@@ -70,8 +69,7 @@ class UserStats(BaseModel):
     overall_progress: float = 0  # percentage
     weak_areas_count: int = 0
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class UsersListResponse(BaseModel):

@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, LogOut } from 'lucide-react'
-import { clearStudentSession } from '@/lib/session'
+import { logout } from '@/lib/auth'
 
 interface PageHeaderProps {
   /** The title displayed in the header center */
@@ -42,9 +42,12 @@ export function PageHeader({
     }
   }
 
-  const handleLogout = () => {
-    clearStudentSession()
-    router.push('/login')
+  const handleLogout = async () => {
+    try {
+      await logout()
+    } finally {
+      router.push('/login')
+    }
   }
 
   return (

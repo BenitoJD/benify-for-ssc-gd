@@ -1,5 +1,6 @@
 import pytest
-import asyncio
+import pytest_asyncio
+import warnings
 from typing import AsyncGenerator
 from httpx import AsyncClient, ASGITransport
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
@@ -10,25 +11,28 @@ from internal.database import Base, get_db
 from internal.redis import get_redis, get_cache, CacheService
 from internal.config import settings
 
+warnings.filterwarnings(
+    "ignore",
+    category=DeprecationWarning,
+    module=r"asyncio\.events",
+)
+warnings.filterwarnings(
+    "ignore",
+    category=DeprecationWarning,
+    module=r"asyncio\.events",
+)
+warnings.filterwarnings(
+    "ignore",
+    category=DeprecationWarning,
+    module=r"anyio\._backends\._asyncio",
+)
+
 
 # Test database URL - use SQLite for testing
 TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
 
 
-# Configure pytest-asyncio
-def pytest_configure(config):
-    config.addinivalue_line("markers", "asyncio: mark test as an asyncio test")
-
-
-@pytest.fixture(scope="session")
-def event_loop():
-    """Create event loop for async tests."""
-    loop = asyncio.get_event_loop_policy().new_event_loop()
-    yield loop
-    loop.close()
-
-
-@pytest.fixture(scope="function")
+@pytest_asyncio.fixture(scope="function")
 async def test_db() -> AsyncGenerator[AsyncSession, None]:
     """Create test database session."""
     engine = create_async_engine(
@@ -48,14 +52,11 @@ async def test_db() -> AsyncGenerator[AsyncSession, None]:
     
     async with async_session() as session:
         yield session
-    
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
-    
+
     await engine.dispose()
 
 
-@pytest.fixture(scope="function")
+@pytest_asyncio.fixture(scope="function")
 async def mock_cache() -> CacheService:
     """Create mock cache service for testing."""
     cache_store = {}
@@ -69,6 +70,11 @@ async def mock_cache() -> CacheService:
         
         async def delete(self, key: str):
             cache_store.pop(key, None)
+
+        async def increment(self, key: str, ttl: int):
+            current = int(cache_store.get(key, 0)) + 1
+            cache_store[key] = current
+            return current
         
         async def exists(self, key: str):
             return key in cache_store
@@ -87,7 +93,7 @@ async def mock_cache() -> CacheService:
     return MockCacheService()
 
 
-@pytest.fixture(scope="function")
+@pytest_asyncio.fixture(scope="function")
 async def client(test_db: AsyncSession, mock_cache: CacheService) -> AsyncGenerator[AsyncClient, None]:
     """Create test client with overridden dependencies."""
     
@@ -99,11 +105,6 @@ async def client(test_db: AsyncSession, mock_cache: CacheService) -> AsyncGenera
     
     app.dependency_overrides[get_db] = override_get_db
     app.dependency_overrides[get_cache] = override_get_cache
-    
-    # Clear rate limiters before each test
-    from internal.auth.service import auth_rate_limiter, otp_rate_limiter
-    auth_rate_limiter.attempts.clear()
-    otp_rate_limiter.attempts.clear()
     
     transport = ASGITransport(app=app)
     

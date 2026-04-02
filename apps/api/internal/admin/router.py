@@ -2,9 +2,11 @@ from fastapi import APIRouter, Depends, HTTPException, status, Response, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Optional
 import uuid
+from uuid import UUID
 
 from ..database import get_db
 from ..redis import get_cache, CacheService
+from ..config import settings
 from ..auth.dependencies import get_current_user, TokenData, require_admin
 from ..auth.schemas import TokenResponse, UserResponse, UserRole
 from .schemas import (
@@ -19,6 +21,25 @@ from .schemas import (
 from .service import AdminService
 
 router = APIRouter(prefix="/admin", tags=["Admin"])
+
+
+def set_admin_auth_cookies(response: Response, *, access_token: str, refresh_token: str, expires_in: int) -> None:
+    response.set_cookie(
+        key="access_token",
+        value=access_token,
+        httponly=True,
+        secure=settings.COOKIE_SECURE,
+        samesite="lax",
+        max_age=expires_in,
+    )
+    response.set_cookie(
+        key="refresh_token",
+        value=refresh_token,
+        httponly=True,
+        secure=settings.COOKIE_SECURE,
+        samesite="lax",
+        max_age=7 * 24 * 60 * 60,
+    )
 
 
 @router.post("/login")
@@ -37,13 +58,11 @@ async def admin_login(
     tokens = await service.admin_login(request.email, request.password, cache)
     
     # Set refresh token in httpOnly cookie
-    response.set_cookie(
-        key="refresh_token",
-        value=tokens["refresh_token"],
-        httponly=True,
-        secure=True,
-        samesite="lax",
-        max_age=7 * 24 * 60 * 60,  # 7 days
+    set_admin_auth_cookies(
+        response,
+        access_token=tokens["access_token"],
+        refresh_token=tokens["refresh_token"],
+        expires_in=tokens["expires_in"],
     )
     
     # Remove refresh_token from response body (it's in the cookie)
@@ -76,6 +95,16 @@ async def get_admin_dashboard(
         recent_registrations=recent_registrations,
         recent_activity=[],  # Placeholder for activity feed
     )
+
+
+@router.get("/me")
+async def get_admin_me(
+    current_user: TokenData = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    """Return the currently authenticated admin user."""
+    service = AdminService(db)
+    return await service.get_admin_user(UUID(current_user.user_id))
 
 
 @router.patch("/users/{user_id}/status", response_model=UserStatusUpdateResponse)

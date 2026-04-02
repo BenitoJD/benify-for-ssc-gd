@@ -62,6 +62,7 @@ export default function DocumentsPage() {
     error: null,
   })
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
+  const [documentError, setDocumentError] = useState<string | null>(null)
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -84,6 +85,7 @@ export default function DocumentsPage() {
 
   const loadDocumentData = useCallback(async () => {
     setIsLoadingDocs(true)
+    setDocumentError(null)
     try {
       const [checklists, docsData] = await Promise.all([
         getDocumentChecklists(currentStage),
@@ -93,6 +95,7 @@ export default function DocumentsPage() {
       setUserDocuments(docsData.documents)
     } catch (error) {
       console.error('Failed to load documents:', error)
+      setDocumentError('We could not load your document checklist right now. Please try again.')
     } finally {
       setIsLoadingDocs(false)
     }
@@ -182,6 +185,7 @@ export default function DocumentsPage() {
         isUploading: false,
         error: t('documents.upload.errors.uploadFailed'),
       }))
+      setDocumentError('Upload failed. Please retry with the same file or choose a different one.')
     }
   }
 
@@ -193,6 +197,7 @@ export default function DocumentsPage() {
       setTimeout(() => setSuccessMessage(null), 3000)
     } catch (error) {
       console.error('Failed to delete document:', error)
+      setDocumentError('We could not delete this document right now. Please try again.')
     }
   }
 
@@ -245,6 +250,19 @@ export default function DocumentsPage() {
               <div className="p-4 bg-green-50 border-2 border-green-200 rounded-xl flex items-center gap-2 text-green-800 text-sm font-bold">
                 <Check className="w-5 h-5" />
                 {successMessage}
+              </div>
+            )}
+
+            {documentError && (
+              <div className="p-4 bg-red-50 border-2 border-red-200 rounded-xl flex flex-col gap-3 text-red-700 text-sm font-bold md:flex-row md:items-center md:justify-between">
+                <span>{documentError}</span>
+                <button
+                  type="button"
+                  onClick={() => void loadDocumentData()}
+                  className="rounded-xl border-2 border-red-200 bg-white px-4 py-2 text-xs font-bold text-red-700 hover:bg-red-100"
+                >
+                  Retry
+                </button>
               </div>
             )}
 

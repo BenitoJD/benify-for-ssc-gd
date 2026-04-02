@@ -16,6 +16,7 @@ from ..questions.models import Question
 
 class TestSeriesRepository:
     """Repository for test series database operations."""
+    __test__ = False
     
     def __init__(self, db: AsyncSession):
         self.db = db

@@ -1,7 +1,7 @@
 """
 Pydantic schemas for question bank module.
 """
-from pydantic import BaseModel, Field
+from pydantic import ConfigDict, BaseModel, Field
 from typing import Optional, List
 from datetime import datetime
 from uuid import UUID
@@ -79,8 +79,7 @@ class QuestionResponse(BaseModel):
     exam_year: Optional[int] = None
     created_at: datetime
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class QuestionListResponse(BaseModel):
@@ -97,8 +96,7 @@ class QuestionListResponse(BaseModel):
     source: Optional[str] = None
     exam_year: Optional[int] = None
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class QuestionBankFilter(BaseModel):
@@ -133,5 +131,4 @@ class PYQResponse(BaseModel):
     exam_year: int
     created_at: datetime
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

@@ -4,7 +4,6 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { authApi } from '@/lib/api/auth'
-import { storeStudentTokens } from '@/lib/session'
 
 export default function SignupPage() {
   const router = useRouter()
@@ -15,9 +14,26 @@ export default function SignupPage() {
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
+  const trimmedName = name.trim()
+  const passwordHasUppercase = /[A-Z]/.test(password)
+  const passwordHasNumber = /\d/.test(password)
+  const passwordIsLongEnough = password.length >= 8
+  const passwordIsStrong = passwordHasUppercase && passwordHasNumber && passwordIsLongEnough
+  const passwordsMatch = confirmPassword.length > 0 && password === confirmPassword
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     setError('')
+
+    if (trimmedName.length > 80) {
+      setError('Full name must be 80 characters or fewer')
+      return
+    }
+
+    if (!passwordIsStrong) {
+      setError('Password must be at least 8 characters and include 1 uppercase letter and 1 number')
+      return
+    }
 
     if (password !== confirmPassword) {
       setError('Passwords do not match')
@@ -27,8 +43,7 @@ export default function SignupPage() {
     setIsLoading(true)
 
     try {
-      const response = await authApi.register({ email, password, name })
-      storeStudentTokens(response.access_token, response.refresh_token)
+      await authApi.register({ email: email.trim(), password, name: trimmedName || undefined })
       router.push('/onboarding')
     } catch (err: unknown) {
       if (err && typeof err === 'object' && 'response' in err) {
@@ -88,10 +103,11 @@ export default function SignupPage() {
                   id="name"
                   type="text"
                   value={name}
-                  onChange={(event) => setName(event.target.value)}
+                  onChange={(event) => setName(event.target.value.slice(0, 80))}
                   className="w-full px-4 py-3.5 bg-gray-50 border-2 border-[var(--border-light)] rounded-2xl text-[var(--text-main)] font-medium placeholder-gray-400 focus:outline-none focus:border-black focus:bg-white transition-colors"
                   placeholder="Your name"
                 />
+                <p className="mt-1 text-xs font-medium text-[var(--text-muted)]">{name.length}/80 characters</p>
               </div>
 
               <div className="space-y-1.5">
@@ -122,6 +138,17 @@ export default function SignupPage() {
                   placeholder="At least 1 uppercase letter and 1 number"
                   required
                 />
+                <div className="mt-2 space-y-1 text-xs font-medium">
+                  <p className={passwordIsLongEnough ? 'text-green-700' : 'text-[var(--text-muted)]'}>
+                    At least 8 characters
+                  </p>
+                  <p className={passwordHasUppercase ? 'text-green-700' : 'text-[var(--text-muted)]'}>
+                    Includes 1 uppercase letter
+                  </p>
+                  <p className={passwordHasNumber ? 'text-green-700' : 'text-[var(--text-muted)]'}>
+                    Includes 1 number
+                  </p>
+                </div>
               </div>
 
               <div className="space-y-1.5">
@@ -137,6 +164,11 @@ export default function SignupPage() {
                   placeholder="Repeat password"
                   required
                 />
+                {confirmPassword.length > 0 && (
+                  <p className={`mt-2 text-xs font-medium ${passwordsMatch ? 'text-green-700' : 'text-red-600'}`}>
+                    {passwordsMatch ? 'Passwords match' : 'Passwords do not match'}
+                  </p>
+                )}
               </div>
 
               <button

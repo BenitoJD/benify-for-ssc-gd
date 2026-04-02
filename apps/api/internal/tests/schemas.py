@@ -1,7 +1,7 @@
 """
 Pydantic schemas for test series module.
 """
-from pydantic import BaseModel, Field
+from pydantic import ConfigDict, BaseModel, Field
 from typing import Optional, List
 from datetime import datetime
 from uuid import UUID
@@ -10,6 +10,8 @@ from enum import Enum
 
 class TestType(str, Enum):
     """Test type enumeration."""
+    __test__ = False
+
     FULL_LENGTH = "full_length"
     SECTIONAL = "sectional"
     CHAPTER = "chapter"
@@ -38,11 +40,15 @@ class TestSeriesBase(BaseModel):
 
 class TestSeriesCreate(TestSeriesBase):
     """Schema for creating a test series."""
+    __test__ = False
+
     pass
 
 
 class TestSeriesUpdate(BaseModel):
     """Schema for updating a test series."""
+    __test__ = False
+
     title: Optional[str] = None
     description: Optional[str] = None
     duration_minutes: Optional[int] = None
@@ -77,8 +83,7 @@ class TestSeriesResponse(BaseModel):
     best_score: Optional[float] = None  # User's best score
     last_attempt_at: Optional[datetime] = None
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class TestSeriesListResponse(BaseModel):
@@ -93,8 +98,7 @@ class TestSeriesListResponse(BaseModel):
     attempt_count: int = 0
     best_score: Optional[float] = None
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class TestSeriesDetailResponse(TestSeriesResponse):
@@ -103,8 +107,7 @@ class TestSeriesDetailResponse(TestSeriesResponse):
     topic_ids: Optional[List[str]] = None
     created_at: datetime
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # ============ Attempt Schemas ============
@@ -118,8 +121,7 @@ class AttemptStartResponse(BaseModel):
     total_questions: int
     first_question: "QuestionInAttemptResponse"
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class QuestionInAttemptResponse(BaseModel):
@@ -131,8 +133,7 @@ class QuestionInAttemptResponse(BaseModel):
     is_flagged: bool = False
     selected_option: Optional[str] = None
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class AnswerSaveRequest(BaseModel):
@@ -148,8 +149,7 @@ class AnswerSaveResponse(BaseModel):
     selected_option: Optional[str] = None
     is_flagged: bool
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class AttemptSubmitRequest(BaseModel):
@@ -169,8 +169,7 @@ class AttemptSubmitResponse(BaseModel):
     time_spent_seconds: int
     is_passed: bool
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # ============ Result Schemas ============
@@ -219,8 +218,7 @@ class AttemptResultsResponse(BaseModel):
     passing_percentage: float
     section_breakdown: List[SectionBreakdown] = []
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class AttemptHistoryResponse(BaseModel):
@@ -235,8 +233,7 @@ class AttemptHistoryResponse(BaseModel):
     percentage: float
     rank_percentile: Optional[float] = None
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # ============ Solution Schemas ============
@@ -254,8 +251,7 @@ class SolutionResponse(BaseModel):
     topic_name: Optional[str] = None
     difficulty: str
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class SolutionsResponse(BaseModel):
@@ -299,8 +295,7 @@ class AttemptAnalysisResponse(BaseModel):
     improvement_tips: List[str]
     estimated_cutoff: Optional[float] = None
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # Update forward references

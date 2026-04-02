@@ -1,18 +1,16 @@
 from datetime import datetime, timedelta
 from typing import Optional
+import bcrypt
 from jose import JWTError, jwt
-from passlib.context import CryptContext
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from fastapi import HTTPException, status, Depends, Header
+from fastapi import HTTPException, status, Depends, Header, Cookie
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 from ..config import settings
 from ..database import get_db
+from ..redis import CacheService
 from .schemas import TokenData, UserRole
-
-# Password hashing
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # Bearer token scheme
 bearer_scheme = HTTPBearer(auto_error=False)
@@ -20,12 +18,15 @@ bearer_scheme = HTTPBearer(auto_error=False)
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Verify a password against a hash."""
-    return pwd_context.verify(plain_password, hashed_password)
+    if not hashed_password:
+        return False
+
+    return bcrypt.checkpw(plain_password.encode("utf-8"), hashed_password.encode("utf-8"))
 
 
 def get_password_hash(password: str) -> str:
     """Hash a password."""
-    return pwd_context.hash(password)
+    return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
@@ -70,16 +71,18 @@ def decode_token(token: str) -> TokenData:
 
 async def get_current_user(
     credentials: Optional[HTTPAuthorizationCredentials] = Depends(bearer_scheme),
+    access_token_cookie: Optional[str] = Cookie(default=None, alias="access_token"),
     db: AsyncSession = Depends(get_db),
 ) -> TokenData:
     """Get the current authenticated user from the JWT token."""
-    if credentials is None:
+    token = credentials.credentials if credentials is not None else access_token_cookie
+
+    if token is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Not authenticated",
         )
-    
-    token = credentials.credentials
+
     token_data = decode_token(token)
     
     if token_data.user_id is None:
@@ -117,6 +120,7 @@ require_super_admin = require_roles(UserRole.SUPER_ADMIN)
 
 async def require_admin_or_opencloud(
     credentials: Optional[HTTPAuthorizationCredentials] = Depends(bearer_scheme),
+    access_token_cookie: Optional[str] = Cookie(default=None, alias="access_token"),
     opencloud_api_key: Optional[str] = Header(default=None, alias="X-OpenCloud-Api-Key"),
 ) -> TokenData:
     """Allow access through an admin JWT or the configured OpenCloud API key."""
@@ -136,13 +140,15 @@ async def require_admin_or_opencloud(
                 detail="Invalid OpenCloud API key",
             )
 
-    if credentials is None:
+    token = credentials.credentials if credentials is not None else access_token_cookie
+
+    if token is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Not authenticated",
         )
 
-    token_data = decode_token(credentials.credentials)
+    token_data = decode_token(token)
     if token_data.role not in {UserRole.ADMIN, UserRole.SUPER_ADMIN}:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -152,35 +158,17 @@ async def require_admin_or_opencloud(
     return token_data
 
 
-class RateLimiter:
-    """Simple in-memory rate limiter for auth endpoints."""
-    
-    def __init__(self):
-        self.attempts: dict[str, list[datetime]] = {}
-    
-    def is_rate_limited(self, key: str, max_attempts: int = 5, window_seconds: int = 60) -> bool:
-        """Check if a key is rate limited."""
-        now = datetime.utcnow()
-        window_start = now - timedelta(seconds=window_seconds)
-        
-        if key not in self.attempts:
-            self.attempts[key] = []
-        
-        # Clean old attempts
-        self.attempts[key] = [t for t in self.attempts[key] if t > window_start]
-        
-        if len(self.attempts[key]) >= max_attempts:
-            return True
-        
-        self.attempts[key].append(now)
-        return False
-
-
-# Global rate limiter instance
-auth_rate_limiter = RateLimiter()
-
-# OTP Rate limiter (3 attempts per phone per hour)
-otp_rate_limiter = RateLimiter()
+async def is_rate_limited(
+    cache: CacheService,
+    key: str,
+    *,
+    max_attempts: int = 5,
+    window_seconds: int = 60,
+) -> bool:
+    """Check if a key exceeds the configured rate limit using Redis-backed counters."""
+    namespaced_key = f"rate_limit:{key}"
+    attempts = await cache.increment(namespaced_key, ttl=window_seconds)
+    return attempts > max_attempts
 
 
 def generate_otp() -> str:

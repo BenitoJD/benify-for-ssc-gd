@@ -15,6 +15,8 @@ import enum
 
 class TestType(str, enum.Enum):
     """Test type enumeration."""
+    __test__ = False
+
     FULL_LENGTH = "full_length"
     SECTIONAL = "sectional"
     CHAPTER = "chapter"
@@ -23,6 +25,7 @@ class TestType(str, enum.Enum):
 
 class TestSeries(Base):
     """Test series model for mock tests."""
+    __test__ = False
     
     __tablename__ = "test_series"
     

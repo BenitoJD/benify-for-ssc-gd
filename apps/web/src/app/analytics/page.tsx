@@ -26,34 +26,37 @@ export default function AnalyticsPage() {
   const [stageReadiness, setStageReadiness] = useState<StageReadinessResponse | null>(null)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const user = await fetchCurrentUser()
-        if (!user) {
-          router.push('/login')
-          return
-        }
+  const loadAnalytics = async () => {
+    setIsLoading(true)
+    setError(null)
 
-        setUserName(user.name || user.email.split('@')[0] || 'Student')
-        const [userStats, userAnalytics, readiness, stage] = await Promise.all([
-          analyticsApi.getUserStats(),
-          analyticsApi.getUserAnalytics(),
-          analyticsApi.getExamReadiness(),
-          analyticsApi.getStageReadiness(),
-        ])
-        setStats(userStats)
-        setAnalytics(userAnalytics)
-        setExamReadiness(readiness)
-        setStageReadiness(stage)
-      } catch {
-        setError('Analytics are unavailable right now.')
-      } finally {
-        setIsLoading(false)
+    try {
+      const user = await fetchCurrentUser()
+      if (!user) {
+        router.push('/login')
+        return
       }
-    }
 
-    checkAuth()
+      setUserName(user.name || user.email.split('@')[0] || 'Student')
+      const [userStats, userAnalytics, readiness, stage] = await Promise.all([
+        analyticsApi.getUserStats(),
+        analyticsApi.getUserAnalytics(),
+        analyticsApi.getExamReadiness(),
+        analyticsApi.getStageReadiness(),
+      ])
+      setStats(userStats)
+      setAnalytics(userAnalytics)
+      setExamReadiness(readiness)
+      setStageReadiness(stage)
+    } catch {
+      setError('Analytics are unavailable right now.')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    void loadAnalytics()
   }, [router])
 
   if (isLoading) {
@@ -124,7 +127,24 @@ export default function AnalyticsPage() {
 
             {error && (
               <section className="card-brilliant p-6 border-none border-t-4 border-t-red-500">
-                <p className="font-bold text-red-600">{error}</p>
+                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                  <p className="font-bold text-red-600">{error}</p>
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      onClick={() => void loadAnalytics()}
+                      className="rounded-xl border border-red-200 bg-white px-4 py-2 text-sm font-bold text-red-700 hover:bg-red-50"
+                    >
+                      Retry
+                    </button>
+                    <Link
+                      href="/pyqs"
+                      className="rounded-xl bg-[#111827] px-4 py-2 text-sm font-bold text-white hover:bg-black"
+                    >
+                      Go Practice
+                    </Link>
+                  </div>
+                </div>
               </section>
             )}
 
