@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { useRouter, useParams } from 'next/navigation'
 import { Sidebar } from '@/components/ui/Sidebar'
+import { PageHeader } from '@/components/ui/PageHeader'
 import { fetchCurrentUser } from '@/lib/auth'
 import {
   getDiscussion,
@@ -206,19 +207,9 @@ export default function DiscussionDetailPage() {
         <Sidebar locale={locale} />
         
         {/* Main Content */}
-        <main className="flex-1 lg:ml-0 p-4 lg:p-8 pt-16 lg:pt-8">
-          <div className="max-w-4xl mx-auto space-y-6">
-            {/* Back Button */}
-            <button
-              onClick={() => router.push('/community')}
-              className="flex items-center text-gray-600 hover:text-gray-900"
-            >
-              <svg className="h-5 w-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-              Back to Community
-            </button>
-
+        <main className="flex-1 lg:ml-0 pt-16 lg:pt-0 overflow-y-auto">
+          <PageHeader title={discussion.title.slice(0, 60) + (discussion.title.length > 60 ? '…' : '')} backHref="/community" backLabel="Community" />
+          <div className="max-w-4xl mx-auto space-y-6 p-4 lg:p-8">
             {/* Discussion */}
             <div className="card-brilliant p-6">
               {/* Header */}

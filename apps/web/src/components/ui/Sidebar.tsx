@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { clsx } from 'clsx'
 import { BrandLogo } from '@/components/ui/BrandLogo'
+import { FloatingUserMenu } from '@/components/ui/FloatingUserMenu'
 import { clearStudentSession } from '@/lib/session'
 import { 
   LayoutDashboard, 
@@ -17,7 +18,8 @@ import {
   Menu, 
   X,
   Activity,
-  FileCheck
+  FileCheck,
+  LogOut
 } from 'lucide-react'
 
 interface SidebarProps {
@@ -121,13 +123,16 @@ export function Sidebar({ locale }: SidebarProps) {
             <button
               type="button"
               onClick={handleLogout}
-              className="flex items-center gap-3 px-3 py-2.5 text-[#6B7280] hover:text-[#111827] hover:bg-[#FAFAFA] rounded-[8px] transition-colors text-sm font-medium"
+              className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-red-50 border-2 border-red-200 text-red-600 hover:bg-red-100 rounded-2xl transition-all text-sm font-bold shadow-[0_4px_0_rgb(254,202,202)] hover:-translate-y-0.5 active:translate-y-1 active:shadow-none"
             >
+              <LogOut className="w-5 h-5" />
               <span>{t('nav.logout')}</span>
             </button>
           </div>
         </div>
       </aside>
+      {/* Floating user menu — always reachable in the bottom-right corner */}
+      <FloatingUserMenu />
     </>
   )
 }

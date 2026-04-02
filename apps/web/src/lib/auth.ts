@@ -1,5 +1,6 @@
 // Auth utilities for Next.js
 // Note: This file replaces the old Vite-based auth.ts
+import apiClient from './api/client'
 import { clearStudentSession, getStudentAccessToken, storeStudentTokens } from './session'
 
 // Backend API response types
@@ -94,25 +95,22 @@ export async function fetchCurrentUser(): Promise<User | null> {
     return null
   }
 
-  const response = await fetch(createApiUrl('/api/v1/auth/me'), {
-    credentials: 'include',
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    },
-  })
+  try {
+    const response = await apiClient.get('/auth/me')
+    return transformUser(response.data as ApiUser)
+  } catch (error) {
+    if (
+      error &&
+      typeof error === 'object' &&
+      'response' in error &&
+      (error as { response?: { status?: number } }).response?.status === 401
+    ) {
+      clearStudentSession()
+      return null
+    }
 
-  if (response.status === 401) {
-    clearStudentSession()
-    return null
+    throw error
   }
-
-  // The API returns User directly, not wrapped in envelope
-  const payload = await response.json()
-  if (!response.ok) {
-    throw new Error(payload.detail || 'Request failed')
-  }
-
-  return transformUser(payload as ApiUser)
 }
 
 export async function signInWithGoogle(credential: string): Promise<User> {

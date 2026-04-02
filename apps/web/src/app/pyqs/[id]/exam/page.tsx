@@ -1,11 +1,10 @@
-'use client'
-
 import { useState, useEffect, useCallback } from 'react'
 import { useTranslations } from 'next-intl'
-import { useParams, useSearchParams } from 'next/navigation'
+import { useParams, useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, ArrowRight, Clock, Check, X, AlertCircle, Loader2 } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Clock, Check, X, AlertCircle, Loader2, LogOut } from 'lucide-react'
 import { pyqApi, PYQ } from '@/lib/api/pyqs'
+import { clearStudentSession } from '@/lib/session'
 
 interface ExamState {
   currentIndex: number
@@ -15,10 +14,12 @@ interface ExamState {
   isSubmitted: boolean
 }
 
+'use client'
 export default function ExamModePage() {
   const t = useTranslations()
   const params = useParams()
   const searchParams = useSearchParams()
+  const router = useRouter()
   const pyqId = params.id as string
 
   const [pyqs, setPyqs] = useState<PYQ[]>([])
@@ -288,43 +289,54 @@ export default function ExamModePage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white border-b sticky top-0 z-10">
+      <header className="bg-white border-b-2 border-[var(--border-light)] sticky top-0 z-10">
         <div className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
               {!state.isSubmitted && (
-                <Link href="/pyqs" className="text-gray-600 hover:text-gray-900">
-                  <ArrowLeft className="w-5 h-5" />
+                <Link
+                  href="/pyqs"
+                  className="flex items-center gap-2 px-3 py-2 text-sm font-bold text-[var(--text-muted)] hover:text-[var(--text-main)] bg-[#FAFAFA] hover:bg-gray-100 border-2 border-[var(--border-light)] rounded-xl transition-all active:scale-95"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  <span className="hidden sm:inline">PYQ Library</span>
                 </Link>
               )}
               <div>
-                <h1 className="text-lg font-semibold text-gray-900">{t('pyq.examMode')}</h1>
-                <p className="text-sm text-gray-500">
+                <h1 className="text-lg font-bold text-[var(--text-main)]">{t('pyq.examMode')}</h1>
+                <p className="text-sm text-[var(--text-muted)] font-medium">
                   {t('pyq.question')} {currentIndex + 1} {t('pyq.of')} {pyqs.length}
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
               {/* Timer */}
               {!state.isSubmitted && (
-                <div className={`flex items-center gap-2 px-4 py-2 rounded-lg ${state.timeRemaining < 300 ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-700'}`}>
-                  <Clock className="w-5 h-5" />
-                  <span className="font-mono font-bold">{formatTime(state.timeRemaining)}</span>
+                <div className={`flex items-center gap-2 px-4 py-2 rounded-xl font-mono font-bold text-sm border-2 ${state.timeRemaining < 300 ? 'bg-red-50 text-red-700 border-red-200' : 'bg-gray-50 text-gray-700 border-[var(--border-light)]'}`}>
+                  <Clock className="w-4 h-4" />
+                  <span>{formatTime(state.timeRemaining)}</span>
                 </div>
               )}
-
-              {/* Progress */}
-              <div className="hidden md:flex items-center gap-3 px-4 py-2 bg-gray-100 rounded-lg text-sm">
-                <span className="text-green-600">{answeredCount} {t('pyq.answered')}</span>
-                <span className="text-red-600">{unansweredCount} {t('pyq.unanswered')}</span>
-                <span className="text-orange-600">{flaggedCount} {t('pyq.flagged')}</span>
+              {/* Progress pills */}
+              <div className="hidden md:flex items-center gap-2 text-xs font-bold">
+                <span className="px-2.5 py-1 bg-green-100 text-green-700 rounded-full">{answeredCount} {t('pyq.answered')}</span>
+                <span className="px-2.5 py-1 bg-red-100 text-red-600 rounded-full">{unansweredCount} {t('pyq.unanswered')}</span>
+                <span className="px-2.5 py-1 bg-orange-100 text-orange-600 rounded-full">{flaggedCount} {t('pyq.flagged')}</span>
               </div>
+              {/* Logout */}
+              <button
+                onClick={() => { clearStudentSession(); router.push('/login') }}
+                className="flex items-center gap-2 px-3 py-2 text-sm font-bold text-red-600 bg-red-50 hover:bg-red-100 border-2 border-red-200 rounded-xl transition-all shadow-[0_3px_0_rgb(254,202,202)] hover:-translate-y-0.5 active:translate-y-0.5 active:shadow-none"
+              >
+                <LogOut className="w-4 h-4" />
+                <span className="hidden sm:inline">Logout</span>
+              </button>
             </div>
           </div>
           {/* Progress Bar */}
-          <div className="mt-3 h-1 bg-gray-200 rounded-full overflow-hidden">
+          <div className="mt-3 h-1.5 bg-gray-100 rounded-full overflow-hidden">
             <div
-              className="h-full bg-primary-600 transition-all"
+              className="h-full bg-[var(--brilliant-green)] transition-all rounded-full"
               style={{ width: `${((currentIndex + 1) / pyqs.length) * 100}%` }}
             />
           </div>

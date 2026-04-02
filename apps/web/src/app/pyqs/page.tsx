@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { Search, Filter, Bookmark, Clock, ChevronRight, Loader2 } from 'lucide-react'
 import { pyqApi, PYQ, Subject, SubjectTopic, YearCount } from '@/lib/api/pyqs'
+import { PageHeader } from '@/components/ui/PageHeader'
 
 function isUuid(value: string | null): value is string {
   if (!value) return false
@@ -132,15 +133,24 @@ export default function PYQLibraryPage() {
 
   return (
     <div className="min-h-screen bg-[var(--bg-page)] font-sans text-[var(--text-main)]">
-      {/* Header */}
-      <header className="bg-white border-b-2 border-[var(--border-light)] shadow-sm sticky top-0 z-10">
-        <div className="container mx-auto px-4 sm:px-8 py-5">
-          <h1 className="font-display text-2xl lg:text-3xl font-bold tracking-tight text-[var(--text-main)]">{t('pyq.title')}</h1>
-          <p className="text-[var(--text-muted)] font-medium mt-1 text-sm">{t('pyq.subtitle')}</p>
-        </div>
-      </header>
+      <PageHeader
+        title={t('pyq.title')}
+        backHref="/dashboard"
+        backLabel="Dashboard"
+        actions={
+          <button
+            type="button"
+            onClick={() => setShowFilters(!showFilters)}
+            className="lg:hidden btn-3d btn-3d-white px-4 py-2 rounded-xl"
+            aria-label={t('pyq.filters')}
+          >
+            <Filter className="w-5 h-5 text-black" />
+          </button>
+        }
+      />
 
       <div className="container mx-auto px-4 py-6">
+        <p className="text-[var(--text-muted)] font-medium mb-6 text-sm">{t('pyq.subtitle')}</p>
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Filters Sidebar */}
           <aside className={`lg:w-72 shrink-0 ${showFilters ? 'block' : 'hidden lg:block'}`}>
@@ -268,13 +278,6 @@ export default function PYQLibraryPage() {
                     className="btn-3d btn-3d-green px-8 py-3 rounded-2xl focus:mt-0"
                   >
                     {t('pyq.search')}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setShowFilters(!showFilters)}
-                    className="lg:hidden btn-3d btn-3d-white px-4 py-3 rounded-2xl"
-                  >
-                    <Filter className="w-5 h-5 text-black" />
                   </button>
                 </div>
               </form>

@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
-import { useParams, useSearchParams } from 'next/navigation'
+import { useParams, useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, ArrowRight, Check, X, Eye, EyeOff, Bookmark, Loader2 } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Check, X, Eye, EyeOff, Bookmark, Loader2, LogOut } from 'lucide-react'
 import { pyqApi, PYQ } from '@/lib/api/pyqs'
+import { clearStudentSession } from '@/lib/session'
 
 interface PracticeState {
   currentIndex: number
@@ -19,6 +20,7 @@ export default function PracticeModePage() {
   const t = useTranslations()
   const params = useParams()
   const searchParams = useSearchParams()
+  const router = useRouter()
   const pyqId = params.id as string
 
   const [pyqs, setPyqs] = useState<PYQ[]>([])
@@ -238,49 +240,61 @@ export default function PracticeModePage() {
   return (
     <div className="min-h-screen bg-[#FAFAFA]">
       {/* Header */}
-      <header className="bg-white border-b border-[#EAEAEA] sticky top-0 z-10 shadow-sm">
-        <div className="container mx-auto px-4 py-4">
+      <header className="bg-white border-b-2 border-[var(--border-light)] sticky top-0 z-10">
+        <div className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Link href="/pyqs" className="text-[#6B7280] hover:text-[#111827] transition-colors p-2 hover:bg-[#FAFAFA] rounded-full">
-                <ArrowLeft className="w-5 h-5" />
+            <div className="flex items-center gap-3">
+              <Link
+                href="/pyqs"
+                className="flex items-center gap-2 px-3 py-2 text-sm font-bold text-[var(--text-muted)] hover:text-[var(--text-main)] bg-[#FAFAFA] hover:bg-gray-100 border-2 border-[var(--border-light)] rounded-xl transition-all active:scale-95"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span className="hidden sm:inline">PYQ Library</span>
               </Link>
               <div>
-                <h1 className="text-[15px] font-semibold tracking-tight text-[#111827]">{t('pyq.practiceMode')}</h1>
-                <p className="text-xs font-medium text-[#9CA3AF] uppercase tracking-wide mt-0.5">
+                <h1 className="text-[15px] font-bold tracking-tight text-[var(--text-main)]">{t('pyq.practiceMode')}</h1>
+                <p className="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wide mt-0.5">
                   {t('pyq.question')} {currentIndex + 1} / {pyqs.length}
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
               {/* Score Display */}
-              <div className="flex items-center gap-4 px-4 py-2 bg-[#FAFAFA] border border-[#EAEAEA] rounded-[8px]">
+              <div className="hidden sm:flex items-center gap-4 px-4 py-2 bg-[#FAFAFA] border-2 border-[var(--border-light)] rounded-xl">
                 <div className="text-center">
                   <p className="text-[10px] uppercase font-bold tracking-wider text-[#9CA3AF] mb-0.5">{t('pyq.score')}</p>
-                  <p className="text-sm font-semibold text-green-600">{state.score.correct}</p>
+                  <p className="text-sm font-bold text-green-600">{state.score.correct}</p>
                 </div>
                 <div className="text-center">
                   <p className="text-[10px] uppercase font-bold tracking-wider text-transparent mb-0.5">-</p>
-                  <p className="text-sm font-semibold text-red-500">{state.score.incorrect}</p>
+                  <p className="text-sm font-bold text-red-500">{state.score.incorrect}</p>
                 </div>
-                <div className="w-px h-6 bg-[#EAEAEA]" />
+                <div className="w-px h-6 bg-[var(--border-light)]" />
                 <div className="text-center">
                   <p className="text-[10px] uppercase font-bold tracking-wider text-[#9CA3AF] mb-0.5">{t('pyq.accuracy')}</p>
-                  <p className="text-sm font-semibold text-[#111827]">{scorePercentage}%</p>
+                  <p className="text-sm font-bold text-[var(--text-main)]">{scorePercentage}%</p>
                 </div>
               </div>
               <button
                 onClick={handleBookmark}
-                className={`p-2 rounded-[6px] border ${isBookmarked || state.bookmarked.has(currentPYQ.id) ? 'text-[#111827] bg-[#FAFAFA] border-[#EAEAEA]' : 'text-[#9CA3AF] border-transparent hover:bg-[#FAFAFA] hover:border-[#EAEAEA]'}`}
+                className={`p-2 rounded-xl border-2 transition-all ${isBookmarked || state.bookmarked.has(currentPYQ.id) ? 'text-[var(--text-main)] bg-[#FAFAFA] border-[var(--border-light)]' : 'text-[#9CA3AF] border-transparent hover:bg-[#FAFAFA] hover:border-[var(--border-light)]'}`}
               >
                 <Bookmark className={`w-4 h-4 ${isBookmarked || state.bookmarked.has(currentPYQ.id) ? 'fill-current' : ''}`} />
+              </button>
+              {/* Logout */}
+              <button
+                onClick={() => { clearStudentSession(); router.push('/login') }}
+                className="flex items-center gap-2 px-3 py-2 text-sm font-bold text-red-600 bg-red-50 hover:bg-red-100 border-2 border-red-200 rounded-xl transition-all shadow-[0_3px_0_rgb(254,202,202)] hover:-translate-y-0.5 active:translate-y-0.5 active:shadow-none"
+              >
+                <LogOut className="w-4 h-4" />
+                <span className="hidden sm:inline">Logout</span>
               </button>
             </div>
           </div>
           {/* Progress Bar */}
-          <div className="mt-4 h-1 bg-[#EAEAEA] rounded-full overflow-hidden">
+          <div className="mt-3 h-1.5 bg-gray-100 rounded-full overflow-hidden">
             <div
-              className="h-full bg-[#111827] transition-all duration-300 ease-out"
+              className="h-full bg-[var(--brilliant-green)] transition-all duration-300 ease-out rounded-full"
               style={{ width: `${((currentIndex + 1) / pyqs.length) * 100}%` }}
             />
           </div>

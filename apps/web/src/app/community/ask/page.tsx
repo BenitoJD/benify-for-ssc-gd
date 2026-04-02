@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { Sidebar } from '@/components/ui/Sidebar'
+import { PageHeader } from '@/components/ui/PageHeader'
 import { fetchCurrentUser } from '@/lib/auth'
 import {
   createDiscussion,
@@ -103,27 +104,9 @@ export default function AskQuestionPage() {
         <Sidebar locale={locale} />
         
         {/* Main Content */}
-        <main className="flex-1 lg:ml-0 p-4 lg:p-8 pt-16 lg:pt-8">
-          <div className="max-w-3xl mx-auto">
-            {/* Header */}
-            <div className="mb-6">
-              <button
-                onClick={() => router.back()}
-                className="flex items-center text-gray-600 hover:text-gray-900 mb-4"
-              >
-                <svg className="h-5 w-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-                Back
-              </button>
-              <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">
-                Ask a Question
-              </h1>
-              <p className="text-gray-600 mt-1">
-                Write your question clearly so others can help
-              </p>
-            </div>
-
+        <main className="flex-1 lg:ml-0 pt-16 lg:pt-0 overflow-y-auto">
+          <PageHeader title="Ask a Question" backHref="/community" backLabel="Community" />
+          <div className="max-w-3xl mx-auto p-4 lg:p-8">
             {/* Form */}
             <form onSubmit={handleSubmit} className="card-brilliant p-6 space-y-6">
               {/* Title */}
