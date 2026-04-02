@@ -125,7 +125,7 @@ export default function AskQuestionPage() {
             </div>
 
             {/* Form */}
-            <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-sm p-6 space-y-6">
+            <form onSubmit={handleSubmit} className="card-brilliant p-6 space-y-6">
               {/* Title */}
               <div>
                 <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">

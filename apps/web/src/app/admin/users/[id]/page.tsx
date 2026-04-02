@@ -117,7 +117,7 @@ export default function AdminUserDetailPage() {
       </div>
 
       {/* User Header Card */}
-      <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+      <div className="card-brilliant p-6">
         <div className="flex items-start gap-6">
           <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center">
             <User className="w-10 h-10 text-gray-500" />
@@ -181,7 +181,7 @@ export default function AdminUserDetailPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Profile Info */}
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <div className="card-brilliant p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Profile Information</h2>
           <div className="space-y-4">
             <div className="flex items-center gap-3">
@@ -227,7 +227,7 @@ export default function AdminUserDetailPage() {
         </div>
 
         {/* Subscription Info */}
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <div className="card-brilliant p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Subscription</h2>
           <div className="flex items-center gap-3 mb-4">
             <CreditCard className="w-5 h-5 text-gray-400" />
@@ -246,7 +246,7 @@ export default function AdminUserDetailPage() {
         </div>
 
         {/* Activity Stats */}
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <div className="card-brilliant p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Activity Stats</h2>
           {user.stats ? (
             <div className="space-y-4">
@@ -292,7 +292,7 @@ export default function AdminUserDetailPage() {
       </div>
 
       {/* Badges placeholder */}
-      <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+      <div className="card-brilliant p-6">
         <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
           <Award className="w-5 h-5" />
           Badges & Achievements

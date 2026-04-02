@@ -1,10 +1,42 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Quicksand:wght@500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --bg-page: #FAF9F6;
+    --bg-card: #FFFFFF;
+    --text-main: #2D2D2D;
+    --text-muted: #6B7280;
+    
+    /* Brilliant Colors */
+    --brilliant-green: #22c55e;
+    --brilliant-green-shadow: #16a34a;
+    --brilliant-green-hover: #4ade80;
+    
+    --brilliant-blue: #3b82f6;
+    --brilliant-blue-shadow: #2563eb;
+    
+    --brilliant-yellow: #f59e0b;
+    --brilliant-yellow-shadow: #d97706;
+
+    --brilliant-pink: #ec4899;
+    --brilliant-pink-shadow: #db2777;
+    
+    --border-light: #E5E7EB;
+  }
+
   body {
-    @apply bg-[#FAFAFA] text-[#111827] antialiased;
+    @apply antialiased;
+    background-color: var(--bg-page);
+    color: var(--text-main);
+    font-family: 'Nunito', system-ui, sans-serif;
+  }
+
+  * {
+    box-sizing: border-box;
   }
 }
 
@@ -12,4 +44,105 @@
   .text-balance {
     text-wrap: balance;
   }
+
+  .font-display {
+    font-family: 'Quicksand', 'Nunito', system-ui, sans-serif;
+  }
+
+  /* 3D Button Components */
+  .btn-3d {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    text-align: center;
+    transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateY(0);
+  }
+
+  .btn-3d:active {
+    transform: translateY(4px);
+    border-bottom-width: 0px !important;
+    margin-top: 4px; /* Compensate for lost border to keep layout stable */
+  }
+  
+  .btn-3d-green {
+    background-color: var(--brilliant-green);
+    color: white;
+    border-bottom: 4px solid var(--brilliant-green-shadow);
+  }
+  
+  .btn-3d-green:hover {
+    background-color: var(--brilliant-green-hover);
+  }
+
+  .btn-3d-blue {
+    background-color: var(--brilliant-blue);
+    color: white;
+    border-bottom: 4px solid var(--brilliant-blue-shadow);
+  }
+
+  /* White standard 3D button */
+  .btn-3d-white {
+    background-color: white;
+    color: var(--text-main);
+    border: 2px solid var(--border-light);
+    border-bottom: 4px solid var(--border-light);
+  }
+  .btn-3d-white:hover {
+    background-color: #f9fafb;
+  }
+
+  /* Cards */
+  .card-brilliant {
+    background-color: var(--bg-card);
+    border: 2px solid var(--border-light);
+    border-radius: 24px;
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  .card-brilliant:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.08);
+  }
+
+  .path-line {
+    width: 4px;
+    background-color: var(--border-light);
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 0;
+  }
+
+  .animate-bounce-slow {
+    animation: bounceSlow 3s infinite;
+  }
+}
+
+@keyframes bounceSlow {
+  0%, 100% { transform: translateY(-5%); }
+  50% { transform: translateY(5%); }
+}
+
+/* FAQ details animation */
+details[open] summary ~ * {
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+details summary::-webkit-details-marker {
+  display: none;
 }

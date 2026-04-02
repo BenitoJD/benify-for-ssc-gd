@@ -220,7 +220,7 @@ export default function DiscussionDetailPage() {
             </button>
 
             {/* Discussion */}
-            <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="card-brilliant p-6">
               {/* Header */}
               <div className="flex items-start gap-4 mb-4">
                 {/* Upvote */}
@@ -305,14 +305,14 @@ export default function DiscussionDetailPage() {
               </h2>
               
               {replies.length === 0 ? (
-                <div className="bg-white rounded-lg shadow-sm p-6 text-center text-gray-500">
+                <div className="card-brilliant p-6 text-center text-[var(--text-muted)] font-bold">
                   No replies yet. Be the first to answer!
                 </div>
               ) : (
                 replies.map((reply) => (
                   <div 
                     key={reply.id} 
-                    className={`bg-white rounded-lg shadow-sm p-4 ${
+                    className={`card-brilliant p-4 ${
                       reply.is_accepted_answer ? 'border-2 border-green-500' : ''
                     }`}
                   >
@@ -372,7 +372,7 @@ export default function DiscussionDetailPage() {
             </div>
 
             {/* Reply Form */}
-            <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="card-brilliant p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">
                 Your Answer
               </h3>

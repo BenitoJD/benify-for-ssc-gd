@@ -195,19 +195,19 @@ export default function OnboardingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA] font-sans text-[#111827]">
+    <div className="min-h-screen bg-[var(--bg-page)] font-sans text-[var(--text-main)] flex flex-col">
       {/* Header */}
-      <header className="bg-white border-b border-[#EAEAEA] sticky top-0 z-10">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <header className="bg-white border-b-2 border-[var(--border-light)] shadow-sm sticky top-0 z-10">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-center sm:justify-start">
           <BrandLogo href="/" size="md" />
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-10 max-w-2xl">
-        <div className="bg-white rounded-[16px] shadow-sm border border-[#EAEAEA] p-6 md:p-10">
+      <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 flex-1 flex flex-col justify-center max-w-3xl">
+        <div className="card-brilliant p-8 md:p-12">
           {/* Progress */}
-          <div className="mb-8">
+          <div className="mb-10">
             <OnboardingProgress
               currentStep={currentStep}
               totalSteps={STEPS.length}
@@ -217,22 +217,22 @@ export default function OnboardingPage() {
 
           {/* Error Message */}
           {error && (
-            <div className="mb-8 p-3.5 bg-[#FEF2F2] border border-[#FCA5A5] rounded-[8px] text-red-600 text-sm flex items-start space-x-2">
-              <svg className="w-5 h-5 text-red-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <div className="mb-8 px-4 py-3 bg-red-50 border-2 border-red-200 rounded-2xl text-red-600 text-sm font-bold flex items-center space-x-3">
+              <svg className="w-5 h-5 text-red-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <span>{error}</span>
             </div>
           )}
 
           {/* Step Content */}
-          <div className="min-h-[400px]">
+          <div className="min-h-[380px]">
             {currentStep === 0 && (
               <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
-                <h2 className="text-2xl font-semibold tracking-tight text-[#111827] mb-2">
+                <h2 className="font-display text-3xl font-bold tracking-tight mb-3">
                   {t('onboarding.steps.year.title')}
                 </h2>
-                <p className="text-sm text-[#6B7280] mb-8">
+                <p className="text-base text-[var(--text-muted)] font-medium mb-10">
                   {t('onboarding.steps.year.subtitle')}
                 </p>
                 <YearSelector
@@ -247,10 +247,10 @@ export default function OnboardingPage() {
 
             {currentStep === 1 && (
               <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
-                <h2 className="text-2xl font-semibold tracking-tight text-[#111827] mb-2">
+                <h2 className="font-display text-3xl font-bold tracking-tight mb-3">
                   {t('onboarding.steps.assessment.title')}
                 </h2>
-                <p className="text-sm text-[#6B7280] mb-8">
+                <p className="text-base text-[var(--text-muted)] font-medium mb-10">
                   {t('onboarding.steps.assessment.subtitle')}
                 </p>
                 <DiagnosticQuiz onComplete={handleAssessmentComplete} />
@@ -259,10 +259,10 @@ export default function OnboardingPage() {
 
             {currentStep === 2 && (
               <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
-                <h2 className="text-2xl font-semibold tracking-tight text-[#111827] mb-2">
+                <h2 className="font-display text-3xl font-bold tracking-tight mb-3">
                   {t('onboarding.steps.studyHours.title')}
                 </h2>
-                <p className="text-sm text-[#6B7280] mb-8">
+                <p className="text-base text-[var(--text-muted)] font-medium mb-10">
                   {t('onboarding.steps.studyHours.subtitle')}
                 </p>
                 <StudyHoursSlider
@@ -274,10 +274,10 @@ export default function OnboardingPage() {
 
             {currentStep === 3 && (
               <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
-                <h2 className="text-2xl font-semibold tracking-tight text-[#111827] mb-2">
+                <h2 className="font-display text-3xl font-bold tracking-tight mb-3">
                   {t('onboarding.steps.fitness.title')}
                 </h2>
-                <p className="text-sm text-[#6B7280] mb-8">
+                <p className="text-base text-[var(--text-muted)] font-medium mb-10">
                   {t('onboarding.steps.fitness.subtitle')}
                 </p>
                 <FitnessBaselineForm
@@ -291,29 +291,27 @@ export default function OnboardingPage() {
           </div>
 
           {/* Navigation */}
-          <div className="flex justify-between mt-10 pt-6 border-t border-[#EAEAEA]">
+          <div className="flex justify-between items-center mt-12 pt-8 border-t-2 border-[var(--border-light)]">
             <button
               type="button"
               onClick={handleBack}
               disabled={currentStep === 0}
               className={clsx(
-                'px-4 py-2.5 rounded-[8px] text-sm font-medium transition-colors',
-                currentStep === 0
-                  ? 'text-gray-400 cursor-not-allowed opacity-50'
-                  : 'text-[#111827] border border-[#EAEAEA] hover:bg-[#FAFAFA] hover:border-gray-300'
+                'btn-3d px-6 py-3 rounded-full text-sm disabled:opacity-30 disabled:pointer-events-none',
+                currentStep === 0 ? 'bg-transparent text-gray-400' : 'btn-3d-white'
               )}
             >
-              {t('common.previous')}
+              Back
             </button>
 
-            <div className="flex gap-3">
+            <div className="flex gap-4 items-center">
               {currentStep < STEPS.length - 1 && (
                 <button
                   type="button"
                   onClick={handleSkip}
-                  className="px-4 py-2.5 rounded-[8px] text-sm font-medium text-[#6B7280] hover:text-[#111827] hover:bg-[#FAFAFA] transition-colors"
+                  className="font-bold text-[var(--text-muted)] hover:text-black transition-colors px-2 py-2"
                 >
-                  {t('common.skip')}
+                  Skip
                 </button>
               )}
               
@@ -322,26 +320,25 @@ export default function OnboardingPage() {
                 onClick={handleNext}
                 disabled={isSaving}
                 className={clsx(
-                  'px-6 py-2.5 rounded-[8px] text-sm font-medium transition-colors border',
+                  'btn-3d px-8 py-3 rounded-full text-base',
                   isSaving
-                    ? 'bg-gray-100 text-gray-400 border-[#EAEAEA] cursor-not-allowed'
-                    : 'bg-[#111827] text-white border-[#111827] hover:bg-black focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900'
+                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                    : 'btn-3d-green'
                 )}
               >
                 {isSaving
-                  ? t('common.loading')
+                  ? 'Saving...'
                   : currentStep === STEPS.length - 1
-                  ? t('onboarding.complete')
-                  : t('common.next')}
+                  ? 'Complete'
+                  : 'Continue'}
               </button>
             </div>
           </div>
         </div>
 
         {/* Help Text */}
-        <p className="text-center text-xs text-[#6B7280] mt-6">
-          {t('onboarding.requiredFields')}{' '}
-          <span className="text-[#111827] font-medium">{t('onboarding.optionalFields')}</span>
+        <p className="text-center font-bold text-sm text-[var(--text-muted)] mt-8">
+          Need help? <span className="text-[var(--brilliant-blue)] cursor-pointer">View onboarding guide</span>
         </p>
       </main>
     </div>

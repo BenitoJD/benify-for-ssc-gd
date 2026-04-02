@@ -238,31 +238,27 @@ export default function PhysicalPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA]">
-      {/* Header */}
-      <header className="bg-white border-b border-[#EAEAEA] sticky top-0 z-10">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
+    <div className="min-h-screen bg-[var(--bg-page)] font-sans text-[var(--text-main)] flex flex-col md:flex-row">
+      <Sidebar locale={locale} />
+      
+      {/* Main Content */}
+      <main className="flex-1 p-4 lg:p-10 pt-20 lg:pt-10 overflow-y-auto">
+        <div className="max-w-7xl mx-auto mb-20">
+          
+          <div className="flex items-center gap-4 mb-8">
             <button
               onClick={() => router.push('/dashboard')}
-              className="text-[#6B7280] hover:text-[#111827] p-1.5 hover:bg-[#FAFAFA] rounded-full transition-colors"
+              className="p-2.5 bg-gray-100 hover:bg-gray-200 text-[var(--text-muted)] hover:text-black rounded-full transition-colors border-2 border-[var(--border-light)]"
               aria-label="Back to dashboard"
             >
               <ChevronRight className="w-5 h-5 rotate-180" />
             </button>
-            <div className="text-[15px] font-semibold tracking-tight text-[#111827]">
+            <h1 className="font-display text-4xl font-bold tracking-tight text-[var(--text-main)]">
               {t('physical.title')}
-            </div>
+            </h1>
           </div>
-        </div>
-      </header>
 
-      <div className="flex">
-        <Sidebar locale={locale} />
-        
-        {/* Main Content */}
-        <main className="flex-1 lg:ml-0 p-4 lg:p-8 pt-16 lg:pt-8">
-          <div className="max-w-7xl mx-auto">
+          <div className="space-y-6">
             {/* Tabs */}
             <div className="flex gap-2 mb-8 overflow-x-auto pb-2 scrollbar-hide">
               {tabs.map((tab) => {
@@ -271,13 +267,13 @@ export default function PhysicalPage() {
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-[8px] text-sm font-medium whitespace-nowrap transition-all ${
+                    className={`flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-bold whitespace-nowrap transition-all border-2 ${
                       activeTab === tab.id
-                        ? 'bg-[#111827] text-white shadow-sm'
-                        : 'bg-white border border-[#EAEAEA] text-[#6B7280] hover:bg-[#FAFAFA] hover:text-[#111827]'
+                        ? 'bg-[var(--text-main)] text-white border-black shadow-md'
+                        : 'bg-white border-[var(--border-light)] text-[var(--text-muted)] hover:bg-gray-50 hover:text-black'
                     }`}
                   >
-                    <Icon className="w-4 h-4" />
+                    <Icon className="w-5 h-5" />
                     {tab.label}
                   </button>
                 )
@@ -288,63 +284,63 @@ export default function PhysicalPage() {
             {activeTab === 'overview' && (
               <div className="space-y-6">
                 {/* Readiness Overview */}
-                <div className="bg-white rounded-[12px] p-6 shadow-sm border border-[#EAEAEA]">
-                  <h2 className="text-[15px] font-semibold tracking-tight text-[#111827] mb-5">{t('physical.readiness.title')}</h2>
+                <div className="card-brilliant p-8">
+                  <h2 className="font-display text-xl font-bold tracking-tight text-[var(--text-main)] mb-6">{t('physical.readiness.title')}</h2>
                   <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div className="p-4 rounded-[8px] border border-[#EAEAEA] bg-[#FAFAFA]">
-                      <div className="flex items-center gap-2 mb-2">
-                        {readiness?.pst_complete ? (
-                          <CheckCircle2 className="w-4 h-4 text-green-600" />
-                        ) : (
-                          <XCircle className="w-4 h-4 text-orange-500" />
-                        )}
-                        <span className="font-semibold text-sm text-[#111827]">{t('physical.readiness.pst')}</span>
+                    <div className="p-5 rounded-2xl border-2 border-[var(--border-light)] bg-gray-50 flex items-center justify-between">
+                      <div>
+                        <span className="font-bold text-[var(--text-main)] block mb-1">{t('physical.readiness.pst')}</span>
+                        <p className="text-xs text-[var(--text-muted)] font-bold uppercase tracking-wider">
+                          {readiness?.pst_complete ? t('common.completed') : t('common.pending')}
+                        </p>
                       </div>
-                      <p className="text-xs text-[#6B7280] font-medium">
-                        {readiness?.pst_complete ? t('common.completed') : t('common.pending')}
-                      </p>
+                      <div className={`p-2 rounded-xl ${readiness?.pst_complete ? 'bg-green-100 text-green-600' : 'bg-orange-100 text-orange-500'}`}>
+                        {readiness?.pst_complete ? <CheckCircle2 className="w-6 h-6" /> : <XCircle className="w-6 h-6" />}
+                      </div>
                     </div>
-                    <div className="p-4 rounded-[8px] border border-[#EAEAEA] bg-[#FAFAFA]">
-                      <div className="flex items-center gap-2 mb-2">
-                        {readiness?.pet_complete ? (
-                          <CheckCircle2 className="w-4 h-4 text-green-600" />
-                        ) : (
-                          <XCircle className="w-4 h-4 text-orange-500" />
-                        )}
-                        <span className="font-semibold text-sm text-[#111827]">{t('physical.readiness.pet')}</span>
+                    <div className="p-5 rounded-2xl border-2 border-[var(--border-light)] bg-gray-50 flex items-center justify-between">
+                      <div>
+                        <span className="font-bold text-[var(--text-main)] block mb-1">{t('physical.readiness.pet')}</span>
+                        <p className="text-xs text-[var(--text-muted)] font-bold uppercase tracking-wider">
+                          {readiness?.pet_complete ? t('common.completed') : t('common.pending')}
+                        </p>
                       </div>
-                      <p className="text-xs text-[#6B7280] font-medium">
-                        {readiness?.pet_complete ? t('common.completed') : t('common.pending')}
-                      </p>
+                      <div className={`p-2 rounded-xl ${readiness?.pet_complete ? 'bg-green-100 text-green-600' : 'bg-orange-100 text-orange-500'}`}>
+                        {readiness?.pet_complete ? <CheckCircle2 className="w-6 h-6" /> : <XCircle className="w-6 h-6" />}
+                      </div>
                     </div>
-                    <div className="p-4 rounded-[8px] border border-[#EAEAEA] bg-[#FAFAFA]">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Ruler className={`w-4 h-4 ${readiness?.height_measured ? 'text-[#111827]' : 'text-[#9CA3AF]'}`} />
-                        <span className="font-semibold text-sm text-[#111827]">{t('physical.readiness.height')}</span>
+                    <div className="p-5 rounded-2xl border-2 border-[var(--border-light)] bg-gray-50 flex items-center justify-between">
+                      <div>
+                        <span className="font-bold text-[var(--text-main)] block mb-1">{t('physical.readiness.height')}</span>
+                        <p className="text-xs text-[var(--text-muted)] font-bold uppercase tracking-wider">
+                          {readiness?.height_measured ? t('common.measured') : t('common.notMeasured')}
+                        </p>
                       </div>
-                      <p className="text-xs text-[#6B7280] font-medium">
-                        {readiness?.height_measured ? t('common.measured') : t('common.notMeasured')}
-                      </p>
+                      <div className="p-2 rounded-xl bg-blue-50 text-blue-500">
+                        <Ruler className="w-6 h-6" />
+                      </div>
                     </div>
-                    <div className="p-4 rounded-[8px] border border-[#EAEAEA] bg-[#FAFAFA]">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Weight className={`w-4 h-4 ${readiness?.weight_measured ? 'text-[#111827]' : 'text-[#9CA3AF]'}`} />
-                        <span className="font-semibold text-sm text-[#111827]">{t('physical.readiness.weight')}</span>
+                    <div className="p-5 rounded-2xl border-2 border-[var(--border-light)] bg-gray-50 flex items-center justify-between">
+                      <div>
+                        <span className="font-bold text-[var(--text-main)] block mb-1">{t('physical.readiness.weight')}</span>
+                        <p className="text-xs text-[var(--text-muted)] font-bold uppercase tracking-wider">
+                          {readiness?.weight_measured ? t('common.measured') : t('common.notMeasured')}
+                        </p>
                       </div>
-                      <p className="text-xs text-[#6B7280] font-medium">
-                        {readiness?.weight_measured ? t('common.measured') : t('common.notMeasured')}
-                      </p>
+                      <div className="p-2 rounded-xl bg-purple-50 text-purple-500">
+                        <Weight className="w-6 h-6" />
+                      </div>
                     </div>
                   </div>
                   {readiness && (
-                    <div className="mt-6 pt-5 border-t border-[#EAEAEA]">
-                      <div className="flex justify-between text-xs font-semibold text-[#111827] mb-2 uppercase tracking-wider">
-                        <span className="text-[#9CA3AF]">{t('physical.readiness.overall')}</span>
-                        <span>{readiness.overall_percentage}%</span>
+                    <div className="mt-8 pt-6 border-t-2 border-[var(--border-light)]">
+                      <div className="flex justify-between font-bold text-[var(--text-main)] mb-3">
+                        <span className="text-[var(--text-muted)] uppercase tracking-wider">{t('physical.readiness.overall')}</span>
+                        <span className="text-2xl font-display text-[var(--brilliant-blue)] leading-none">{readiness.overall_percentage}%</span>
                       </div>
-                      <div className="w-full bg-[#EAEAEA] rounded-full h-1.5 overflow-hidden">
+                      <div className="w-full bg-gray-100 border border-[var(--border-light)] rounded-full h-3 overflow-hidden">
                         <div
-                          className="bg-[#111827] h-full rounded-full transition-all duration-500 ease-out"
+                          className="bg-[var(--brilliant-green)] h-full rounded-full transition-all duration-1000 ease-out"
                           style={{ width: `${readiness.overall_percentage}%` }}
                         />
                       </div>
@@ -353,39 +349,39 @@ export default function PhysicalPage() {
                 </div>
 
                 {/* PST Requirements */}
-                <div className="bg-white rounded-[12px] p-6 shadow-sm border border-[#EAEAEA]">
-                  <h2 className="text-[15px] font-semibold tracking-tight text-[#111827] mb-5">{t('physical.pst.title')}</h2>
-                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                    <div className="p-5 bg-white border border-[#EAEAEA] rounded-[8px] hover:border-gray-300 transition-colors">
-                      <div className="flex items-center gap-2 mb-3">
-                        <Ruler className="w-4 h-4 text-[#9CA3AF]" />
-                        <span className="font-medium text-sm text-[#6B7280]">{t('physical.pst.height')}</span>
+                <div className="card-brilliant p-8">
+                  <h2 className="font-display text-xl font-bold tracking-tight text-[var(--text-main)] mb-6">{t('physical.pst.title')}</h2>
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div className="card-brilliant p-6 border-none ring-2 ring-transparent bg-gray-50">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="p-2.5 rounded-xl bg-blue-100 text-blue-600"><Ruler className="w-5 h-5" /></div>
+                        <span className="font-bold text-[var(--text-muted)]">{t('physical.pst.height')}</span>
                       </div>
-                      <p className="text-2xl font-bold tracking-tight text-[#111827]">
+                      <p className="text-3xl font-display font-bold tracking-tight text-[var(--text-main)]">
                         {pstRequirements?.height_cm_min} cm
                       </p>
-                      <p className="text-[11px] uppercase tracking-wider font-semibold text-[#9CA3AF] mt-1">{t('physical.pst.minimum')}</p>
+                      <p className="text-xs font-bold bg-white inline-block px-2.5 py-1 mt-3 rounded border border-gray-200 text-gray-500 uppercase tracking-widest">{t('physical.pst.minimum')}</p>
                     </div>
                     {userGender === 'male' && pstRequirements?.chest_cm_min && (
-                      <div className="p-5 bg-white border border-[#EAEAEA] rounded-[8px] hover:border-gray-300 transition-colors">
-                        <div className="flex items-center gap-2 mb-3">
-                          <Activity className="w-4 h-4 text-[#9CA3AF]" />
-                          <span className="font-medium text-sm text-[#6B7280]">{t('physical.pst.chest')}</span>
+                      <div className="card-brilliant p-6 border-none ring-2 ring-transparent bg-gray-50">
+                        <div className="flex items-center gap-3 mb-4">
+                          <div className="p-2.5 rounded-xl bg-green-100 text-green-600"><Activity className="w-5 h-5" /></div>
+                          <span className="font-bold text-[var(--text-muted)]">{t('physical.pst.chest')}</span>
                         </div>
-                        <p className="text-2xl font-bold tracking-tight text-[#111827]">
+                        <p className="text-3xl font-display font-bold tracking-tight text-[var(--text-main)]">
                           {pstRequirements.chest_cm_min} cm
                         </p>
-                        <p className="text-[11px] uppercase tracking-wider font-semibold text-[#9CA3AF] mt-1">
+                        <p className="text-xs font-bold bg-white inline-block px-2.5 py-1 mt-3 rounded border border-gray-200 text-gray-500 uppercase tracking-widest">
                           + {pstRequirements.chest_expansion_cm} cm {t('physical.pst.expansion')}
                         </p>
                       </div>
                     )}
-                    <div className="p-5 bg-white border border-[#EAEAEA] rounded-[8px] hover:border-gray-300 transition-colors">
-                      <div className="flex items-center gap-2 mb-3">
-                        <Weight className="w-4 h-4 text-[#9CA3AF]" />
-                        <span className="font-medium text-sm text-[#6B7280]">{t('physical.pst.weight')}</span>
+                    <div className="card-brilliant p-6 border-none ring-2 ring-transparent bg-gray-50">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="p-2.5 rounded-xl bg-purple-100 text-purple-600"><Weight className="w-5 h-5" /></div>
+                        <span className="font-bold text-[var(--text-muted)]">{t('physical.pst.weight')}</span>
                       </div>
-                      <p className="text-xl font-bold tracking-tight text-[#111827]">
+                      <p className="text-2xl md:text-3xl font-display font-bold tracking-tight text-[var(--text-main)]">
                         {pstRequirements?.weight_kg_note || t('physical.pst.proportionate')}
                       </p>
                     </div>
@@ -446,45 +442,45 @@ export default function PhysicalPage() {
             {/* Plans Tab */}
             {activeTab === 'plans' && (
               <div className="space-y-6">
-                <div className="bg-white rounded-[12px] p-6 shadow-sm border border-[#EAEAEA]">
-                  <div className="flex items-center justify-between mb-5">
-                    <h2 className="text-[15px] font-semibold tracking-tight text-[#111827]">{t('physical.plans.current')}</h2>
-                    <span className="px-3 py-1 bg-[#FAFAFA] border border-[#EAEAEA] text-[#111827] rounded-[6px] text-xs font-semibold">
+                <div className="card-brilliant p-8">
+                  <div className="flex items-center justify-between mb-8 border-b-2 border-[var(--border-light)] pb-4">
+                    <h2 className="font-display text-2xl font-bold text-[var(--text-main)]">{t('physical.plans.current')}</h2>
+                    <span className="px-4 py-2 bg-yellow-100 text-yellow-800 rounded-xl text-sm font-bold tracking-widest uppercase">
                       {t('physical.plans.week')} 3/12
                     </span>
                   </div>
 
                   <div className="space-y-4">
                     {[1, 2, 3, 4, 5, 6, 7].map((day) => (
-                      <div key={day} className="border border-[#EAEAEA] rounded-[8px] p-5 bg-[#FAFAFA] hover:border-gray-300 transition-colors">
+                      <div key={day} className="card-brilliant p-6 hover:shadow-md transition-shadow group ring-2 ring-transparent hover:ring-[var(--border-light)]">
                         <div className="flex items-start justify-between">
                           <div className="flex items-start gap-4">
                             <div className="mt-1">
                               {day <= 2 ? (
-                                <CheckCircle2 className="w-5 h-5 text-green-600" />
+                                <div className="p-1 rounded-full bg-green-100"><CheckCircle2 className="w-6 h-6 text-green-600" /></div>
                               ) : day === 3 ? (
-                                <div className="w-5 h-5 rounded-full border-2 border-[#111827] border-t-transparent animate-spin" />
+                                <div className="w-8 h-8 rounded-full border-[3px] border-[var(--brilliant-blue)] border-t-transparent animate-spin" />
                               ) : (
-                                <div className="w-5 h-5 rounded-full border-2 border-[#EAEAEA]" />
+                                <div className="w-8 h-8 rounded-full border-4 border-gray-200" />
                               )}
                             </div>
                             <div>
-                              <h3 className="font-semibold text-sm text-[#111827] mb-1">
+                              <h3 className="font-bold text-[17px] text-[var(--text-main)] mb-1">
                                 {t('physical.plans.day')} {day}: {day === 7 ? t('physical.plans.rest') : t('physical.plans.trainingCardio')}
                               </h3>
                               {day !== 7 && (
-                                <p className="text-[#6B7280] text-sm mb-3">
+                                <p className="text-[var(--text-muted)] font-medium text-sm mb-3 group-hover:text-black">
                                   {day % 2 === 0 ? '5km Run (Target: 25 mins) + Core' : 'Intervals: 400m x 8 + Legs'}
                                 </p>
                               )}
                               <div className="flex gap-2">
-                                <span className={`px-2.5 py-1 rounded-[6px] text-[10px] font-bold tracking-wider uppercase ${
-                                  day === 7 ? 'bg-white border border-[#EAEAEA] text-[#6B7280]' : 'bg-white border border-[#EAEAEA] text-[#111827]'
+                                <span className={`px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-widest ${
+                                  day === 7 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                                 }`}>
                                   {day === 7 ? t('physical.plans.recovery') : t('physical.plans.highIntensity')}
                                 </span>
                                 {day !== 7 && (
-                                  <span className="px-2.5 py-1 bg-white border border-[#EAEAEA] text-[#6B7280] rounded-[6px] text-[10px] font-bold tracking-wider uppercase">
+                                  <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-lg text-xs font-bold uppercase tracking-widest">
                                     60 {t('physical.plans.mins')}
                                   </span>
                                 )}
@@ -492,7 +488,7 @@ export default function PhysicalPage() {
                             </div>
                           </div>
                           {day === 3 && (
-                            <button className="px-4 py-2 bg-[#111827] text-white text-xs font-semibold rounded-[6px] hover:bg-black transition-colors">
+                            <button className="btn-3d btn-3d-blue px-6 py-2.5 text-sm rounded-xl">
                               {t('physical.plans.start')}
                             </button>
                           )}
@@ -501,8 +497,8 @@ export default function PhysicalPage() {
                     ))}
                   </div>
 
-                  <button className="w-full mt-5 py-2.5 bg-white border border-[#EAEAEA] rounded-[8px] text-sm font-semibold text-[#111827] hover:bg-[#FAFAFA] transition-colors flex items-center justify-center gap-2">
-                    {t('physical.plans.viewFull')} <ArrowRight className="w-4 h-4" />
+                  <button className="btn-3d w-full mt-6 py-4 bg-white border-2 border-[var(--border-light)] rounded-2xl text-[15px] font-bold text-[var(--text-main)] flex items-center justify-center gap-2 hover:-translate-y-0.5 active:translate-y-1 shadow-[0_4px_0_var(--border-light)] active:shadow-none hover:bg-gray-50">
+                    {t('physical.plans.viewFull')} <ArrowRight className="w-5 h-5" />
                   </button>
                 </div>
               </div>
@@ -600,16 +596,16 @@ export default function PhysicalPage() {
                 </div>
 
                 {/* Endurance Chart */}
-                <div className="bg-white rounded-[12px] p-6 shadow-sm border border-[#EAEAEA]">
-                  <h2 className="text-[15px] font-semibold tracking-tight text-[#111827] mb-5">{t('physical.progress.endurance.title')}</h2>
+                <div className="card-brilliant p-8">
+                  <h2 className="font-display text-xl font-bold tracking-tight text-[var(--text-main)] mb-6 border-b-2 border-[var(--border-light)] pb-4">{t('physical.progress.endurance.title')}</h2>
                   {enduranceData.length > 0 ? (
                     <div className="space-y-4">
                       {/* Simple chart representation */}
-                      <div className="h-48 flex items-end gap-2">
+                      <div className="h-48 flex items-end gap-2 px-2">
                         {enduranceData.map((point, index) => (
                           <div key={index} className="flex-1 flex flex-col items-center">
                             <div
-                              className="w-full bg-[#111827] rounded-t-[4px] hover:opacity-80 transition-opacity"
+                              className="w-full bg-[var(--brilliant-blue)] hover:bg-[var(--brilliant-green)] rounded-t-xl transition-colors"
                               style={{
                                 height: `${Math.min((point.distance_km / Math.max(...enduranceData.map(d => d.distance_km))) * 100, 100)}%`,
                               }}
@@ -617,15 +613,15 @@ export default function PhysicalPage() {
                           </div>
                         ))}
                       </div>
-                      <div className="flex justify-between text-sm text-[#6B7280] font-medium border-t border-[#EAEAEA] pt-4 mt-2">
+                      <div className="flex justify-between text-sm text-[var(--text-muted)] font-bold pt-4 px-2">
                         <span>{t('physical.progress.endurance.30days')}</span>
-                        <span className="text-[#111827] font-semibold">
+                        <span className="text-[var(--text-main)] font-extrabold bg-gray-100 px-3 py-1.5 rounded-lg border border-[var(--border-light)]">
                           {t('physical.progress.endurance.total')}: {enduranceData.reduce((sum, d) => sum + d.distance_km, 0).toFixed(1)} km
                         </span>
                       </div>
                     </div>
                   ) : (
-                    <p className="text-[#6B7280] text-center py-8">
+                    <p className="font-bold text-[var(--text-muted)] text-center py-10 bg-gray-50 border-2 border-[var(--border-light)] rounded-2xl">
                       {t('physical.progress.endurance.noData')}
                     </p>
                   )}
@@ -799,8 +795,8 @@ export default function PhysicalPage() {
               </div>
             )}
           </div>
-        </main>
-      </div>
+        </div>
+      </main>
     </div>
   )
 }

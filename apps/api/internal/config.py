@@ -4,7 +4,19 @@ from typing import Optional
 import os
 from pathlib import Path
 
-ROOT_ENV_FILE = Path(__file__).resolve().parents[3] / ".env"
+
+def _resolve_root_env_file(config_path: Path) -> Path:
+    resolved_path = config_path.resolve()
+
+    for parent in resolved_path.parents:
+        candidate = parent / ".env"
+        if candidate.exists():
+            return candidate
+
+    return resolved_path.parents[1] / ".env"
+
+
+ROOT_ENV_FILE = _resolve_root_env_file(Path(__file__))
 API_ENV_FILE = Path(__file__).resolve().parents[1] / ".env"
 
 

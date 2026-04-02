@@ -250,12 +250,12 @@ export default function AdminTestSeriesPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Test Series</h1>
-          <p className="text-gray-600">Create mock tests with type, duration, question count, and negative marking</p>
+          <h1 className="font-display text-4xl font-bold tracking-tight text-[var(--text-main)] mb-2">Test Series</h1>
+          <p className="font-bold text-[var(--text-muted)] text-sm uppercase tracking-widest">Create mock tests with type, duration, question count, and negative marking</p>
         </div>
         <button
           onClick={openCreateModal}
-          className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition"
+          className="flex items-center gap-2 px-6 py-3 bg-[var(--text-main)] text-white font-bold rounded-2xl hover:-translate-y-0.5 active:translate-y-1 shadow-[0_4px_0_rgba(0,0,0,0.2)] active:shadow-none transition-all"
         >
           <Plus className="w-5 h-5" />
           Create Test
@@ -263,28 +263,30 @@ export default function AdminTestSeriesPage() {
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+      <div className="card-brilliant p-4">
         <form onSubmit={handleSearch} className="flex flex-wrap gap-4">
           <div className="flex-1 min-w-[200px] relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search tests..."
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+              className="w-full pl-12 pr-4 py-3 border-2 border-[var(--border-light)] rounded-2xl focus:ring-4 focus:ring-[var(--brilliant-blue)] focus:ring-opacity-20 focus:border-[var(--brilliant-blue)] outline-none transition-all font-semibold text-[var(--text-main)]"
             />
           </div>
           
-          <div className="flex items-center gap-2">
-            <Filter className="w-5 h-5 text-gray-400" />
+          <div className="flex items-center gap-3">
+            <div className="p-3 bg-gray-50 border-2 border-[var(--border-light)] rounded-xl">
+              <Filter className="w-5 h-5 text-[var(--text-muted)]" />
+            </div>
             <select
               value={typeFilter}
               onChange={(e) => {
                 setTypeFilter(e.target.value)
                 setPage(1)
               }}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+              className="px-4 py-3 border-2 border-[var(--border-light)] rounded-2xl focus:ring-4 focus:ring-[var(--brilliant-blue)] focus:ring-opacity-20 focus:border-[var(--brilliant-blue)] outline-none transition-all font-bold text-[var(--text-main)] bg-white cursor-pointer"
             >
               <option value="">All Types</option>
               <option value="full_length">Full Length</option>
@@ -294,23 +296,25 @@ export default function AdminTestSeriesPage() {
             </select>
           </div>
 
-          <select
-            value={statusFilter}
-            onChange={(e) => {
-              setStatusFilter(e.target.value)
-              setPage(1)
-            }}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
-          >
-            <option value="">All Status</option>
-            <option value="draft">Draft</option>
-            <option value="review">Review</option>
-            <option value="published">Published</option>
-          </select>
+          <div className="flex items-center gap-3">
+            <select
+              value={statusFilter}
+              onChange={(e) => {
+                setStatusFilter(e.target.value)
+                setPage(1)
+              }}
+              className="px-4 py-3 border-2 border-[var(--border-light)] rounded-2xl focus:ring-4 focus:ring-[var(--brilliant-blue)] focus:ring-opacity-20 focus:border-[var(--brilliant-blue)] outline-none transition-all font-bold text-[var(--text-main)] bg-white cursor-pointer"
+            >
+              <option value="">All Status</option>
+              <option value="draft">Draft</option>
+              <option value="review">Review</option>
+              <option value="published">Published</option>
+            </select>
+          </div>
           
           <button
             type="submit"
-            className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition"
+            className="px-6 py-3 bg-[var(--text-main)] text-white font-bold rounded-2xl transition-all shadow-[0_4px_0_rgba(0,0,0,0.2)] hover:-translate-y-0.5 active:translate-y-1 active:shadow-none"
           >
             Search
           </button>
@@ -318,23 +322,23 @@ export default function AdminTestSeriesPage() {
       </div>
 
       {/* Test Series Table */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="card-brilliant overflow-hidden p-0">
         {isLoading ? (
-          <div className="flex items-center justify-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600" />
+          <div className="flex items-center justify-center p-20">
+            <div className="animate-spin rounded-full h-10 w-10 border-b-4 border-black" />
           </div>
         ) : error ? (
-          <div className="p-4">
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+          <div className="p-6">
+            <div className="bg-red-50 border-2 border-red-200 text-red-700 px-6 py-4 rounded-xl text-sm font-bold">
               {error}
             </div>
           </div>
         ) : testSeries.length === 0 ? (
-          <div className="text-center py-12 text-gray-500">
+          <div className="text-center py-16 text-[var(--text-muted)] font-bold text-sm bg-gray-50/50 flex flex-col items-center">
             <p>No test series found</p>
             <button
               onClick={openCreateModal}
-              className="mt-4 text-primary-600 hover:text-primary-700 font-medium"
+              className="mt-4 px-6 py-3 bg-[var(--text-main)] text-white font-bold rounded-2xl hover:-translate-y-0.5 active:translate-y-1 shadow-[0_4px_0_rgba(0,0,0,0.2)] active:shadow-none transition-all"
             >
               Create your first test
             </button>
@@ -343,53 +347,53 @@ export default function AdminTestSeriesPage() {
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="text-left text-sm text-gray-500 bg-gray-50 border-b">
-                  <th className="px-6 py-3 font-medium">Test</th>
-                  <th className="px-6 py-3 font-medium">Type</th>
-                  <th className="px-6 py-3 font-medium">Duration</th>
-                  <th className="px-6 py-3 font-medium">Questions</th>
-                  <th className="px-6 py-3 font-medium">Active</th>
-                  <th className="px-6 py-3 font-medium">Status</th>
-                  <th className="px-6 py-3 font-medium">Actions</th>
+                <tr className="text-left text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-widest bg-gray-50 border-b-2 border-[var(--border-light)]">
+                  <th className="px-6 py-4">Test</th>
+                  <th className="px-6 py-4">Type</th>
+                  <th className="px-6 py-4 text-center">Duration</th>
+                  <th className="px-6 py-4 text-center">Questions</th>
+                  <th className="px-6 py-4 text-center">Active</th>
+                  <th className="px-6 py-4">Status</th>
+                  <th className="px-6 py-4 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y-2 divide-[var(--border-light)]">
                 {testSeries.map((test) => (
-                  <tr key={test.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4">
+                  <tr key={test.id} className="hover:bg-gray-50/50 transition-colors group">
+                    <td className="px-6 py-5">
                       <div>
-                        <p className="font-medium text-gray-900">{test.title}</p>
+                        <p className="font-bold text-[var(--text-main)] text-[15px]">{test.title}</p>
                         {test.description && (
-                          <p className="text-sm text-gray-500 truncate max-w-xs">
+                          <p className="text-sm font-semibold text-[var(--text-muted)] truncate max-w-xs">
                             {test.description}
                           </p>
                         )}
                       </div>
                     </td>
-                    <td className="px-6 py-4">
-                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${TEST_TYPES[test.test_type]?.color}`}>
+                    <td className="px-6 py-5">
+                      <span className={`px-3 py-1.5 text-[11px] font-extrabold uppercase tracking-widest rounded-lg border-2 ${TEST_TYPES[test.test_type]?.color.includes('purple') ? 'bg-purple-100 text-purple-700 border-purple-200' : TEST_TYPES[test.test_type]?.color.includes('blue') ? 'bg-blue-100 text-blue-700 border-blue-200' : TEST_TYPES[test.test_type]?.color.includes('green') ? 'bg-green-100 text-green-700 border-green-200' : 'bg-orange-100 text-orange-700 border-orange-200'}`}>
                         {TEST_TYPES[test.test_type]?.label}
                       </span>
                     </td>
-                    <td className="px-6 py-4">
-                      <span className="flex items-center gap-1 text-gray-600">
+                    <td className="px-6 py-5 text-center">
+                      <span className="inline-flex items-center justify-center gap-1.5 text-blue-700 bg-blue-100 border-2 border-blue-200 px-3 py-1 rounded-lg font-bold text-sm mx-auto">
                         <Clock className="w-4 h-4" />
-                        {test.duration_minutes} min
+                        {test.duration_minutes}m
                       </span>
                     </td>
-                    <td className="px-6 py-4">
-                      <span className="flex items-center gap-1 text-gray-600">
+                    <td className="px-6 py-5 text-center">
+                      <span className="inline-flex items-center justify-center gap-1.5 text-gray-700 bg-gray-100 border-2 border-[var(--border-light)] px-3 py-1 rounded-lg font-bold text-sm mx-auto">
                         <HelpCircle className="w-4 h-4" />
                         {test.total_questions}
                       </span>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-5 text-center">
                       <button
                         onClick={() => handleActiveToggle(test)}
-                        className={`p-2 rounded-lg transition ${
+                        className={`p-2 rounded-xl transition border-2 ${
                           test.is_active
-                            ? 'text-green-600 hover:bg-green-50'
-                            : 'text-gray-400 hover:bg-gray-100'
+                            ? 'text-green-600 bg-green-50 border-green-200 hover:bg-green-100'
+                            : 'text-gray-400 border-transparent hover:bg-gray-100 hover:border-[var(--border-light)]'
                         }`}
                         title={test.is_active ? 'Active - Click to deactivate' : 'Inactive - Click to activate'}
                       >
@@ -400,39 +404,43 @@ export default function AdminTestSeriesPage() {
                         )}
                       </button>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-5">
                       <select
                         value={test.status}
                         onChange={(e) => handleStatusChange(test, e.target.value as 'draft' | 'review' | 'published')}
-                        className={`px-2 py-1 text-xs font-medium rounded-full border-0 cursor-pointer ${getStatusBadgeClass(test.status)}`}
+                        className={`pl-3 pr-8 py-1.5 text-[10px] uppercase font-bold tracking-widest rounded-lg border-2 cursor-pointer transition-colors ${
+                          test.status === 'published' ? 'bg-green-100 text-green-700 border-green-200' :
+                          test.status === 'review' ? 'bg-yellow-100 text-yellow-700 border-yellow-200' :
+                          'bg-gray-50 text-[var(--text-muted)] border-[var(--border-light)]'
+                        }`}
                       >
-                        <option value="draft">Draft</option>
-                        <option value="review">Review</option>
-                        <option value="published">Published</option>
+                        <option value="draft">DRAFT</option>
+                        <option value="review">REVIEW</option>
+                        <option value="published">PUBLISHED</option>
                       </select>
                     </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
+                    <td className="px-6 py-5">
+                      <div className="flex items-center justify-end gap-2">
                         <button
                           onClick={() => openViewModal(test)}
-                          className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition"
+                          className="p-2 border-2 border-transparent text-gray-400 hover:text-[var(--text-main)] hover:bg-gray-100 hover:border-[var(--border-light)] rounded-xl transition-all"
                           title="View"
                         >
-                          <Eye className="w-4 h-4" />
+                          <Eye className="w-5 h-5" />
                         </button>
                         <button
                           onClick={() => openEditModal(test)}
-                          className="p-2 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition"
+                          className="p-2 border-2 border-transparent text-gray-400 hover:text-[var(--brilliant-blue)] hover:bg-blue-50 hover:border-blue-200 rounded-xl transition-all"
                           title="Edit"
                         >
-                          <Edit className="w-4 h-4" />
+                          <Edit className="w-5 h-5" />
                         </button>
                         <button
                           onClick={() => handleDelete(test)}
-                          className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
+                          className="p-2 border-2 border-transparent text-gray-400 hover:text-red-600 hover:bg-red-50 hover:border-red-200 rounded-xl transition-all"
                           title="Delete"
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Trash2 className="w-5 h-5" />
                         </button>
                       </div>
                     </td>
@@ -447,24 +455,24 @@ export default function AdminTestSeriesPage() {
       {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex items-center justify-between">
-          <p className="text-sm text-gray-500">
+          <p className="text-sm font-bold text-[var(--text-muted)]">
             Showing {((page - 1) * 20) + 1} to {Math.min(page * 20, total)} of {total} tests
           </p>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-4">
             <button
               onClick={() => handlePageChange(page - 1)}
               disabled={page === 1}
-              className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="p-3 bg-white border-2 border-[var(--border-light)] rounded-xl hover:-translate-y-0.5 active:translate-y-1 shadow-[0_4px_0_var(--border-light)] active:shadow-none transition-all disabled:opacity-50 disabled:pointer-events-none text-[var(--text-main)]"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
-            <span className="px-4 py-2 text-sm text-gray-600">
+            <span className="px-4 py-2 text-[15px] font-bold text-[var(--text-muted)]">
               Page {page} of {totalPages}
             </span>
             <button
               onClick={() => handlePageChange(page + 1)}
               disabled={page === totalPages}
-              className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="p-3 bg-white border-2 border-[var(--border-light)] rounded-xl hover:-translate-y-0.5 active:translate-y-1 shadow-[0_4px_0_var(--border-light)] active:shadow-none transition-all disabled:opacity-50 disabled:pointer-events-none text-[var(--text-main)]"
             >
               <ChevronRight className="w-5 h-5" />
             </button>
@@ -472,10 +480,10 @@ export default function AdminTestSeriesPage() {
         </div>
       )}
 
-      {/* Modal */}
+      {/* Detail Modal */}
       {modalMode && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="card-brilliant max-w-3xl w-full max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between p-6 border-b">
               <h2 className="text-xl font-semibold text-gray-900">
                 {modalMode === 'create' && 'Create New Test'}

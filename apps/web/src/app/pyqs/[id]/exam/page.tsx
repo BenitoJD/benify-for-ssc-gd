@@ -335,7 +335,7 @@ export default function ExamModePage() {
       {state.isSubmitted && results && (
         <main className="container mx-auto px-4 py-8">
           <div className="max-w-2xl mx-auto">
-            <div className="bg-white rounded-lg shadow-sm p-8 text-center">
+            <div className="card-brilliant p-8 text-center">
               <h2 className="text-2xl font-bold text-gray-900 mb-2">{t('pyq.examSubmitted')}</h2>
               <p className="text-gray-600 mb-6">{t('pyq.yourScore')}</p>
 
@@ -386,7 +386,7 @@ export default function ExamModePage() {
                 const isUnanswered = userAnswer === undefined
 
                 return (
-                  <div key={pyq.id} className="bg-white rounded-lg shadow-sm p-4">
+                  <div key={pyq.id} className="card-brilliant p-4">
                     <div className="flex items-start gap-3">
                       <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
                         isCorrect ? 'bg-green-100 text-green-600' :
@@ -429,7 +429,7 @@ export default function ExamModePage() {
         <main className="container mx-auto px-4 py-8">
           <div className="max-w-3xl mx-auto">
             {/* Question Card */}
-            <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+            <div className="card-brilliant p-6 mb-6">
               <div className="flex items-center gap-2 mb-4">
                 <span className="px-2 py-1 text-xs font-medium bg-primary-100 text-primary-700 rounded">
                   {currentPYQ.exam_year}
@@ -520,7 +520,7 @@ export default function ExamModePage() {
             </div>
 
             {/* Question Navigator */}
-            <div className="mt-8 p-4 bg-white rounded-lg shadow-sm">
+            <div className="mt-8 p-4 card-brilliant">
               <h3 className="text-sm font-medium text-gray-700 mb-3">{t('pyq.questionNavigator')}</h3>
               <div className="flex flex-wrap gap-2">
                 {pyqs.map((pyq, index) => {
