@@ -107,6 +107,11 @@ const organizationStructuredData = {
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
+  icons: {
+    icon: '/olli-academy-ssc-gd-logo.png',
+    shortcut: '/olli-academy-ssc-gd-logo.png',
+    apple: '/olli-academy-ssc-gd-logo.png',
+  },
   title: {
     default: 'OLLI Academy(SSC GD) - Complete Preparation | Study Materials, Mock Tests & Physical Training',
     template: '%s | OLLI Academy(SSC GD)',
@@ -154,10 +159,10 @@ export const metadata: Metadata = {
     images: [
       {
         url: '/olli-academy-ssc-gd-logo.png',
-        width: 800,
-        height: 600,
+        width: 640,
+        height: 640,
         alt: 'OLLI Academy(SSC GD) - SSC GD Complete Preparation Platform',
-        type: 'image/png'
+        type: 'image/jpeg'
       },
       {
         url: '/olli-academy-ssc-gd-og-image.jpg',
@@ -176,7 +181,7 @@ export const metadata: Metadata = {
     ]
   },
   twitter: {
-    card: 'summary_large_image',
+    card: 'summary',
     title: 'OLLI Academy(SSC GD) - SSC GD Complete Preparation',
     description: 'Prepare for SSC GD exam with comprehensive study materials, mock tests, and physical training.',
     images: ['/olli-academy-ssc-gd-logo.png'],

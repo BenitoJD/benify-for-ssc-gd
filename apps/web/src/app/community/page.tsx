@@ -115,29 +115,28 @@ export default function CommunityPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA]">
-      <div className="flex">
-        <Sidebar locale={locale} />
-        
-        {/* Main Content */}
-        <main className="flex-1 lg:ml-0 p-4 lg:p-8 pt-16 lg:pt-8">
-          <div className="max-w-5xl mx-auto space-y-6">
+    <div className="min-h-screen bg-[var(--bg-page)] font-sans text-[var(--text-main)] flex flex-col md:flex-row">
+      <Sidebar locale={locale} />
+      
+      {/* Main Content */}
+      <main className="flex-1 p-4 lg:p-10 pt-20 lg:pt-10 overflow-y-auto">
+          <div className="max-w-5xl mx-auto space-y-6 mb-20">
             {/* Header */}
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-[22px] font-semibold tracking-tight text-[#111827]">Community</h1>
-                <p className="text-[#6B7280] text-sm mt-1">Ask questions and help others</p>
+            <div className="flex items-center justify-between bg-yellow-50 p-8 rounded-3xl border-2 border-yellow-200 shadow-sm relative overflow-hidden">
+              <div className="relative z-10">
+                <h1 className="font-display text-4xl font-bold tracking-tight text-yellow-900">Community</h1>
+                <p className="text-yellow-800 font-medium text-sm mt-2">Ask questions and help others</p>
               </div>
               <button
                 onClick={() => router.push('/community/ask')}
-                className="px-4 py-2 bg-[#111827] text-white text-sm font-semibold rounded-[8px] hover:bg-black transition-colors"
+                className="btn-3d btn-3d-blue px-6 py-3 rounded-full text-sm relative z-10"
               >
                 + Ask Question
               </button>
             </div>
 
             {/* Filters */}
-            <div className="bg-white border border-[#EAEAEA] rounded-[12px] p-4 space-y-4">
+            <div className="card-brilliant p-6 space-y-4">
               {/* Search */}
               <div className="relative">
                 <input
@@ -165,7 +164,7 @@ export default function CommunityPage() {
                 <select
                   value={selectedTopic}
                   onChange={(e) => { setSelectedTopic(e.target.value); setPage(1) }}
-                  className="px-3 py-2 border border-[#EAEAEA] rounded-[8px] text-sm text-[#111827] focus:outline-none focus:border-[#111827] bg-white"
+                  className="px-4 py-2 border-2 border-[var(--border-light)] hover:border-gray-300 rounded-xl font-bold text-sm text-[var(--text-main)] focus:outline-none focus:ring-2 focus:ring-[var(--brilliant-blue)] bg-gray-50"
                 >
                   <option value="">All Topics</option>
                   {TOPIC_TAGS.map((tag) => (
@@ -176,7 +175,7 @@ export default function CommunityPage() {
                 <select
                   value={answeredFilter}
                   onChange={(e) => { setAnsweredFilter(e.target.value); setPage(1) }}
-                  className="px-3 py-2 border border-[#EAEAEA] rounded-[8px] text-sm text-[#111827] focus:outline-none focus:border-[#111827] bg-white"
+                  className="px-4 py-2 border-2 border-[var(--border-light)] hover:border-gray-300 rounded-xl font-bold text-sm text-[var(--text-main)] focus:outline-none focus:ring-2 focus:ring-[var(--brilliant-blue)] bg-gray-50"
                 >
                   <option value="">All Questions</option>
                   <option value="answered">Answered</option>
@@ -186,7 +185,7 @@ export default function CommunityPage() {
                 <select
                   value={sortBy}
                   onChange={(e) => { setSortBy(e.target.value as 'created_at' | 'upvotes' | 'reply_count'); setPage(1) }}
-                  className="px-3 py-2 border border-[#EAEAEA] rounded-[8px] text-sm text-[#111827] focus:outline-none focus:border-[#111827] bg-white"
+                  className="px-4 py-2 border-2 border-[var(--border-light)] hover:border-gray-300 rounded-xl font-bold text-sm text-[var(--text-main)] focus:outline-none focus:ring-2 focus:ring-[var(--brilliant-blue)] bg-gray-50"
                 >
                   <option value="created_at">Newest First</option>
                   <option value="upvotes">Most Upvoted</option>
@@ -196,73 +195,73 @@ export default function CommunityPage() {
             </div>
 
             {/* Discussion List */}
-            <div className="space-y-3">
+            <div className="space-y-4">
               {discussions.length === 0 ? (
-                <div className="bg-white border border-[#EAEAEA] rounded-[12px] p-10 text-center">
-                  <p className="text-[#6B7280] text-sm">No questions found. Ask the first one!</p>
+                <div className="card-brilliant p-10 text-center">
+                  <p className="font-bold text-[var(--text-muted)] text-sm">No questions found. Ask the first one!</p>
                 </div>
               ) : (
                 discussions.map((discussion) => (
                   <div
                     key={discussion.id}
-                    className={`bg-white border rounded-[12px] p-5 hover:border-gray-300 transition-colors cursor-pointer ${
-                      discussion.is_pinned ? 'border-[#111827]' : 'border-[#EAEAEA]'
+                    className={`card-brilliant px-6 py-5 cursor-pointer ring-2 ring-transparent transition-all hover:ring-[var(--border-light)] ${
+                      discussion.is_pinned ? 'border-l-4 border-l-[var(--brilliant-yellow)]' : ''
                     }`}
                     onClick={() => router.push(`/community/${discussion.id}`)}
                   >
-                    <div className="flex gap-4">
+                    <div className="flex gap-5">
                       {/* Vote/Upvote */}
-                      <div className="flex flex-col items-center min-w-[48px] gap-1">
+                      <div className="flex flex-col items-center min-w-[56px] gap-1.5">
                         <button
-                          className={`p-1.5 rounded-[6px] transition-colors ${
+                          className={`p-2 rounded-xl border-b-4 active:border-b-0 active:translate-y-1 transition-all ${
                             discussion.has_upvoted
-                              ? 'bg-[#111827] text-white'
-                              : 'bg-[#FAFAFA] border border-[#EAEAEA] text-[#6B7280] hover:border-gray-300'
+                              ? 'bg-[var(--brilliant-blue)] text-white border-blue-700'
+                              : 'bg-gray-100 border-gray-300 text-[var(--text-main)] hover:bg-white'
                           }`}
                           onClick={(e) => { e.stopPropagation() }}
                         >
-                          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                          <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="3">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" />
                           </svg>
                         </button>
-                        <span className="font-semibold text-sm text-[#111827]">{discussion.upvotes}</span>
+                        <span className="font-extrabold text-[15px] text-[var(--text-main)]">{discussion.upvotes}</span>
                       </div>
 
                       {/* Content */}
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-2">
+                        <div className="flex items-center gap-2 mb-2.5">
                           {discussion.is_pinned && (
-                            <span className="px-2 py-0.5 bg-[#FAFAFA] border border-[#EAEAEA] text-[#111827] text-[10px] font-bold tracking-wider uppercase rounded-[4px]">
+                            <span className="px-2.5 py-1 bg-yellow-100 text-yellow-800 text-[10px] font-bold tracking-widest uppercase rounded-lg">
                               📌 Pinned
                             </span>
                           )}
                           {discussion.is_answered && (
-                            <span className="px-2 py-0.5 bg-green-50 border border-green-200 text-green-700 text-[10px] font-bold tracking-wider uppercase rounded-[4px]">
-                              ✓ Answered
+                            <span className="px-2.5 py-1 bg-green-100 text-green-800 text-[10px] font-bold tracking-widest uppercase rounded-lg flex items-center gap-1">
+                              <span className="text-green-600">✓</span> Answered
                             </span>
                           )}
                           {discussion.topic_tag && (
-                            <span className="px-2 py-0.5 bg-[#FAFAFA] border border-[#EAEAEA] text-[#6B7280] text-[10px] font-bold tracking-wider uppercase rounded-[4px]">
+                            <span className="px-2.5 py-1 bg-gray-100 border-2 border-[var(--border-light)] text-[var(--text-muted)] text-[10px] font-bold tracking-widest uppercase rounded-lg">
                               {discussion.topic_tag}
                             </span>
                           )}
                         </div>
                         
-                        <h3 className="text-[15px] font-semibold text-[#111827] mb-1.5 line-clamp-2 tracking-tight">
+                        <h3 className="font-display text-[18px] font-bold text-[var(--text-main)] mb-1.5 md:mb-2 line-clamp-2 tracking-tight group-hover:text-[var(--brilliant-blue)] transition-colors">
                           {discussion.title}
                         </h3>
                         
-                        <p className="text-[#6B7280] text-sm line-clamp-2 mb-3">
+                        <p className="font-medium text-[var(--text-muted)] text-sm line-clamp-2 mb-4 leading-relaxed">
                           {discussion.content}
                         </p>
 
-                        <div className="flex items-center gap-3 text-xs text-[#9CA3AF] font-medium">
+                        <div className="flex items-center gap-3 text-xs text-[var(--text-muted)] font-bold uppercase tracking-wider">
                           <span>{discussion.user_name || 'Anonymous'}</span>
-                          <span>·</span>
+                          <span className="text-gray-300">•</span>
                           <span>{formatDate(discussion.created_at)}</span>
-                          <span>·</span>
+                          <span className="text-gray-300">•</span>
                           <span>{discussion.reply_count} replies</span>
-                          <span>·</span>
+                          <span className="text-gray-300">•</span>
                           <span>{discussion.view_count} views</span>
                         </div>
                       </div>
@@ -274,21 +273,21 @@ export default function CommunityPage() {
 
             {/* Pagination */}
             {totalPages > 1 && (
-              <div className="flex items-center justify-center gap-2">
+              <div className="flex items-center justify-center gap-4 mt-8">
                 <button
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                   disabled={page === 1}
-                  className="px-4 py-2 border border-[#EAEAEA] rounded-[8px] text-sm font-medium text-[#111827] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#FAFAFA] transition-colors"
+                  className="px-6 py-2 border-2 border-[var(--border-light)] bg-white rounded-full text-sm font-bold text-[var(--text-main)] disabled:opacity-40 hover:bg-gray-50 transition-colors shadow-sm"
                 >
                   Previous
                 </button>
-                <span className="px-4 py-2 text-sm text-[#6B7280] font-medium">
+                <span className="px-4 text-sm font-bold bg-gray-100 py-1.5 rounded-lg text-[var(--text-muted)]">
                   {`${page} / ${totalPages}`}
                 </span>
                 <button
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                   disabled={page === totalPages}
-                  className="px-4 py-2 border border-[#EAEAEA] rounded-[8px] text-sm font-medium text-[#111827] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#FAFAFA] transition-colors"
+                  className="px-6 py-2 border-2 border-[var(--border-light)] bg-white rounded-full text-sm font-bold text-[var(--text-main)] disabled:opacity-40 hover:bg-gray-50 transition-colors shadow-sm"
                 >
                   Next
                 </button>
@@ -296,7 +295,6 @@ export default function CommunityPage() {
             )}
           </div>
         </main>
-      </div>
     </div>
   )
 }

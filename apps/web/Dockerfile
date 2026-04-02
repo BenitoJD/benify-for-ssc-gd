@@ -11,6 +11,22 @@ COPY apps/web/package*.json ./
 RUN npm install
 
 # ================
+# Development Stage
+# ================
+FROM node:20-alpine AS dev
+WORKDIR /app
+
+COPY --from=deps /app/node_modules ./node_modules
+COPY apps/web/ .
+
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_ENV=development
+
+EXPOSE 3101
+
+CMD ["npm", "run", "dev"]
+
+# ================
 # Builder Stage
 # ================
 FROM node:20-alpine AS builder

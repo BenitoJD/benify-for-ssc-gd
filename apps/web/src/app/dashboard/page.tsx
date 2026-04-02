@@ -114,69 +114,69 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA] font-sans text-[#111827]">
+    <div className="min-h-screen bg-[var(--bg-page)] font-sans text-[var(--text-main)] flex flex-col md:flex-row">
       <OfflineIndicator />
       <NotificationPermissionPrompt locale={locale} />
       
-      <div className="flex">
-        <Sidebar locale={locale} />
+      <Sidebar locale={locale} />
         
-        {/* Main Content */}
-        <main className="flex-1 lg:ml-0 p-4 lg:p-8 pt-16 lg:pt-8">
-          <div className="max-w-7xl mx-auto space-y-8">
-            {/* Welcome Header */}
-            <div className="mb-8">
-              <h1 className="text-2xl lg:text-3xl font-semibold tracking-tight text-[#111827]">
-                {t('dashboard.welcome', { name: userName })}
-              </h1>
-            </div>
+      {/* Main Content */}
+      <main className="flex-1 p-4 lg:p-10 pt-20 lg:pt-10 overflow-y-auto">
+        <div className="max-w-7xl mx-auto space-y-10 mb-20">
+          {/* Welcome Header */}
+          <div className="mb-8">
+            <h1 className="font-display text-4xl lg:text-5xl font-bold tracking-tight text-[var(--text-main)]">
+              {t('dashboard.welcome', { name: userName })}
+            </h1>
+          </div>
 
-            {/* Top Row: Exam Countdown + Access Status */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-2">
-                <ExamCountdown targetDate={examDate} />
-              </div>
-              <div className="rounded-[12px] bg-white p-6 shadow-sm border border-[#EAEAEA]">
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-[8px] bg-[#FAFAFA] border border-[#EAEAEA] text-[#111827]">
-                    <span className="text-lg font-bold font-serif">F</span>
-                  </div>
-                  <div>
-                    <h2 className="text-base font-semibold text-[#111827] tracking-tight">Full Access Enabled</h2>
-                    <p className="text-sm text-[#6B7280]">All study tools are free to use</p>
-                  </div>
+          {/* Top Row: Exam Countdown + Access Status */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2">
+              <ExamCountdown targetDate={examDate} />
+            </div>
+            <div className="card-brilliant p-8">
+              <div className="flex items-center gap-5 mb-5">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-green-100 text-green-600 shadow-sm shrink-0">
+                  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
                 </div>
-                <p className="text-sm text-[#6B7280] leading-relaxed">
-                  Practice questions, physical training, documents, and community features are available without a paid plan.
-                </p>
+                <div>
+                  <h2 className="font-display text-xl font-bold text-[var(--text-main)] tracking-tight">Full Access</h2>
+                  <p className="text-sm font-medium text-[var(--text-muted)] mt-0.5">All tools unlocked</p>
+                </div>
               </div>
-            </div>
-
-            {/* Progress Cards */}
-            <ProgressCards subjects={subjects} />
-
-            {/* Second Row: Today's Tasks + Weak Areas */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <TodaysTasks tasks={tasks} locale={locale} />
-              <WeakAreasWidget weakAreas={weakAreas} locale={locale} />
-            </div>
-
-            {/* Third Row: Streak Counter + Recent Activity */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-1">
-                <StreakCounter 
-                  currentStreak={currentStreak}
-                  longestStreak={longestStreak}
-                  isActive={currentStreak > 0}
-                />
-              </div>
-              <div className="lg:col-span-2">
-                <RecentActivity activities={activities} />
-              </div>
+              <p className="text-sm text-[var(--text-muted)] font-medium leading-relaxed">
+                Practice questions, physical training, documents, and community features are available without a paid plan. Go smash your goals!
+              </p>
             </div>
           </div>
-        </main>
-      </div>
+
+          {/* Progress Cards */}
+          <ProgressCards subjects={subjects} />
+
+          {/* Second Row: Today's Tasks + Weak Areas */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <TodaysTasks tasks={tasks} locale={locale} />
+            <WeakAreasWidget weakAreas={weakAreas} locale={locale} />
+          </div>
+
+          {/* Third Row: Streak Counter + Recent Activity */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-1">
+              <StreakCounter 
+                currentStreak={currentStreak}
+                longestStreak={longestStreak}
+                isActive={currentStreak > 0}
+              />
+            </div>
+            <div className="lg:col-span-2">
+              <RecentActivity activities={activities} />
+            </div>
+          </div>
+        </div>
+      </main>
     </div>
   )
 }

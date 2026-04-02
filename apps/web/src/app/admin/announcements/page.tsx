@@ -174,12 +174,12 @@ export default function AdminAnnouncementsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Announcements</h1>
-          <p className="text-gray-600">Broadcast notifications to users</p>
+          <h1 className="font-display text-4xl font-bold tracking-tight text-[var(--text-main)] mb-2">Announcements</h1>
+          <p className="font-bold text-[var(--text-muted)] text-sm uppercase tracking-widest">Broadcast notifications to users</p>
         </div>
         <button
           onClick={openCreateModal}
-          className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition"
+          className="flex items-center gap-2 px-6 py-3 bg-[var(--text-main)] text-white font-bold rounded-2xl hover:-translate-y-0.5 active:translate-y-1 shadow-[0_4px_0_rgba(0,0,0,0.2)] active:shadow-none transition-all"
         >
           <Plus className="w-5 h-5" />
           Create Announcement
@@ -187,12 +187,12 @@ export default function AdminAnnouncementsPage() {
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+      <div className="card-brilliant p-4">
         <div className="flex flex-wrap gap-4">
           <select
             value={priorityFilter}
             onChange={(e) => setPriorityFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+            className="px-4 py-3 border-2 border-[var(--border-light)] rounded-2xl focus:ring-4 focus:ring-[var(--brilliant-blue)] focus:ring-opacity-20 focus:border-[var(--brilliant-blue)] outline-none transition-all font-bold text-[var(--text-main)] cursor-pointer bg-white"
           >
             <option value="">All Priorities</option>
             <option value="urgent">Urgent</option>
@@ -203,7 +203,7 @@ export default function AdminAnnouncementsPage() {
           <select
             value={targetFilter}
             onChange={(e) => setTargetFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+            className="px-4 py-3 border-2 border-[var(--border-light)] rounded-2xl focus:ring-4 focus:ring-[var(--brilliant-blue)] focus:ring-opacity-20 focus:border-[var(--brilliant-blue)] outline-none transition-all font-bold text-[var(--text-main)] cursor-pointer bg-white"
           >
             <option value="">All Targets</option>
             <option value="all">All Users</option>
@@ -215,7 +215,7 @@ export default function AdminAnnouncementsPage() {
           <select
             value={activeFilter}
             onChange={(e) => setActiveFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+            className="px-4 py-3 border-2 border-[var(--border-light)] rounded-2xl focus:ring-4 focus:ring-[var(--brilliant-blue)] focus:ring-opacity-20 focus:border-[var(--brilliant-blue)] outline-none transition-all font-bold text-[var(--text-main)] cursor-pointer bg-white"
           >
             <option value="">All Status</option>
             <option value="true">Active</option>
@@ -225,48 +225,53 @@ export default function AdminAnnouncementsPage() {
       </div>
 
       {/* Announcements List */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="flex flex-col gap-4">
         {isLoading ? (
-          <div className="flex items-center justify-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600" />
+          <div className="card-brilliant flex items-center justify-center p-20">
+            <div className="animate-spin rounded-full h-10 w-10 border-b-4 border-black" />
           </div>
         ) : error ? (
-          <div className="p-4">
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+          <div className="card-brilliant p-6">
+            <div className="bg-red-50 border-2 border-red-200 text-red-700 px-6 py-4 rounded-xl text-sm font-bold">
               {error}
             </div>
           </div>
         ) : announcements.length === 0 ? (
-          <div className="text-center py-12 text-gray-500">
+          <div className="card-brilliant text-center py-16 text-[var(--text-muted)] font-bold text-sm bg-gray-50/50 flex flex-col items-center">
             <p>No announcements found</p>
             <button
               onClick={openCreateModal}
-              className="mt-4 text-primary-600 hover:text-primary-700 font-medium"
+              className="mt-4 px-6 py-3 bg-[var(--text-main)] text-white font-bold rounded-2xl hover:-translate-y-0.5 active:translate-y-1 shadow-[0_4px_0_rgba(0,0,0,0.2)] active:shadow-none transition-all"
             >
               Create your first announcement
             </button>
           </div>
         ) : (
-          <div className="divide-y divide-gray-100">
+          <div className="space-y-4">
             {announcements.map((announcement) => (
-              <div key={announcement.id} className="p-6 hover:bg-gray-50">
+              <div key={announcement.id} className="card-brilliant p-6 hover:-translate-y-1 transition-transform cursor-default">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
+                    <div className="flex items-center gap-3 mb-3">
                       {getPriorityIcon(announcement.priority)}
-                      <h3 className="text-lg font-semibold text-gray-900">{announcement.title}</h3>
-                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${getPriorityBadgeClass(announcement.priority)}`}>
+                      <h3 className="text-xl font-bold text-[var(--text-main)]">{announcement.title}</h3>
+                      <span className={`px-3 py-1.5 text-[11px] font-extrabold uppercase tracking-widest rounded-lg border-2 ${
+                        announcement.priority === 'urgent' ? 'bg-red-100 text-red-700 border-red-200' :
+                        announcement.priority === 'high' ? 'bg-orange-100 text-orange-700 border-orange-200' :
+                        announcement.priority === 'normal' ? 'bg-blue-100 text-blue-700 border-blue-200' :
+                        'bg-gray-100 text-gray-700 border-gray-200'
+                      }`}>
                         {announcement.priority}
                       </span>
                       {announcement.is_active ? (
-                        <span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-700">Active</span>
+                        <span className="px-3 py-1.5 text-[11px] font-extrabold uppercase tracking-widest rounded-lg border-2 bg-green-100 text-green-700 border-green-200">Active</span>
                       ) : (
-                        <span className="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-700">Inactive</span>
+                        <span className="px-3 py-1.5 text-[11px] font-extrabold uppercase tracking-widest rounded-lg border-2 bg-gray-100 text-gray-700 border-gray-200">Inactive</span>
                       )}
                     </div>
-                    <p className="text-gray-600 mb-3">{announcement.content}</p>
-                    <div className="flex items-center gap-4 text-sm text-gray-500">
-                      <span>Target: {getTargetLabel(announcement.target)}</span>
+                    <p className="text-[var(--text-muted)] font-medium mb-4 whitespace-pre-wrap">{announcement.content}</p>
+                    <div className="flex flex-wrap items-center gap-4 text-sm font-bold text-gray-500 bg-gray-50 p-3 rounded-xl border-2 border-[var(--border-light)] w-max">
+                      <span className="flex items-center gap-1"><Info className="w-4 h-4"/> Target: {getTargetLabel(announcement.target)}</span>
                       {announcement.start_date && (
                         <span>Starts: {new Date(announcement.start_date).toLocaleDateString()}</span>
                       )}
@@ -276,27 +281,27 @@ export default function AdminAnnouncementsPage() {
                       <span>By: {announcement.admin_name || 'Admin'}</span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 ml-4">
+                  <div className="flex items-center gap-2 ml-4 self-center">
                     <button
                       onClick={() => openViewModal(announcement)}
-                      className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition"
+                      className="p-3 border-2 border-transparent text-gray-400 hover:text-[var(--text-main)] hover:bg-gray-100 hover:border-[var(--border-light)] rounded-xl transition-all"
                       title="View"
                     >
-                      <Eye className="w-4 h-4" />
+                      <Eye className="w-5 h-5" />
                     </button>
                     <button
                       onClick={() => openEditModal(announcement)}
-                      className="p-2 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition"
+                      className="p-3 border-2 border-transparent text-gray-400 hover:text-[var(--brilliant-blue)] hover:bg-blue-50 hover:border-blue-200 rounded-xl transition-all"
                       title="Edit"
                     >
-                      <Edit className="w-4 h-4" />
+                      <Edit className="w-5 h-5" />
                     </button>
                     <button
                       onClick={() => handleDelete(announcement)}
-                      className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
+                      className="p-3 border-2 border-transparent text-gray-400 hover:text-red-600 hover:bg-red-50 hover:border-red-200 rounded-xl transition-all"
                       title="Delete"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-5 h-5" />
                     </button>
                   </div>
                 </div>
@@ -309,7 +314,7 @@ export default function AdminAnnouncementsPage() {
       {/* Modal */}
       {modalMode && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="card-brilliant max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between p-6 border-b">
               <h2 className="text-xl font-semibold text-gray-900">
                 {modalMode === 'create' && 'Create Announcement'}

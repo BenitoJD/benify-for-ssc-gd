@@ -13,15 +13,15 @@ interface BrandLogoProps {
 
 const sizeClasses = {
   sm: {
-    full: 'h-10 w-auto',
+    full: 'h-10 w-10',
     mark: 'h-10 w-10',
   },
   md: {
-    full: 'h-14 w-auto',
+    full: 'h-14 w-14',
     mark: 'h-12 w-12',
   },
   lg: {
-    full: 'h-20 w-auto',
+    full: 'h-20 w-20',
     mark: 'h-16 w-16',
   },
 }
@@ -34,14 +34,15 @@ function LogoImage({
   variant = 'full',
 }: Omit<BrandLogoProps, 'href'>) {
   return (
-    <span className={clsx('relative block', sizeClasses[size][variant], className)}>
+    <span className={clsx('relative block overflow-hidden rounded-2xl', sizeClasses[size][variant], className)}>
       <Image
         src="/olli-academy-ssc-gd-logo.png"
         alt="OLLI Academy SSC GD logo"
-        fill
+        width={640}
+        height={640}
         priority={priority}
-        sizes={variant === 'full' ? '(max-width: 768px) 160px, 220px' : '64px'}
-        className={clsx('object-contain', imageClassName)}
+        sizes={variant === 'full' ? '(max-width: 768px) 56px, 80px' : '64px'}
+        className={clsx('h-full w-full object-cover', imageClassName)}
       />
     </span>
   )

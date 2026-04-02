@@ -126,30 +126,50 @@ JWT_SECRET_KEY=your-super-secret-key-change-in-production
 DEBUG=false
 LOG_LEVEL=INFO
 
-# URLs
-NEXT_PUBLIC_API_URL=http://localhost:3100/api
-NEXT_PUBLIC_APP_URL=http://localhost:3100
+# URLs for host-based frontend/backend development
+NEXT_PUBLIC_API_URL=http://localhost:3100
+NEXT_PUBLIC_APP_URL=http://localhost:3101
 ```
 
-### Start with Docker Compose
+### Local Development
 
 ```bash
-# Build and start all services
-docker compose up --build
+# Start infrastructure only
+docker compose up -d
 
-# Or run in detached mode
-docker compose up --build -d
+# Stop infrastructure
+docker compose down
+```
+
+Run the frontend on the host machine:
+
+```bash
+npm run dev:web
+```
+
+Run the API on the host machine:
+
+```bash
+cd apps/api
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+uvicorn internal.main:app --reload --host 0.0.0.0 --port 3100
+```
+
+Or from the repo root after your Python environment is ready:
+
+```bash
+npm run dev:api
 ```
 
 ### Access Points
 
 | Service | URL |
 |---------|-----|
-| Web Application | http://localhost:3100 |
-| API (through nginx) | http://localhost:3100/api |
-| API (direct) | http://localhost:3101 |
-| Web (direct container) | http://localhost:3102 |
-| API Documentation | http://localhost:3101/docs |
+| Web Application | http://localhost:3101 |
+| API | http://localhost:3100 |
+| API Documentation | http://localhost:3100/docs |
 | MinIO Console | http://localhost:9001 |
 
 ---

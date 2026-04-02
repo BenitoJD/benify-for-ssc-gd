@@ -52,12 +52,11 @@ export function Sidebar({ locale }: SidebarProps) {
 
   return (
     <>
-      {/* Mobile hamburger button */}
+      {/* Mobile Toggle inside the page wrapper */}
       <button
-        type="button"
-        onClick={() => setIsMobileOpen(true)}
-        className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-white rounded-lg shadow-md"
-        aria-label={t('dashboard.menu')}
+        onClick={() => setIsMobileOpen(!isMobileOpen)}
+        className="lg:hidden fixed top-4 left-4 z-50 p-2 card-brilliant shadow-none rounded-lg text-[var(--text-main)]"
+        aria-label="Toggle Navigation"
       >
         <Menu className="w-6 h-6 text-gray-700" />
       </button>

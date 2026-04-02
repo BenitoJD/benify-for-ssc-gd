@@ -29,15 +29,15 @@ export default function AdminDashboardPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#111827]" />
+      <div className="flex items-center justify-center p-20">
+        <div className="animate-spin rounded-full h-10 w-10 border-b-4 border-black" />
       </div>
     )
   }
 
   if (error) {
     return (
-      <div className="bg-[#FAFAFA] border border-red-200 text-red-600 px-4 py-3 rounded-[8px] text-sm font-medium">
+      <div className="bg-red-50 border-2 border-red-200 text-red-700 px-6 py-4 rounded-xl text-sm font-bold flex items-center gap-3">
         {error}
       </div>
     )
@@ -48,37 +48,37 @@ export default function AdminDashboardPage() {
       title: 'Total Users',
       value: stats?.total_users ?? 0,
       icon: Users,
-      bgColor: 'bg-[#FAFAFA] border border-[#EAEAEA]',
-      textColor: 'text-[#111827]',
+      bgColor: 'bg-green-100 border-2 border-green-200',
+      textColor: 'text-green-700',
     },
     {
       title: 'Active Subscriptions',
       value: stats?.active_subscriptions ?? 0,
       icon: CreditCard,
-      bgColor: 'bg-[#FAFAFA] border border-[#EAEAEA]',
-      textColor: 'text-[#111827]',
+      bgColor: 'bg-blue-100 border-2 border-blue-200',
+      textColor: 'text-blue-700',
     },
     {
       title: 'Daily Active Users',
       value: stats?.daily_active_users ?? 0,
       icon: Activity,
-      bgColor: 'bg-[#FAFAFA] border border-[#EAEAEA]',
-      textColor: 'text-[#111827]',
+      bgColor: 'bg-yellow-100 border-2 border-yellow-200',
+      textColor: 'text-yellow-800',
     },
     {
       title: 'Reports',
       value: stats?.reports_count ?? 0,
       icon: FileText,
-      bgColor: 'bg-[#FAFAFA] border border-[#EAEAEA]',
-      textColor: 'text-[#111827]',
+      bgColor: 'bg-pink-100 border-2 border-pink-200',
+      textColor: 'text-pink-700',
     },
   ]
 
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-[#111827]">Dashboard</h1>
-        <p className="text-[#6B7280] mt-1 text-sm">Platform overview and statistics</p>
+        <h1 className="font-display text-4xl font-bold tracking-tight text-[var(--text-main)] mb-2">Dashboard</h1>
+        <p className="font-bold text-[var(--text-muted)] text-sm uppercase tracking-widest">Platform overview and statistics</p>
       </div>
 
       {/* Stats Grid */}
@@ -88,15 +88,15 @@ export default function AdminDashboardPage() {
           return (
             <div
               key={card.title}
-              className="bg-white rounded-[12px] shadow-sm p-6 border border-[#EAEAEA]"
+              className="card-brilliant p-8 hover:-translate-y-1 transition-transform cursor-default"
             >
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-wider text-[#9CA3AF] mb-1">{card.title}</p>
-                  <p className="text-3xl font-bold tracking-tight text-[#111827]">{card.value.toLocaleString()}</p>
+                  <p className="text-[11px] font-bold uppercase tracking-widest text-[var(--text-muted)] mb-1">{card.title}</p>
+                  <p className="font-display text-3xl font-extrabold tracking-tight text-[var(--text-main)]">{card.value.toLocaleString()}</p>
                 </div>
-                <div className={`${card.bgColor} p-3 rounded-[8px]`}>
-                  <Icon className={`w-5 h-5 ${card.textColor}`} />
+                <div className={`${card.bgColor} p-3 rounded-2xl`}>
+                  <Icon className={`w-6 h-6 ${card.textColor}`} />
                 </div>
               </div>
             </div>
@@ -106,38 +106,38 @@ export default function AdminDashboardPage() {
 
       {/* Additional Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white rounded-[12px] shadow-sm p-6 border border-[#EAEAEA]">
-          <h2 className="text-[15px] font-semibold tracking-tight text-[#111827] mb-5">Learning Metrics</h2>
-          <div className="space-y-4">
-            <div className="flex justify-between items-center text-sm">
-              <span className="text-[#6B7280] font-medium">Total Lessons Completed</span>
-              <span className="font-semibold text-[#111827]">
+        <div className="card-brilliant p-8">
+          <h2 className="font-display text-xl font-bold tracking-tight text-[var(--text-main)] mb-6 border-b-2 border-[var(--border-light)] pb-4">Learning Metrics</h2>
+          <div className="space-y-5">
+            <div className="flex justify-between items-center text-[15px]">
+              <span className="text-[var(--text-muted)] font-bold">Total Lessons Completed</span>
+              <span className="font-extrabold text-[var(--text-main)] bg-gray-50 px-3 py-1.5 rounded-lg border-2 border-[var(--border-light)]">
                 {stats?.total_lessons_completed.toLocaleString() ?? 0}
               </span>
             </div>
-            <div className="flex justify-between items-center text-sm">
-              <span className="text-[#6B7280] font-medium">Total Tests Taken</span>
-              <span className="font-semibold text-[#111827]">
+            <div className="flex justify-between items-center text-[15px]">
+              <span className="text-[var(--text-muted)] font-bold">Total Tests Taken</span>
+              <span className="font-extrabold text-[var(--text-main)] bg-gray-50 px-3 py-1.5 rounded-lg border-2 border-[var(--border-light)]">
                 {stats?.total_tests_taken.toLocaleString() ?? 0}
               </span>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-[12px] shadow-sm p-6 border border-[#EAEAEA]">
-          <h2 className="text-[15px] font-semibold tracking-tight text-[#111827] mb-5">Platform Health</h2>
-          <div className="space-y-4">
-            <div className="flex justify-between items-center text-sm">
-              <span className="text-[#6B7280] font-medium">User Retention</span>
-              <span className="font-semibold text-[#111827]">
+        <div className="card-brilliant p-8">
+          <h2 className="font-display text-xl font-bold tracking-tight text-[var(--text-main)] mb-6 border-b-2 border-[var(--border-light)] pb-4">Platform Health</h2>
+          <div className="space-y-5">
+            <div className="flex justify-between items-center text-[15px]">
+              <span className="text-[var(--text-muted)] font-bold">User Retention</span>
+              <span className="font-extrabold text-[var(--text-main)] bg-green-50 px-3 py-1.5 rounded-lg border-2 border-green-200 text-green-800">
                 {stats && stats.total_users > 0
                   ? ((stats.daily_active_users / stats.total_users) * 100).toFixed(1)
                   : 0}%
               </span>
             </div>
-            <div className="flex justify-between items-center text-sm">
-              <span className="text-[#6B7280] font-medium">Premium Conversion</span>
-              <span className="font-semibold text-[#111827]">
+            <div className="flex justify-between items-center text-[15px]">
+              <span className="text-[var(--text-muted)] font-bold">Premium Conversion</span>
+              <span className="font-extrabold text-[var(--text-main)] bg-blue-50 px-3 py-1.5 rounded-lg border-2 border-blue-200 text-blue-800">
                 {stats && stats.total_users > 0
                   ? ((stats.active_subscriptions / stats.total_users) * 100).toFixed(1)
                   : 0}%
@@ -148,38 +148,38 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* Recent Registrations */}
-      <div className="bg-white rounded-[12px] shadow-sm p-6 border border-[#EAEAEA]">
-        <h2 className="text-[15px] font-semibold tracking-tight text-[#111827] mb-5">Recent Registrations</h2>
+      <div className="card-brilliant p-8">
+        <h2 className="font-display text-xl font-bold tracking-tight text-[var(--text-main)] mb-6 border-b-2 border-[var(--border-light)] pb-4">Recent Registrations</h2>
         {recentUsers.length === 0 ? (
-          <p className="text-[#9CA3AF] text-center py-8 text-sm">No recent registrations</p>
+          <p className="text-[var(--text-muted)] font-bold text-center py-10 bg-gray-50 border-2 border-[var(--border-light)] rounded-2xl text-sm">No recent registrations</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="text-left text-xs text-[#9CA3AF] uppercase tracking-wider border-b border-[#EAEAEA]">
-                  <th className="pb-3 font-semibold">Email</th>
-                  <th className="pb-3 font-semibold">Name</th>
-                  <th className="pb-3 font-semibold">Role</th>
-                  <th className="pb-3 font-semibold">Joined</th>
+                <tr className="text-left text-[11px] text-[var(--text-muted)] uppercase tracking-widest border-b-2 border-[var(--border-light)]">
+                  <th className="pb-4 font-bold">Email</th>
+                  <th className="pb-4 font-bold">Name</th>
+                  <th className="pb-4 font-bold">Role</th>
+                  <th className="pb-4 font-bold text-right">Joined</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#EAEAEA]">
+              <tbody className="divide-y-2 divide-[var(--border-light)]">
                 {recentUsers.map((user) => (
-                  <tr key={user.id} className="text-sm transition-colors hover:bg-[#FAFAFA]">
-                    <td className="py-3 text-[#111827] font-medium">{user.email}</td>
-                    <td className="py-3 text-[#6B7280]">{user.name || '-'}</td>
-                    <td className="py-3">
+                  <tr key={user.id} className="text-[15px] transition-colors hover:bg-gray-50/50">
+                    <td className="py-4 text-[var(--text-main)] font-bold">{user.email}</td>
+                    <td className="py-4 text-[var(--text-muted)] font-bold">{user.name || '-'}</td>
+                    <td className="py-4">
                       <span
-                        className={`inline-flex px-2 py-0.5 text-[10px] font-semibold rounded-[4px] border uppercase tracking-widest ${
+                        className={`inline-block px-3 py-1 text-[10px] font-bold rounded-lg border-2 uppercase tracking-widest ${
                           user.role === 'admin' || user.role === 'super_admin'
-                            ? 'bg-[#111827] text-white border-[#111827]'
-                            : 'bg-[#FAFAFA] text-[#111827] border-[#EAEAEA]'
+                            ? 'bg-yellow-100 text-yellow-800 border-yellow-200'
+                            : 'bg-gray-50 text-[var(--text-muted)] border-[var(--border-light)]'
                         }`}
                       >
                         {user.role.replace('_', ' ')}
                       </span>
                     </td>
-                    <td className="py-3 text-[#9CA3AF]">
+                    <td className="py-4 text-[var(--text-muted)] font-bold text-right">
                       {new Date(user.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
                     </td>
                   </tr>

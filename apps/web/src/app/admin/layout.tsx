@@ -95,8 +95,8 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#FAFAFA]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#111827]" />
+      <div className="min-h-screen flex items-center justify-center bg-[var(--bg-page)]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black" />
       </div>
     )
   }
@@ -106,7 +106,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA] font-sans text-[#111827] flex">
+    <div className="min-h-screen bg-[var(--bg-page)] font-sans text-[var(--text-main)] flex">
       {/* Mobile hamburger */}
       <button
         type="button"
@@ -128,14 +128,14 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       {/* Sidebar */}
       <aside
         className={clsx(
-          'fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white border-r border-[#EAEAEA] transform transition-transform duration-300 ease-in-out flex flex-col',
+          'fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white border-r-2 border-[var(--border-light)] transform transition-transform duration-300 ease-in-out flex flex-col',
           'lg:translate-x-0',
           isMobileOpen ? 'translate-x-0' : '-translate-x-full'
         )}
       >
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="flex items-center justify-between p-5 border-b border-[#EAEAEA]">
+          <div className="flex items-center justify-between p-6 border-b-2 border-[var(--border-light)]">
             <BrandLogo
               href="/admin"
               size="md"
@@ -150,18 +150,17 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             </button>
           </div>
 
-          {/* Admin info */}
-          <div className="p-5 border-b border-[#EAEAEA]">
-            <p className="text-xs font-medium text-[#9CA3AF] uppercase tracking-wider mb-1">Logged in as</p>
-            <p className="font-semibold text-sm truncate">{adminUser.email}</p>
-            <p className="text-xs text-[#6B7280] mt-1.5 capitalize font-medium px-2 py-0.5 bg-[#FAFAFA] border border-[#EAEAEA] rounded inline-block">{adminUser.role.replace('_', ' ')}</p>
+          <div className="p-6 border-b-2 border-[var(--border-light)]">
+            <p className="text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-widest mb-1">Logged in as</p>
+            <p className="font-bold text-sm truncate text-[var(--text-main)] mb-2">{adminUser.email}</p>
+            <p className="text-[10px] text-yellow-800 uppercase tracking-widest font-bold px-2.5 py-1 bg-yellow-100 border-2 border-yellow-200 rounded-lg inline-block">{adminUser.role.replace('_', ' ')}</p>
           </div>
 
           {/* Navigation */}
           <nav className="flex-1 p-5 space-y-8 overflow-y-auto">
             {/* Main nav */}
             <div className="space-y-1">
-              <p className="px-3 text-xs font-semibold text-[#9CA3AF] uppercase tracking-wider mb-3">Main</p>
+              <p className="px-3 text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-widest mb-3">Main</p>
               {navItems.map((item) => {
                 const Icon = item.icon
                 const active = isActive(item.href, item.exact)
@@ -172,13 +171,13 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                     href={item.href}
                     onClick={() => setIsMobileOpen(false)}
                     className={clsx(
-                      'flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors text-sm',
+                      'flex items-center gap-3 px-4 py-3 rounded-2xl transition-all text-sm font-bold border-2',
                       active
-                        ? 'bg-[#FAFAFA] text-[#111827] font-semibold'
-                        : 'text-[#6B7280] hover:bg-[#FAFAFA] hover:text-[#111827] font-medium'
+                        ? 'bg-[var(--text-main)] text-white border-black shadow-[0_4px_0_rgba(0,0,0,0.2)] -translate-y-0.5'
+                        : 'border-transparent text-[var(--text-muted)] hover:bg-gray-50 hover:text-black hover:border-[var(--border-light)]'
                     )}
                   >
-                    <Icon className={clsx('w-[18px] h-[18px]', active ? 'text-[#111827]' : 'text-[#9CA3AF]')} />
+                    <Icon className={clsx('w-5 h-5', active ? 'text-white' : 'text-gray-400')} />
                     <span>{item.label}</span>
                   </Link>
                 )
@@ -187,7 +186,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
             {/* Content Management */}
             <div className="space-y-1">
-              <p className="px-3 text-xs font-semibold text-[#9CA3AF] uppercase tracking-wider mb-3">Content</p>
+              <p className="px-3 text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-widest mb-3">Content</p>
               {contentNavItems.map((item) => {
                 const Icon = item.icon
                 const active = isActive(item.href, item.exact)
@@ -198,13 +197,13 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                     href={item.href}
                     onClick={() => setIsMobileOpen(false)}
                     className={clsx(
-                      'flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-colors text-sm',
+                      'flex items-center gap-3 px-4 py-3 rounded-2xl transition-all text-sm font-bold border-2',
                       active
-                        ? 'bg-[#FAFAFA] text-[#111827] font-semibold'
-                        : 'text-[#6B7280] hover:bg-[#FAFAFA] hover:text-[#111827] font-medium'
+                        ? 'bg-[var(--text-main)] text-white border-black shadow-[0_4px_0_rgba(0,0,0,0.2)] -translate-y-0.5'
+                        : 'border-transparent text-[var(--text-muted)] hover:bg-gray-50 hover:text-black hover:border-[var(--border-light)]'
                     )}
                   >
-                    <Icon className={clsx('w-[18px] h-[18px]', active ? 'text-[#111827]' : 'text-[#9CA3AF]')} />
+                    <Icon className={clsx('w-5 h-5', active ? 'text-white' : 'text-gray-400')} />
                     <span>{item.label}</span>
                   </Link>
                 )
@@ -214,12 +213,12 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           </nav>
 
           {/* Footer */}
-          <div className="p-5 border-t border-[#EAEAEA]">
+          <div className="p-5 overflow-visible">
             <button
               onClick={handleLogout}
-              className="flex items-center gap-3 w-full px-3 py-2.5 text-[#6B7280] hover:text-[#111827] hover:bg-[#FAFAFA] rounded-[8px] transition-colors text-sm font-medium"
+              className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-red-50 border-2 border-red-200 text-red-600 hover:bg-red-100 rounded-2xl transition-all text-sm font-bold shadow-[0_4px_0_rgb(254,202,202)] hover:-translate-y-0.5 active:translate-y-1 active:shadow-none"
             >
-              <LogOut className="w-[18px] h-[18px]" />
+              <LogOut className="w-5 h-5" />
               <span>Logout</span>
             </button>
           </div>
@@ -227,8 +226,8 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       </aside>
 
       {/* Main content */}
-      <main className="flex-1 p-4 lg:p-8 pt-16 lg:pt-8 overflow-y-auto">
-        <div className="max-w-7xl mx-auto">
+      <main className="flex-1 p-4 lg:p-10 pt-20 lg:pt-10 overflow-y-auto">
+        <div className="max-w-7xl mx-auto mb-20">
           {children}
         </div>
       </main>
