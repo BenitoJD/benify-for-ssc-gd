@@ -134,12 +134,19 @@ NEXT_PUBLIC_APP_URL=http://localhost:3100
 ### Start with Docker Compose
 
 ```bash
-# Build and start all services
+# Start local development with hot reload
 docker compose up --build
 
 # Or run in detached mode
 docker compose up --build -d
 ```
+
+The repository includes a `docker-compose.override.yml` for local development, so source changes under `apps/web` and `apps/api` are bind-mounted into the containers:
+
+- `web` runs `next dev` with hot reload
+- `api` runs `uvicorn --reload`
+
+For day-to-day development, you can usually use `docker compose up` after the first build.
 
 ### Access Points
 
