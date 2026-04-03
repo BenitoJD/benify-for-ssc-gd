@@ -72,10 +72,11 @@ ENV NEXT_PUBLIC_BASE_URL=${NEXT_PUBLIC_BASE_URL}
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
 
-# Copy necessary files from builder
-COPY --from=builder /repo/apps/web/public ./public
+# Copy the standalone server plus the assets relative to apps/web,
+# which is where Next's generated server.js runs from in this workspace layout.
 COPY --from=builder --chown=nextjs:nodejs /repo/apps/web/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /repo/apps/web/.next/static ./.next/static
+COPY --from=builder --chown=nextjs:nodejs /repo/apps/web/public ./apps/web/public
+COPY --from=builder --chown=nextjs:nodejs /repo/apps/web/.next/static ./apps/web/.next/static
 
 USER nextjs
 
