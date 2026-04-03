@@ -9,4 +9,4 @@ Environment=REPO_DIR=/opt/benify-for-ssc-gd
 Environment=BRANCH=main
 Environment=ENV_FILE=/opt/benify-for-ssc-gd/.env.production
 Environment=COMPOSE_FILE=/opt/benify-for-ssc-gd/docker-compose.prod.yml
-ExecStart=/opt/benify-for-ssc-gd/ops/deploy/auto-deploy.sh
+ExecStart=/bin/bash /opt/benify-for-ssc-gd/ops/deploy/auto-deploy.sh
