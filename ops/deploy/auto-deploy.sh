@@ -1,13 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-DEFAULT_REPO_DIR="/opt/olli-for-ssc-gd"
-LEGACY_REPO_DIR="/opt/benify-for-ssc-gd"
-REPO_DIR="${REPO_DIR:-$DEFAULT_REPO_DIR}"
-
-if [[ ! -d "$REPO_DIR" && "$REPO_DIR" == "$DEFAULT_REPO_DIR" && -d "$LEGACY_REPO_DIR" ]]; then
-  REPO_DIR="$LEGACY_REPO_DIR"
-fi
+REPO_DIR="${REPO_DIR:-/opt/olli-for-ssc-gd}"
 
 if [[ ! -d "$REPO_DIR" ]]; then
   echo "Repository directory not found: $REPO_DIR" >&2
