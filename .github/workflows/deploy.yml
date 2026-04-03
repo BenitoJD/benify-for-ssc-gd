@@ -106,50 +106,10 @@ jobs:
             "GHCR_OWNER='$GHCR_OWNER' IMAGE_TAG='$IMAGE_TAG' bash -s" <<'EOF'
           set -euo pipefail
           REPO_DIR=/opt/olli-for-ssc-gd
-          LEGACY_REPO_DIR=/opt/benify-for-ssc-gd
-
-          run_with_privilege() {
-            if "$@" 2>/dev/null; then
-              return 0
-            elif [[ "$(id -u)" -eq 0 ]]; then
-              "$@"
-            elif command -v sudo >/dev/null && sudo -n true 2>/dev/null; then
-              sudo "$@"
-            else
-              echo "Unable to run required server migration command: $*" >&2
-              exit 1
-            fi
-          }
-
-          if [[ -d "$REPO_DIR" && -d "$LEGACY_REPO_DIR" ]]; then
-            echo "Both $REPO_DIR and $LEGACY_REPO_DIR exist on the server. Resolve the duplicate checkout before deploying." >&2
-            exit 1
-          fi
-
-          if [[ ! -d "$REPO_DIR" && -d "$LEGACY_REPO_DIR" ]]; then
-            run_with_privilege mv "$LEGACY_REPO_DIR" "$REPO_DIR"
-          fi
-
-          if [[ ! -d "$REPO_DIR" ]]; then
-            echo "Expected deployment directory $REPO_DIR was not found." >&2
-            exit 1
-          fi
-
           cd "$REPO_DIR"
           git fetch origin
           git checkout main
           git reset --hard "$IMAGE_TAG"
-
-          if command -v systemctl >/dev/null; then
-            run_with_privilege install -m 0644 ops/systemd/olli-autodeploy.service /etc/systemd/system/olli-autodeploy.service
-            run_with_privilege install -m 0644 ops/systemd/olli-autodeploy.timer /etc/systemd/system/olli-autodeploy.timer
-            run_with_privilege rm -f /etc/systemd/system/benify-autodeploy.service /etc/systemd/system/benify-autodeploy.timer
-            run_with_privilege systemctl daemon-reload
-            run_with_privilege systemctl disable --now benify-autodeploy.timer || true
-            run_with_privilege systemctl disable benify-autodeploy.service || true
-            run_with_privilege systemctl enable --now olli-autodeploy.timer
-          fi
-
           docker compose --env-file .env.production -f docker-compose.prod.yml pull web api
           docker compose --env-file .env.production -f docker-compose.prod.yml up -d --remove-orphans
           docker compose --env-file .env.production -f docker-compose.prod.yml up -d --no-deps --force-recreate nginx

@@ -5,6 +5,8 @@ Wants=network-online.target
 
 [Service]
 Type=oneshot
+User=deploy
+Group=deploy
 Environment=REPO_DIR=/opt/olli-for-ssc-gd
 Environment=BRANCH=main
 Environment=ENV_FILE=/opt/olli-for-ssc-gd/.env.production
