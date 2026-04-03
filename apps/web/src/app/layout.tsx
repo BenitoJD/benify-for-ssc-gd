@@ -95,7 +95,7 @@ const organizationStructuredData = {
   '@type': 'Organization',
   name: 'Benify for SSC GD',
   url: BASE_URL,
-  logo: `${BASE_URL}/benify-for-ssc-gd-logo.png`,
+  logo: `${BASE_URL}/benify-logo.png`,
   description: 'Your complete SSC GD preparation companion with comprehensive study materials, mock tests, and physical training tracking.',
   sameAs: [],
   contactPoint: {
@@ -108,9 +108,9 @@ const organizationStructuredData = {
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
   icons: {
-    icon: '/benify-for-ssc-gd-logo.png',
-    shortcut: '/benify-for-ssc-gd-logo.png',
-    apple: '/benify-for-ssc-gd-logo.png',
+    icon: '/benify-logo.png',
+    shortcut: '/benify-logo.png',
+    apple: '/benify-logo.png',
   },
   title: {
     default: 'Benify for SSC GD - Complete Preparation | Study Materials, Mock Tests & Physical Training',
@@ -158,33 +158,19 @@ export const metadata: Metadata = {
     description: 'Prepare for SSC GD exam with Benify for SSC GD - Access comprehensive study materials, mock tests, PST/PET training plans, and document readiness tracking with full free access.',
     images: [
       {
-        url: '/benify-for-ssc-gd-logo.png',
+        url: '/benify-logo.png',
         width: 640,
         height: 640,
         alt: 'Benify for SSC GD - SSC GD Complete Preparation Platform',
         type: 'image/jpeg'
-      },
-      {
-        url: '/benify-for-ssc-gd-og-image.jpg',
-        width: 1200,
-        height: 630,
-        alt: 'Benify for SSC GD - Prepare for SSC GD with guided support',
-        type: 'image/jpeg'
       }
     ],
-    videos: [
-      {
-        url: `${BASE_URL}/benify-for-ssc-gd-demo.mp4`,
-        width: 1280,
-        height: 720
-      }
-    ]
   },
   twitter: {
     card: 'summary',
     title: 'Benify for SSC GD - SSC GD Complete Preparation',
     description: 'Prepare for SSC GD exam with comprehensive study materials, mock tests, and physical training.',
-    images: ['/benify-for-ssc-gd-logo.png'],
+    images: ['/benify-logo.png'],
   },
   robots: {
     index: true,

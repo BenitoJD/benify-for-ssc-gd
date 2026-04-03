@@ -96,8 +96,8 @@ Benify for SSC GD is a full-stack SSC GD preparation platform built to support t
 ### Clone the Repository
 
 ```bash
-git clone https://github.com/your-org/benify-for-ssc-gd.git
-cd benify-for-ssc-gd
+git clone https://github.com/BenitoJD/olli-academy-ssc-gd.git
+cd olli-academy-ssc-gd
 ```
 
 ### Environment Configuration
@@ -172,7 +172,7 @@ npm run dev:api
 |---------|-----|
 | Web Application | http://localhost:3101 |
 | API | http://localhost:3100 |
-| API Documentation | http://localhost:3100/docs |
+| API Documentation | http://localhost:3100/docs (when `DEBUG=true`) |
 | MinIO Console | http://localhost:9001 |
 
 ---
@@ -182,7 +182,7 @@ npm run dev:api
 ### Project Structure
 
 ```
-benify-for-ssc-gd/
+olli-academy-ssc-gd/
 ├── apps/
 │   ├── api/                    # FastAPI Backend
 │   │   ├── internal/            # Application code
@@ -323,10 +323,10 @@ The sync endpoint is idempotent on natural content keys, so OpenCloud can safely
 
 ### Interactive API Docs
 
-When `DEBUG=true`, access the interactive API documentation:
+When `DEBUG=true`, access the interactive API documentation on the API server:
 
-- **Swagger UI**: http://localhost:3101/docs
-- **ReDoc**: http://localhost:3101/redoc
+- **Swagger UI**: http://localhost:3100/docs
+- **ReDoc**: http://localhost:3100/redoc
 
 ### Authentication
 
@@ -344,7 +344,7 @@ API endpoints are rate-limited to prevent abuse:
 ### Health Check
 
 ```bash
-curl http://localhost:3101/health
+curl http://localhost:3100/health
 ```
 
 ---
