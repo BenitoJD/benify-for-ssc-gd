@@ -16,13 +16,9 @@ services:
       - benify-prod-network
 
   web:
-    build:
-      context: .
-      dockerfile: apps/web/Dockerfile
-      args:
-        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
-        NEXT_PUBLIC_BASE_URL: ${NEXT_PUBLIC_BASE_URL}
     container_name: benify-prod-web
+    image: ghcr.io/${GHCR_OWNER}/benify-for-ssc-gd-web:${IMAGE_TAG}
+    pull_policy: always
     restart: unless-stopped
     environment:
       NODE_ENV: production
@@ -43,10 +39,9 @@ services:
       - benify-prod-network
 
   api:
-    build:
-      context: .
-      dockerfile: apps/api/Dockerfile
     container_name: benify-prod-api
+    image: ghcr.io/${GHCR_OWNER}/benify-for-ssc-gd-api:${IMAGE_TAG}
+    pull_policy: always
     restart: unless-stopped
     environment:
       APP_URL: ${APP_URL}

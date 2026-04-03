@@ -5,6 +5,8 @@ REPO_DIR="${REPO_DIR:-/opt/benify-for-ssc-gd}"
 BRANCH="${BRANCH:-main}"
 ENV_FILE="${ENV_FILE:-$REPO_DIR/.env.production}"
 COMPOSE_FILE="${COMPOSE_FILE:-$REPO_DIR/docker-compose.prod.yml}"
+GHCR_OWNER="${GHCR_OWNER:-benitojd}"
+IMAGE_TAG="${IMAGE_TAG:-latest}"
 
 cd "$REPO_DIR"
 
@@ -21,5 +23,9 @@ fi
 git checkout "$BRANCH"
 git reset --hard "origin/$BRANCH"
 
-docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" up -d --build --remove-orphans
+export GHCR_OWNER
+export IMAGE_TAG
+
+docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" pull web api
+docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" up -d --remove-orphans
 docker image prune -f
