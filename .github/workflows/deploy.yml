@@ -111,6 +111,7 @@ jobs:
           git reset --hard "$IMAGE_TAG"
           docker compose --env-file .env.production -f docker-compose.prod.yml pull web api
           docker compose --env-file .env.production -f docker-compose.prod.yml up -d --remove-orphans
+          docker compose --env-file .env.production -f docker-compose.prod.yml exec -T nginx nginx -s reload
           for attempt in $(seq 1 30); do
             if curl -fsS http://127.0.0.1/health >/tmp/health.json \
               && curl -fsSI http://127.0.0.1/ >/tmp/home.headers \
