@@ -36,7 +36,7 @@ logger = logging.getLogger(__name__)
 async def lifespan(app: FastAPI):
     """Application lifespan handler for startup and shutdown."""
     # Startup
-    logger.info("Starting up Benify for SSC GD API...")
+    logger.info("Starting up OLLI for SSC GD API...")
     
     try:
         # Initialize database
@@ -55,7 +55,7 @@ async def lifespan(app: FastAPI):
     yield
     
     # Shutdown
-    logger.info("Shutting down Benify for SSC GD API...")
+    logger.info("Shutting down OLLI for SSC GD API...")
     
     try:
         await close_redis()
@@ -123,6 +123,6 @@ app.include_router(content_admin_router, prefix="/api/v1")
 async def root():
     """Root endpoint."""
     return {
-        "message": "Welcome to Benify for SSC GD API",
+        "message": "Welcome to OLLI for SSC GD API",
         "docs": "/docs" if settings.DEBUG else "Disabled in production",
     }

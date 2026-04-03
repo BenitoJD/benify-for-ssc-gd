@@ -1,6 +1,6 @@
-# Benify for SSC GD
+# OLLI for SSC GD
 
-**Benify for SSC GD** is a focused SSC GD preparation platform with practice flows, PYQs, onboarding, analytics, community discussion, physical training support, and document-readiness tools.
+**OLLI for SSC GD** is a focused SSC GD preparation platform with practice flows, PYQs, onboarding, analytics, community discussion, physical training support, and document-readiness tools.
 
 ## 📋 Table of Contents
 
@@ -21,7 +21,7 @@
 
 ## Overview
 
-Benify for SSC GD is a full-stack SSC GD preparation platform built to support the core student journey from signup to practice, progress tracking, fitness readiness, and community help. The platform offers:
+OLLI for SSC GD is a full-stack SSC GD preparation platform built to support the core student journey from signup to practice, progress tracking, fitness readiness, and community help. The platform offers:
 
 - **Adaptive Learning**: Personalized study plans based on performance
 - **Practice Tests**: Comprehensive test series with PYQs (Previous Year Questions)
@@ -99,8 +99,8 @@ Benify for SSC GD is a full-stack SSC GD preparation platform built to support t
 ### Clone the Repository
 
 ```bash
-git clone https://github.com/BenitoJD/olli-academy-ssc-gd.git
-cd olli-academy-ssc-gd
+git clone https://github.com/BenitoJD/olli-for-ssc-gd.git
+cd olli-for-ssc-gd
 ```
 
 ### Environment Configuration
@@ -111,7 +111,7 @@ Create a `.env` file in the project root with the following variables:
 # Database
 DB_USER=postgres
 DB_PASSWORD=postgres
-DB_NAME=benify_for_ssc_gd
+DB_NAME=olli_for_ssc_gd
 
 # Redis
 REDIS_URL=redis://localhost:6379/0
@@ -119,7 +119,7 @@ REDIS_URL=redis://localhost:6379/0
 # MinIO (S3-compatible storage)
 MINIO_ACCESS_KEY=minioadmin
 MINIO_SECRET_KEY=minioadmin
-MINIO_BUCKET=benify-for-ssc-gd
+MINIO_BUCKET=olli-for-ssc-gd
 MINIO_SECURE=false
 
 # JWT Authentication (REQUIRED in production - generate a secure random string)
@@ -176,12 +176,12 @@ This repository also includes a server-oriented production deployment path:
 - `docker-compose.prod.yml` for the full application stack
 - `ops/nginx.prod.conf` for reverse proxying web and API traffic
 - `ops/deploy/auto-deploy.sh` for pull-based auto deployment from `main`
-- `ops/systemd/benify-autodeploy.service` and `.timer` for continuous deployment on a server
+- `ops/systemd/olli-autodeploy.service` and `.timer` for continuous deployment on a server
 
 Typical server layout:
 
-- repo clone at `/opt/benify-for-ssc-gd`
-- production env file at `/opt/benify-for-ssc-gd/.env.production`
+- repo clone at `/opt/olli-for-ssc-gd`
+- production env file at `/opt/olli-for-ssc-gd/.env.production`
 - public app served on port `80`
 - API served behind Nginx at `/api`
 
@@ -511,7 +511,7 @@ Prefer the admin UI when:
 ### Project Structure
 
 ```
-olli-academy-ssc-gd/
+olli-for-ssc-gd/
 ├── apps/
 │   ├── api/                    # FastAPI Backend
 │   │   ├── internal/            # Application code

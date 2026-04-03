@@ -27,7 +27,7 @@ ENV NODE_ENV=development
 
 EXPOSE 3101
 
-CMD ["npm", "run", "dev", "--workspace", "benify-for-ssc-gd-web"]
+CMD ["npm", "run", "dev", "--workspace", "olli-for-ssc-gd-web"]
 
 # ================
 # Builder Stage
@@ -51,7 +51,7 @@ ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 ENV NEXT_PUBLIC_BASE_URL=${NEXT_PUBLIC_BASE_URL}
 
 # Build the application
-RUN npm run build --workspace benify-for-ssc-gd-web
+RUN npm run build --workspace olli-for-ssc-gd-web
 
 # ================
 # Runner Stage

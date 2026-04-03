@@ -5,7 +5,7 @@ export default function PrivacyPage() {
     <InfoPageShell
       eyebrow="Privacy Policy"
       title="Your privacy matters."
-      description="This page explains, at a high level, what information Benify for SSC GD collects, why it is used, and how users can contact us about privacy concerns."
+      description="This page explains, at a high level, what information OLLI for SSC GD collects, why it is used, and how users can contact us about privacy concerns."
     >
       <h2>Information we collect</h2>
       <p>
@@ -37,7 +37,7 @@ export default function PrivacyPage() {
 
       <h2>Questions</h2>
       <p>
-        For privacy questions, contact <a href="mailto:privacy@benify.in">privacy@benify.in</a>.
+        For privacy questions, contact <a href="mailto:privacy@olli.in">privacy@olli.in</a>.
       </p>
     </InfoPageShell>
   )

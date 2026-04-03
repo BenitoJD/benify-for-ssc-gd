@@ -19,10 +19,10 @@ class TestReferralCodeGeneration:
         user_id = uuid4()
         code = generate_referral_code(user_id)
         
-        # Should start with BENIFY prefix
-        assert code.startswith("BENIFY")
-        # Should be 12 characters total (6 prefix + 6 random)
-        assert len(code) == 12
+        # Should start with OLLI prefix
+        assert code.startswith("OLLI")
+        # Should be 10 characters total (4 prefix + 6 random)
+        assert len(code) == 10
         # Should be uppercase
         assert code.isupper()
     
@@ -44,8 +44,8 @@ class TestReferralService:
         code = await service.get_or_create_referral_code(user_id)
         
         assert code is not None
-        assert code.startswith("BENIFY")
-        assert len(code) == 12
+        assert code.startswith("OLLI")
+        assert len(code) == 10
         
         # Verify code was created in database
         repo = ReferralRepository(test_db)
@@ -219,7 +219,7 @@ class TestReferralDashboard:
         
         dashboard = await service.get_referral_dashboard(user_id)
         
-        assert dashboard.referral_code.startswith("BENIFY")
+        assert dashboard.referral_code.startswith("OLLI")
         assert dashboard.share_url.endswith(dashboard.referral_code)
         assert dashboard.total_referrals == 0
         assert dashboard.pending_referrals == 0
@@ -260,7 +260,7 @@ class TestReferralAPI:
         # Valid code format but doesn't exist
         response = await client.post(
             "/api/v1/referrals/validate",
-            params={"code": "BENIFYXXXXXX"}
+            params={"code": "OLLIXXXXXX"}
         )
         # Should fail validation
         assert response.status_code == 400

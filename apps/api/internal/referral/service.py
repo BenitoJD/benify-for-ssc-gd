@@ -32,8 +32,8 @@ MAX_REFERRAL_CODE_LENGTH = 12
 
 def generate_referral_code(user_id: UUID) -> str:
     """Generate a unique referral code for a user."""
-    # Format: BENIFY + random alphanumeric
-    prefix = "BENIFY"
+    # Format: OLLI + random alphanumeric
+    prefix = "OLLI"
     random_part = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
     return f"{prefix}{random_part}"
 

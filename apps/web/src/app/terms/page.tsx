@@ -4,12 +4,12 @@ export default function TermsPage() {
   return (
     <InfoPageShell
       eyebrow="Terms of Service"
-      title="Basic terms for using Benify for SSC GD."
+      title="Basic terms for using OLLI for SSC GD."
       description="These terms provide a straightforward overview of expected platform use, account responsibility, and service limitations."
     >
       <h2>Using the platform</h2>
       <p>
-        Benify for SSC GD is provided to help aspirants prepare for the SSC GD
+        OLLI for SSC GD is provided to help aspirants prepare for the SSC GD
         exam. You agree to use the platform lawfully and in a way that does not
         disrupt service for other users.
       </p>
@@ -36,7 +36,7 @@ export default function TermsPage() {
 
       <h2>Contact</h2>
       <p>
-        For questions about these terms, email <a href="mailto:legal@benify.in">legal@benify.in</a>.
+        For questions about these terms, email <a href="mailto:legal@olli.in">legal@olli.in</a>.
       </p>
     </InfoPageShell>
   )

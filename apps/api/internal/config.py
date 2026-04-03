@@ -28,7 +28,7 @@ class Settings(BaseSettings):
     )
 
     # Application
-    APP_NAME: str = "Benify for SSC GD API"
+    APP_NAME: str = "OLLI for SSC GD API"
     APP_VERSION: str = "1.0.0"
     APP_URL: str = "http://localhost:3101"
     DEBUG: bool = False
@@ -42,7 +42,7 @@ class Settings(BaseSettings):
     DB_PASSWORD: str = "your_db_password"
     DB_HOST: str = "localhost"
     DB_PORT: str = "5432"
-    DB_NAME: str = "benify_for_ssc_gd"
+    DB_NAME: str = "olli_for_ssc_gd"
     DATABASE_URL: Optional[str] = None  # Set via DATABASE_URL env var or constructed from DB_* vars
     DATABASE_POOL_SIZE: int = 20
     DATABASE_MAX_OVERFLOW: int = 10
@@ -57,7 +57,7 @@ class Settings(BaseSettings):
     MINIO_ENDPOINT: str = "localhost:3102"
     MINIO_ACCESS_KEY: str = "your_minio_access_key"
     MINIO_SECRET_KEY: str = "your_minio_secret_key"
-    MINIO_BUCKET: str = "benify-for-ssc-gd"
+    MINIO_BUCKET: str = "olli-for-ssc-gd"
     MINIO_SECURE: bool = False
     
     # JWT

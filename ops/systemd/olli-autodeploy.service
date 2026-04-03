@@ -1,0 +1,12 @@
+[Unit]
+Description=OLLI for SSC GD auto deployment
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+Environment=REPO_DIR=/opt/olli-for-ssc-gd
+Environment=BRANCH=main
+Environment=ENV_FILE=/opt/olli-for-ssc-gd/.env.production
+Environment=COMPOSE_FILE=/opt/olli-for-ssc-gd/docker-compose.prod.yml
+ExecStart=/bin/bash /opt/olli-for-ssc-gd/ops/deploy/auto-deploy.sh

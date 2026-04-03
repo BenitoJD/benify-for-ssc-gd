@@ -1,7 +1,7 @@
 services:
   nginx:
     image: nginx:1.27-alpine
-    container_name: benify-prod-nginx
+    container_name: olli-prod-nginx
     restart: unless-stopped
     depends_on:
       web:
@@ -13,11 +13,11 @@ services:
     volumes:
       - ./ops/nginx.prod.conf:/etc/nginx/conf.d/default.conf:ro
     networks:
-      - benify-prod-network
+      - olli-prod-network
 
   web:
-    container_name: benify-prod-web
-    image: ghcr.io/${GHCR_OWNER}/benify-for-ssc-gd-web:${IMAGE_TAG}
+    container_name: olli-prod-web
+    image: ghcr.io/${GHCR_OWNER}/olli-for-ssc-gd-web:${IMAGE_TAG}
     pull_policy: always
     restart: unless-stopped
     environment:
@@ -36,11 +36,11 @@ services:
       api:
         condition: service_started
     networks:
-      - benify-prod-network
+      - olli-prod-network
 
   api:
-    container_name: benify-prod-api
-    image: ghcr.io/${GHCR_OWNER}/benify-for-ssc-gd-api:${IMAGE_TAG}
+    container_name: olli-prod-api
+    image: ghcr.io/${GHCR_OWNER}/olli-for-ssc-gd-api:${IMAGE_TAG}
     pull_policy: always
     restart: unless-stopped
     environment:
@@ -75,11 +75,11 @@ services:
       redis:
         condition: service_healthy
     networks:
-      - benify-prod-network
+      - olli-prod-network
 
   postgres:
     image: postgres:16-alpine
-    container_name: benify-prod-postgres
+    container_name: olli-prod-postgres
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${DB_USER}
@@ -95,11 +95,11 @@ services:
       retries: 5
       start_period: 15s
     networks:
-      - benify-prod-network
+      - olli-prod-network
 
   redis:
     image: redis:7-alpine
-    container_name: benify-prod-redis
+    container_name: olli-prod-redis
     restart: unless-stopped
     command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
     volumes:
@@ -111,12 +111,12 @@ services:
       retries: 5
       start_period: 5s
     networks:
-      - benify-prod-network
+      - olli-prod-network
 
 volumes:
   postgres_prod_data:
   redis_prod_data:
 
 networks:
-  benify-prod-network:
+  olli-prod-network:
     driver: bridge

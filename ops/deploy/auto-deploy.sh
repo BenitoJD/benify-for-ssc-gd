@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-REPO_DIR="${REPO_DIR:-/opt/benify-for-ssc-gd}"
+REPO_DIR="${REPO_DIR:-/opt/olli-for-ssc-gd}"
 BRANCH="${BRANCH:-main}"
 ENV_FILE="${ENV_FILE:-$REPO_DIR/.env.production}"
 COMPOSE_FILE="${COMPOSE_FILE:-$REPO_DIR/docker-compose.prod.yml}"

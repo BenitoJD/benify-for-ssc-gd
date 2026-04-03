@@ -1,0 +1,10 @@
+[Unit]
+Description=Run OLLI for SSC GD auto deployment every minute
+
+[Timer]
+OnBootSec=1min
+OnUnitActiveSec=1min
+Unit=olli-autodeploy.service
+
+[Install]
+WantedBy=timers.target

@@ -5,7 +5,7 @@ export default function ContactPage() {
   return (
     <InfoPageShell
       eyebrow="Contact"
-      title="Get in touch with the Benify for SSC GD team."
+      title="Get in touch with the OLLI for SSC GD team."
       description="Use this page for product questions, support requests, partnership conversations, or feedback about the preparation experience."
     >
       <h2>Support</h2>
@@ -40,7 +40,7 @@ export default function ContactPage() {
       </ul>
 
       <p>
-        New here? <Link href="/signup">Join Benify for SSC GD</Link>.
+        New here? <Link href="/signup">Join OLLI for SSC GD</Link>.
       </p>
     </InfoPageShell>
   )

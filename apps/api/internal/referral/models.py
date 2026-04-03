@@ -81,7 +81,7 @@ class ReferralCode(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), unique=True, nullable=False, index=True)
     
-    # The actual code (e.g., "BENIFY2024XYZ123")
+    # The actual code (e.g., "OLLI2024XYZ123")
     code = Column(String(50), unique=True, nullable=False, index=True)
     
     # Whether this code has been used at least once
