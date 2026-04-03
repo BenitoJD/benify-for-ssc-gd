@@ -1,3 +1,5 @@
+name: olli-for-ssc-gd
+
 services:
   nginx:
     image: nginx:1.27-alpine
