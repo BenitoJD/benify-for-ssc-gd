@@ -32,10 +32,10 @@ const faqStructuredData = {
     },
     {
       '@type': 'Question',
-      name: 'Is OLLI Academy(SSC GD) free to use?',
+      name: 'Is Benify for SSC GD free to use?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Yes. OLLI Academy(SSC GD) is currently free to use, including study materials, practice flows, physical training tools, community features, and document-readiness support.'
+        text: 'Yes. Benify for SSC GD is currently free to use, including study materials, practice flows, physical training tools, community features, and document-readiness support.'
       }
     },
     {
@@ -48,10 +48,10 @@ const faqStructuredData = {
     },
     {
       '@type': 'Question',
-      name: 'What language is OLLI Academy(SSC GD) currently focused on?',
+      name: 'What language is Benify for SSC GD currently focused on?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'OLLI Academy(SSC GD) is currently focused on English-only product flows while the core study and preparation experience is being refined.'
+        text: 'Benify for SSC GD is currently focused on English-only product flows while the core study and preparation experience is being refined.'
       }
     }
   ]
@@ -65,7 +65,7 @@ const courseStructuredData = {
   description: 'Comprehensive SSC GD exam preparation including written exam study materials, mock tests, physical training plans, and document readiness tracking with free access to the full platform.',
   provider: {
     '@type': 'Organization',
-    name: 'OLLI Academy(SSC GD)',
+    name: 'Benify for SSC GD',
     url: BASE_URL
   },
   hasCourseInstance: [
@@ -93,9 +93,9 @@ const courseStructuredData = {
 const organizationStructuredData = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
-  name: 'OLLI Academy(SSC GD)',
+  name: 'Benify for SSC GD',
   url: BASE_URL,
-  logo: `${BASE_URL}/olli-academy-ssc-gd-logo.png`,
+  logo: `${BASE_URL}/benify-for-ssc-gd-logo.png`,
   description: 'Your complete SSC GD preparation companion with comprehensive study materials, mock tests, and physical training tracking.',
   sameAs: [],
   contactPoint: {
@@ -108,16 +108,16 @@ const organizationStructuredData = {
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
   icons: {
-    icon: '/olli-academy-ssc-gd-logo.png',
-    shortcut: '/olli-academy-ssc-gd-logo.png',
-    apple: '/olli-academy-ssc-gd-logo.png',
+    icon: '/benify-for-ssc-gd-logo.png',
+    shortcut: '/benify-for-ssc-gd-logo.png',
+    apple: '/benify-for-ssc-gd-logo.png',
   },
   title: {
-    default: 'OLLI Academy(SSC GD) - Complete Preparation | Study Materials, Mock Tests & Physical Training',
-    template: '%s | OLLI Academy(SSC GD)',
-    absolute: 'OLLI Academy(SSC GD) - Complete Preparation | Ace Your Exam'
+    default: 'Benify for SSC GD - Complete Preparation | Study Materials, Mock Tests & Physical Training',
+    template: '%s | Benify for SSC GD',
+    absolute: 'Benify for SSC GD - Complete Preparation | Ace Your Exam'
   },
-  description: 'Prepare for SSC GD exam with OLLI Academy(SSC GD) - Access comprehensive study materials, mock tests, PST/PET training plans, and document readiness tracking with full free access.',
+  description: 'Prepare for SSC GD exam with Benify for SSC GD - Access comprehensive study materials, mock tests, PST/PET training plans, and document readiness tracking with full free access.',
   keywords: [
     'SSC GD preparation',
     'SSC GD study material',
@@ -141,9 +141,9 @@ export const metadata: Metadata = {
     'SSC GD online preparation',
     'SSC GD practice app'
   ],
-  authors: [{ name: 'OLLI Academy(SSC GD)', url: BASE_URL }],
-  creator: 'OLLI Academy(SSC GD)',
-  publisher: 'OLLI Academy(SSC GD)',
+  authors: [{ name: 'Benify for SSC GD', url: BASE_URL }],
+  creator: 'Benify for SSC GD',
+  publisher: 'Benify for SSC GD',
   formatDetection: {
     email: false,
     address: false,
@@ -153,28 +153,28 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_IN',
     url: BASE_URL,
-    siteName: 'OLLI Academy(SSC GD)',
-    title: 'OLLI Academy(SSC GD) - Complete Preparation | Study Materials, Mock Tests & Physical Training',
-    description: 'Prepare for SSC GD exam with OLLI Academy(SSC GD) - Access comprehensive study materials, mock tests, PST/PET training plans, and document readiness tracking with full free access.',
+    siteName: 'Benify for SSC GD',
+    title: 'Benify for SSC GD - Complete Preparation | Study Materials, Mock Tests & Physical Training',
+    description: 'Prepare for SSC GD exam with Benify for SSC GD - Access comprehensive study materials, mock tests, PST/PET training plans, and document readiness tracking with full free access.',
     images: [
       {
-        url: '/olli-academy-ssc-gd-logo.png',
+        url: '/benify-for-ssc-gd-logo.png',
         width: 640,
         height: 640,
-        alt: 'OLLI Academy(SSC GD) - SSC GD Complete Preparation Platform',
+        alt: 'Benify for SSC GD - SSC GD Complete Preparation Platform',
         type: 'image/jpeg'
       },
       {
-        url: '/olli-academy-ssc-gd-og-image.jpg',
+        url: '/benify-for-ssc-gd-og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'OLLI Academy(SSC GD) - Prepare for SSC GD with guided support',
+        alt: 'Benify for SSC GD - Prepare for SSC GD with guided support',
         type: 'image/jpeg'
       }
     ],
     videos: [
       {
-        url: `${BASE_URL}/olli-academy-ssc-gd-demo.mp4`,
+        url: `${BASE_URL}/benify-for-ssc-gd-demo.mp4`,
         width: 1280,
         height: 720
       }
@@ -182,9 +182,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary',
-    title: 'OLLI Academy(SSC GD) - SSC GD Complete Preparation',
+    title: 'Benify for SSC GD - SSC GD Complete Preparation',
     description: 'Prepare for SSC GD exam with comprehensive study materials, mock tests, and physical training.',
-    images: ['/olli-academy-ssc-gd-logo.png'],
+    images: ['/benify-for-ssc-gd-logo.png'],
   },
   robots: {
     index: true,

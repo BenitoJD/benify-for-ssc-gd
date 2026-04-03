@@ -4,19 +4,19 @@ services:
   # ================
   postgres:
     image: postgres:16-alpine
-    container_name: olli-academy-ssc-gd-postgres
+    container_name: benify-for-ssc-gd-postgres
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${DB_USER:-postgres}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
-      POSTGRES_DB: ${DB_NAME:-olli_academy_ssc_gd}
+      POSTGRES_DB: ${DB_NAME:-benify_for_ssc_gd}
       POSTGRES_INITDB_ARGS: "--encoding=UTF8"
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-olli_academy_ssc_gd}"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-benify_for_ssc_gd}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -30,7 +30,7 @@ services:
           cpus: '0.5'
           memory: 256M
     networks:
-      - olli-academy-ssc-gd-network
+      - benify-for-ssc-gd-network
     logging:
       driver: json-file
       options:
@@ -43,7 +43,7 @@ services:
   # ================
   redis:
     image: redis:7-alpine
-    container_name: olli-academy-ssc-gd-redis
+    container_name: benify-for-ssc-gd-redis
     restart: unless-stopped
     command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
     ports:
@@ -65,7 +65,7 @@ services:
           cpus: '0.25'
           memory: 128M
     networks:
-      - olli-academy-ssc-gd-network
+      - benify-for-ssc-gd-network
     logging:
       driver: json-file
       options:
@@ -78,7 +78,7 @@ services:
   # ================
   minio:
     image: minio/minio:latest
-    container_name: olli-academy-ssc-gd-minio
+    container_name: benify-for-ssc-gd-minio
     restart: unless-stopped
     command: server /data --console-address ":9001"
     environment:
@@ -104,7 +104,7 @@ services:
           cpus: '0.5'
           memory: 256M
     networks:
-      - olli-academy-ssc-gd-network
+      - benify-for-ssc-gd-network
     logging:
       driver: json-file
       options:
@@ -127,7 +127,7 @@ volumes:
 # Networks
 # ================
 networks:
-  olli-academy-ssc-gd-network:
+  benify-for-ssc-gd-network:
     driver: bridge
     ipam:
       config:

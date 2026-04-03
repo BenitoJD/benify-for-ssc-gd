@@ -9,7 +9,7 @@ export const defaultLocale: Locale = 'en'
 const messages = {
   en: {
     common: {
-      appName: 'OLLI Academy(SSC GD)',
+      appName: 'Benify for SSC GD',
       loading: 'Loading...',
       error: 'An error occurred',
       save: 'Save',
@@ -191,7 +191,7 @@ const messages = {
       },
     },
     onboarding: {
-      title: 'Welcome to OLLI Academy(SSC GD)',
+      title: 'Welcome to Benify for SSC GD',
       subtitle: "Let's set up your personalized preparation plan",
       complete: 'Complete Setup',
       requiredFields: 'Fields marked with * are required',
@@ -373,7 +373,7 @@ const messages = {
         privacy: 'Privacy Policy',
         terms: 'Terms of Service',
         tagline: 'Your complete SSC GD preparation companion.',
-        copyright: '© 2025 OLLI Academy(SSC GD). All rights reserved.',
+        copyright: '© 2025 Benify for SSC GD. All rights reserved.',
       },
     },
     pyq: {

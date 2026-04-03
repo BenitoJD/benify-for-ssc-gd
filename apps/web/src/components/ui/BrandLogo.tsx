@@ -36,8 +36,8 @@ function LogoImage({
   return (
     <span className={clsx('relative block overflow-hidden rounded-2xl', sizeClasses[size][variant], className)}>
       <Image
-        src="/olli-academy-ssc-gd-logo.png"
-        alt="OLLI Academy SSC GD logo"
+        src="/benify-for-ssc-gd-logo.png"
+        alt="Benify for SSC GD logo"
         width={640}
         height={640}
         priority={priority}

@@ -35,7 +35,7 @@ vi.mock('next-intl', () => ({
       'dashboard.completedLesson': 'Completed lesson',
       'dashboard.completedTest': 'Completed test',
       'dashboard.startedStreak': 'Started a {days}-day streak',
-      'common.appName': 'OLLI Academy(SSC GD)',
+      'common.appName': 'Benify for SSC GD',
       'nav.dashboard': 'Dashboard',
       'nav.study': 'Study',
       'nav.tests': 'Tests',

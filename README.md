@@ -1,6 +1,6 @@
-# OLLI Academy(SSC GD)
+# Benify for SSC GD
 
-**OLLI Academy(SSC GD)** is a focused SSC GD preparation platform with practice flows, PYQs, onboarding, analytics, community discussion, physical training support, and document-readiness tools.
+**Benify for SSC GD** is a focused SSC GD preparation platform with practice flows, PYQs, onboarding, analytics, community discussion, physical training support, and document-readiness tools.
 
 ## 📋 Table of Contents
 
@@ -18,7 +18,7 @@
 
 ## Overview
 
-OLLI Academy(SSC GD) is a full-stack SSC GD preparation platform built to support the core student journey from signup to practice, progress tracking, fitness readiness, and community help. The platform offers:
+Benify for SSC GD is a full-stack SSC GD preparation platform built to support the core student journey from signup to practice, progress tracking, fitness readiness, and community help. The platform offers:
 
 - **Adaptive Learning**: Personalized study plans based on performance
 - **Practice Tests**: Comprehensive test series with PYQs (Previous Year Questions)
@@ -96,8 +96,8 @@ OLLI Academy(SSC GD) is a full-stack SSC GD preparation platform built to suppor
 ### Clone the Repository
 
 ```bash
-git clone https://github.com/your-org/olli-academy-ssc-gd.git
-cd olli-academy-ssc-gd
+git clone https://github.com/your-org/benify-for-ssc-gd.git
+cd benify-for-ssc-gd
 ```
 
 ### Environment Configuration
@@ -108,7 +108,7 @@ Create a `.env` file in the project root with the following variables:
 # Database
 DB_USER=postgres
 DB_PASSWORD=postgres
-DB_NAME=olli_academy_ssc_gd
+DB_NAME=benify_for_ssc_gd
 
 # Redis
 REDIS_URL=redis://localhost:6379/0
@@ -116,7 +116,7 @@ REDIS_URL=redis://localhost:6379/0
 # MinIO (S3-compatible storage)
 MINIO_ACCESS_KEY=minioadmin
 MINIO_SECRET_KEY=minioadmin
-MINIO_BUCKET=olli-academy-ssc-gd
+MINIO_BUCKET=benify-for-ssc-gd
 MINIO_SECURE=false
 
 # JWT Authentication (REQUIRED in production - generate a secure random string)
@@ -182,7 +182,7 @@ npm run dev:api
 ### Project Structure
 
 ```
-olli-academy-ssc-gd/
+benify-for-ssc-gd/
 ├── apps/
 │   ├── api/                    # FastAPI Backend
 │   │   ├── internal/            # Application code

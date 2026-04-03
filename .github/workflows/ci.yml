@@ -42,7 +42,7 @@ jobs:
         run: npm ci
 
       - name: Run frontend typecheck
-        run: npm run --workspace olli-academy-ssc-gd-web typecheck
+        run: npm run --workspace benify-for-ssc-gd-web typecheck
 
       - name: Build frontend
         run: npm run build:web
