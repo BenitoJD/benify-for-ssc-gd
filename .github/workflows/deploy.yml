@@ -51,7 +51,9 @@ jobs:
           context: .
           file: apps/api/Dockerfile
           push: true
-          tags: ghcr.io/${{ steps.meta.outputs.ghcr_owner }}/benify-for-ssc-gd-api:${{ steps.meta.outputs.image_tag }}
+          tags: |
+            ghcr.io/${{ steps.meta.outputs.ghcr_owner }}/benify-for-ssc-gd-api:${{ steps.meta.outputs.image_tag }}
+            ghcr.io/${{ steps.meta.outputs.ghcr_owner }}/benify-for-ssc-gd-api:latest
           labels: |
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
             org.opencontainers.image.revision=${{ github.event.workflow_run.head_sha }}
@@ -65,7 +67,9 @@ jobs:
           build-args: |
             NEXT_PUBLIC_API_URL=http://203.57.85.149/api
             NEXT_PUBLIC_BASE_URL=http://203.57.85.149
-          tags: ghcr.io/${{ steps.meta.outputs.ghcr_owner }}/benify-for-ssc-gd-web:${{ steps.meta.outputs.image_tag }}
+          tags: |
+            ghcr.io/${{ steps.meta.outputs.ghcr_owner }}/benify-for-ssc-gd-web:${{ steps.meta.outputs.image_tag }}
+            ghcr.io/${{ steps.meta.outputs.ghcr_owner }}/benify-for-ssc-gd-web:latest
           labels: |
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
             org.opencontainers.image.revision=${{ github.event.workflow_run.head_sha }}
