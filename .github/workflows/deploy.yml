@@ -55,8 +55,8 @@ jobs:
           file: apps/api/Dockerfile
           push: true
           tags: |
-            ghcr.io/${{ steps.meta.outputs.ghcr_owner }}/benify-for-ssc-gd-api:${{ steps.meta.outputs.image_tag }}
-            ghcr.io/${{ steps.meta.outputs.ghcr_owner }}/benify-for-ssc-gd-api:latest
+            ghcr.io/${{ steps.meta.outputs.ghcr_owner }}/olli-for-ssc-gd-api:${{ steps.meta.outputs.image_tag }}
+            ghcr.io/${{ steps.meta.outputs.ghcr_owner }}/olli-for-ssc-gd-api:latest
           labels: |
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
             org.opencontainers.image.revision=${{ steps.meta.outputs.image_tag }}
@@ -71,8 +71,8 @@ jobs:
             NEXT_PUBLIC_API_URL=http://203.57.85.149/api
             NEXT_PUBLIC_BASE_URL=http://203.57.85.149
           tags: |
-            ghcr.io/${{ steps.meta.outputs.ghcr_owner }}/benify-for-ssc-gd-web:${{ steps.meta.outputs.image_tag }}
-            ghcr.io/${{ steps.meta.outputs.ghcr_owner }}/benify-for-ssc-gd-web:latest
+            ghcr.io/${{ steps.meta.outputs.ghcr_owner }}/olli-for-ssc-gd-web:${{ steps.meta.outputs.image_tag }}
+            ghcr.io/${{ steps.meta.outputs.ghcr_owner }}/olli-for-ssc-gd-web:latest
           labels: |
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
             org.opencontainers.image.revision=${{ steps.meta.outputs.image_tag }}
@@ -105,7 +105,7 @@ jobs:
           ssh -i ~/.ssh/id_ed25519 -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" \
             "GHCR_OWNER='$GHCR_OWNER' IMAGE_TAG='$IMAGE_TAG' bash -s" <<'EOF'
           set -euo pipefail
-          cd /opt/benify-for-ssc-gd
+          cd /opt/olli-for-ssc-gd
           git fetch origin
           git checkout main
           git reset --hard "$IMAGE_TAG"
