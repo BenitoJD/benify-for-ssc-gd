@@ -18,6 +18,7 @@ FROM node:20-alpine AS dev
 WORKDIR /repo
 
 COPY --from=deps /repo/node_modules ./node_modules
+COPY --from=deps /repo/apps/web/node_modules ./apps/web/node_modules
 COPY --from=deps /repo/apps/web/package.json ./apps/web/package.json
 COPY apps/web ./apps/web
 
@@ -36,6 +37,7 @@ WORKDIR /repo
 
 # Copy dependencies from deps stage
 COPY --from=deps /repo/node_modules ./node_modules
+COPY --from=deps /repo/apps/web/node_modules ./apps/web/node_modules
 COPY --from=deps /repo/package*.json ./
 COPY --from=deps /repo/apps/web/package.json ./apps/web/package.json
 COPY apps/web ./apps/web
