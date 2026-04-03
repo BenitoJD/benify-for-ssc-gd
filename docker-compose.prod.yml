@@ -53,11 +53,11 @@ services:
       DB_PORT: 5432
       DB_NAME: ${DB_NAME}
       REDIS_URL: redis://redis:6379/0
-      MINIO_ENDPOINT: minio:9000
+      MINIO_ENDPOINT: ${MINIO_ENDPOINT}
       MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
       MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
       MINIO_BUCKET: ${MINIO_BUCKET}
-      MINIO_SECURE: "false"
+      MINIO_SECURE: ${MINIO_SECURE}
       JWT_SECRET_KEY: ${JWT_SECRET_KEY}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
@@ -74,8 +74,6 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-      minio:
-        condition: service_started
     networks:
       - benify-prod-network
 
@@ -115,29 +113,9 @@ services:
     networks:
       - benify-prod-network
 
-  minio:
-    image: quay.io/minio/minio:RELEASE.2023-10-25T06-33-25Z
-    container_name: benify-prod-minio
-    restart: unless-stopped
-    command: server /data --console-address ":9001"
-    environment:
-      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY}
-      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY}
-    volumes:
-      - minio_prod_data:/data
-    healthcheck:
-      test: ["CMD", "mc", "ready", "local"]
-      interval: 30s
-      timeout: 20s
-      retries: 3
-      start_period: 10s
-    networks:
-      - benify-prod-network
-
 volumes:
   postgres_prod_data:
   redis_prod_data:
-  minio_prod_data:
 
 networks:
   benify-prod-network:
