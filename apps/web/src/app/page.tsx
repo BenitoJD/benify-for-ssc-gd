@@ -628,22 +628,22 @@ export default async function HomePage() {
               </h4>
               <ul className="space-y-4 font-bold text-gray-600">
                 <li>
-                  <Link href="/" className="hover:text-black transition-colors">
+                  <Link href="/about" className="hover:text-black transition-colors">
                     {t("landing.footer.aboutUs")}
                   </Link>
                 </li>
                 <li>
-                  <Link href="/" className="hover:text-black transition-colors">
+                  <Link href="/contact" className="hover:text-black transition-colors">
                     {t("landing.footer.contact")}
                   </Link>
                 </li>
                 <li>
-                  <Link href="/" className="hover:text-black transition-colors">
+                  <Link href="/privacy" className="hover:text-black transition-colors">
                     {t("landing.footer.privacy")}
                   </Link>
                 </li>
                 <li>
-                  <Link href="/" className="hover:text-black transition-colors">
+                  <Link href="/terms" className="hover:text-black transition-colors">
                     {t("landing.footer.terms")}
                   </Link>
                 </li>

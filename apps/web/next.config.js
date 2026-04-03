@@ -6,6 +6,7 @@ const withNextIntl = createNextIntlPlugin('./src/i18n.ts');
 const nextConfig = {
   reactStrictMode: true,
   output: 'standalone',
+  allowedDevOrigins: ['127.0.0.1'],
   webpack: (config, { dev }) => {
     if (dev) {
       config.watchOptions = {
@@ -51,26 +52,6 @@ const nextConfig = {
       },
       {
         source: '/faq',
-        destination: '/',
-        permanent: false,
-      },
-      {
-        source: '/about',
-        destination: '/',
-        permanent: false,
-      },
-      {
-        source: '/contact',
-        destination: '/',
-        permanent: false,
-      },
-      {
-        source: '/privacy',
-        destination: '/',
-        permanent: false,
-      },
-      {
-        source: '/terms',
         destination: '/',
         permanent: false,
       },
