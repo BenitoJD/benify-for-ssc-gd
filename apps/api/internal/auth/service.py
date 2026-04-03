@@ -49,17 +49,23 @@ def create_refresh_token(data: dict, expires_delta: Optional[timedelta] = None) 
     return jwt.encode(to_encode, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
 
 
-def decode_token(token: str) -> TokenData:
+def decode_token(token: str, *, expected_type: Optional[str] = None) -> TokenData:
     """Decode and validate a JWT token."""
     try:
         payload = jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
         user_id: str = payload.get("sub")
         email: str = payload.get("email")
         role: str = payload.get("role", "student")
+        token_type: str | None = payload.get("type")
         if user_id is None:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid token",
+            )
+        if expected_type is not None and token_type != expected_type:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail=f"Invalid {expected_type} token",
             )
         return TokenData(user_id=user_id, email=email, role=UserRole(role))
     except JWTError:

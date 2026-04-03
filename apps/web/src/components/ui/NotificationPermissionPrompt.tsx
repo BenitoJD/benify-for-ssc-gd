@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useTranslations } from 'next-intl'
-import { Bell, X, Check, MessageCircle, Calendar, FileText, Award, Clock } from 'lucide-react'
+import { Bell, X, Check, MessageCircle, Calendar, FileText, Clock } from 'lucide-react'
 import { clsx } from 'clsx'
 import {
   isPushSupported,
@@ -26,7 +26,6 @@ interface NotificationTypeOption {
 }
 
 export function NotificationPermissionPrompt({
-  locale,
   onSubscriptionChange,
 }: NotificationPermissionPromptProps) {
   const t = useTranslations('notifications')

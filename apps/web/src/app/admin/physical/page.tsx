@@ -8,9 +8,6 @@ import {
   Trash2,
   Eye,
   X,
-  ChevronLeft,
-  ChevronRight,
-  Filter,
   Dumbbell,
   Activity,
   CheckCircle,
@@ -48,17 +45,6 @@ interface AdminPhysicalPlanDetail extends AdminPhysicalPlan {
 }
 
 interface PhysicalComplianceStats {
-  total_users: number
-  pst_ready_count: number
-  pet_ready_count: number
-  fully_ready_count: number
-  pst_ready_percentage: number
-  pet_ready_percentage: number
-  fully_ready_percentage: number
-}
-
-interface PhysicalComplianceByGender {
-  gender: string
   total_users: number
   pst_ready_count: number
   pet_ready_count: number
@@ -109,15 +95,9 @@ async function fetchComplianceStats(): Promise<PhysicalComplianceStats> {
   return response.data
 }
 
-async function fetchComplianceByGender(): Promise<PhysicalComplianceByGender[]> {
-  const response = await apiClient.get<PhysicalComplianceByGender[]>('/admin/physical/compliance/by-gender')
-  return response.data
-}
-
 export default function AdminPhysicalPage() {
   const [plans, setPlans] = useState<AdminPhysicalPlan[]>([])
   const [compliance, setCompliance] = useState<PhysicalComplianceStats | null>(null)
-  const [complianceByGender, setComplianceByGender] = useState<PhysicalComplianceByGender[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
   const [search, setSearch] = useState('')
@@ -125,8 +105,6 @@ export default function AdminPhysicalPage() {
   const [typeFilter, setTypeFilter] = useState('')
   const [activeFilter, setActiveFilter] = useState<string>('')
   const [page, setPage] = useState(1)
-  const [totalPages, setTotalPages] = useState(1)
-  const [total, setTotal] = useState(0)
 
   // Modal state
   const [modalMode, setModalMode] = useState<ModalMode>(null)
@@ -170,8 +148,6 @@ export default function AdminPhysicalPage() {
       }
       const response = await fetchPhysicalPlans(params)
       setPlans(response)
-      setTotalPages(Math.ceil(response.length / 20) || 1)
-      setTotal(response.length)
     } catch (err) {
       setError('Failed to load physical plans')
       console.error(err)
@@ -182,12 +158,8 @@ export default function AdminPhysicalPage() {
 
   const fetchCompliance = useCallback(async () => {
     try {
-      const [stats, byGender] = await Promise.all([
-        fetchComplianceStats(),
-        fetchComplianceByGender()
-      ])
+      const stats = await fetchComplianceStats()
       setCompliance(stats)
-      setComplianceByGender(byGender)
     } catch (err) {
       console.error('Failed to fetch compliance:', err)
     }
@@ -236,7 +208,7 @@ export default function AdminPhysicalPage() {
       })
       setSelectedPlan(detail)
       setModalMode('edit')
-    } catch (err) {
+    } catch {
       alert('Failed to load plan details')
     }
   }
@@ -246,7 +218,7 @@ export default function AdminPhysicalPage() {
       const detail = await fetchPhysicalPlan(plan.id)
       setSelectedPlan(detail)
       setModalMode('view')
-    } catch (err) {
+    } catch {
       alert('Failed to load plan details')
     }
   }
@@ -287,7 +259,7 @@ export default function AdminPhysicalPage() {
       await deletePhysicalPlan(plan.id)
       fetchPlans()
       fetchCompliance()
-    } catch (err) {
+    } catch {
       alert('Failed to delete plan. Please try again.')
     }
   }
@@ -673,7 +645,7 @@ export default function AdminPhysicalPage() {
                     </label>
                     <select
                       value={formData.plan_type}
-                      onChange={(e) => setFormData({ ...formData, plan_type: e.target.value as any })}
+                      onChange={(e) => setFormData({ ...formData, plan_type: e.target.value as AdminPhysicalPlan['plan_type'] })}
                       required
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
                     >
@@ -690,7 +662,7 @@ export default function AdminPhysicalPage() {
                     </label>
                     <select
                       value={formData.target_gender}
-                      onChange={(e) => setFormData({ ...formData, target_gender: e.target.value as any })}
+                      onChange={(e) => setFormData({ ...formData, target_gender: e.target.value as AdminPhysicalPlan['target_gender'] })}
                       required
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
                     >

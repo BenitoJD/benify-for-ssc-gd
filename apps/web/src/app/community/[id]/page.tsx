@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useTranslations } from 'next-intl'
 import { useRouter, useParams } from 'next/navigation'
 import { Sidebar } from '@/components/ui/Sidebar'
 import { PageHeader } from '@/components/ui/PageHeader'
@@ -19,7 +18,6 @@ import {
 } from '@/lib/api/community'
 
 export default function DiscussionDetailPage() {
-  const t = useTranslations()
   const router = useRouter()
   const params = useParams()
   const discussionId = params.id as string
@@ -27,9 +25,9 @@ export default function DiscussionDetailPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [discussion, setDiscussion] = useState<Discussion | null>(null)
   const [replies, setReplies] = useState<Reply[]>([])
-  const locale: 'en' = 'en'
+  const locale = 'en' as const
   const [currentUserId, setCurrentUserId] = useState<string | null>(null)
-  const [currentUserRole, setCurrentUserRole] = useState<string | null>(null)
+  const currentUserRole = null
   
   // Reply form
   const [replyContent, setReplyContent] = useState('')

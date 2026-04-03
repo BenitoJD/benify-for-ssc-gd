@@ -214,7 +214,7 @@ async def refresh_token(
     
     # Decode the refresh token to get user info
     try:
-        token_data = decode_token(refresh_token)
+        token_data = decode_token(refresh_token, expected_type="refresh")
     except HTTPException:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

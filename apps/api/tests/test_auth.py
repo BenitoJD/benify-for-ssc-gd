@@ -403,6 +403,34 @@ class TestTokenRefresh:
         assert "access_token" in data
         assert "refresh_token" in data
 
+    @pytest.mark.asyncio
+    async def test_refresh_rejects_access_tokens(self, client: AsyncClient):
+        """Test refresh endpoint only accepts refresh tokens."""
+        await client.post(
+            "/api/v1/auth/register",
+            json={
+                "email": "access-token-refresh@example.com",
+                "password": "Test1234"
+            }
+        )
+
+        login_response = await client.post(
+            "/api/v1/auth/login",
+            json={
+                "email": "access-token-refresh@example.com",
+                "password": "Test1234"
+            }
+        )
+        access_token = login_response.json()["access_token"]
+
+        response = await client.post(
+            "/api/v1/auth/refresh",
+            json={"refresh_token": access_token}
+        )
+
+        assert response.status_code == 401
+        assert "refresh" in response.json()["detail"].lower()
+
 
 class TestLogout:
     """Tests for logout endpoint."""

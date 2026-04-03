@@ -7,7 +7,7 @@ from typing import Optional, List
 from uuid import UUID
 
 from ..database import get_db
-from ..auth.service import get_current_user, TokenData
+from ..auth.service import get_current_user, TokenData, require_admin
 from .schemas import (
     TestSeriesCreate,
     TestSeriesUpdate,
@@ -91,11 +91,10 @@ async def get_test_series(
 @router.post("", response_model=TestSeriesDetailResponse, status_code=status.HTTP_201_CREATED)
 async def create_test_series(
     data: TestSeriesCreate,
-    current_user: TokenData = Depends(get_current_user),
+    current_user: TokenData = Depends(require_admin),
     db: AsyncSession = Depends(get_db),
 ):
     """Create a new test series (admin only)."""
-    # TODO: Add admin role check
     service = TestSeriesService(db)
     return await service.create_test_series(data)
 
@@ -104,11 +103,10 @@ async def create_test_series(
 async def update_test_series(
     test_series_id: UUID,
     data: TestSeriesUpdate,
-    current_user: TokenData = Depends(get_current_user),
+    current_user: TokenData = Depends(require_admin),
     db: AsyncSession = Depends(get_db),
 ):
     """Update a test series (admin only)."""
-    # TODO: Add admin role check
     service = TestSeriesService(db)
     return await service.update_test_series(test_series_id, data)
 

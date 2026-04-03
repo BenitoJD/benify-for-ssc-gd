@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { adminApi, AdminUser } from '@/lib/api/admin'
 import { ArrowLeft, User, Mail, Phone, Calendar, Shield, CreditCard, Activity, Award } from 'lucide-react'
@@ -30,7 +30,6 @@ interface UserDetail extends AdminUser {
 export default function AdminUserDetailPage() {
   const params = useParams<{ id: string }>()
   const id = params.id
-  const router = useRouter()
   const [user, setUser] = useState<UserDetail | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')

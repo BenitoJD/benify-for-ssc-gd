@@ -44,30 +44,7 @@ export default function ExamModePage() {
     percentage: number
   } | null>(null)
 
-  // Fetch PYQs based on filters
-  useEffect(() => {
-    fetchPYQs()
-  }, [])
-
-  // Timer effect
-  useEffect(() => {
-    if (state.isSubmitted || state.timeRemaining <= 0) return
-
-    const timer = setInterval(() => {
-      setState(prev => {
-        if (prev.timeRemaining <= 1) {
-          // Auto submit when time runs out
-          handleSubmit()
-          return { ...prev, timeRemaining: 0 }
-        }
-        return { ...prev, timeRemaining: prev.timeRemaining - 1 }
-      })
-    }, 1000)
-
-    return () => clearInterval(timer)
-  }, [state.timeRemaining, state.isSubmitted])
-
-  const fetchPYQs = async () => {
+  const fetchPYQs = useCallback(async () => {
     setLoading(true)
     try {
       const year = searchParams.get('year')
@@ -84,7 +61,7 @@ export default function ExamModePage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [searchParams])
 
   const generateMockPYQs = (): PYQ[] => {
     return [
@@ -169,6 +146,57 @@ export default function ExamModePage() {
   const currentPYQ = pyqs.find(q => q.id === pyqId) || pyqs[0]
   const currentIndex = pyqs.findIndex(q => q.id === (currentPYQ?.id))
 
+  const handleSubmit = useCallback(() => {
+    if (isSubmitting) return
+
+    setIsSubmitting(true)
+    setShowSubmitConfirm(false)
+
+    let correct = 0
+    let incorrect = 0
+    let unattempted = 0
+
+    pyqs.forEach(pyq => {
+      const answer = state.answers[pyq.id]
+      if (answer === undefined) {
+        unattempted++
+      } else if (answer === pyq.correct_answer) {
+        correct++
+      } else {
+        incorrect++
+      }
+    })
+
+    const total = pyqs.length
+    const percentage = total > 0 ? Math.round((correct / total) * 100) : 0
+
+    setResults({ correct, incorrect, unattempted, total, percentage })
+    setState(prev => ({ ...prev, isSubmitted: true }))
+    setIsSubmitting(false)
+  }, [isSubmitting, pyqs, state.answers])
+
+  // Fetch PYQs based on filters
+  useEffect(() => {
+    void fetchPYQs()
+  }, [fetchPYQs])
+
+  // Timer effect
+  useEffect(() => {
+    if (state.isSubmitted || state.timeRemaining <= 0) return
+
+    const timer = setInterval(() => {
+      setState(prev => {
+        if (prev.timeRemaining <= 1) {
+          handleSubmit()
+          return { ...prev, timeRemaining: 0 }
+        }
+        return { ...prev, timeRemaining: prev.timeRemaining - 1 }
+      })
+    }, 1000)
+
+    return () => clearInterval(timer)
+  }, [handleSubmit, state.isSubmitted, state.timeRemaining])
+
   useEffect(() => {
     if (!currentPYQ) {
       setSelectedAnswer(null)
@@ -224,37 +252,7 @@ export default function ExamModePage() {
     }
   }
 
-  const handleSubmit = useCallback(() => {
-    if (isSubmitting) return
-
-    setIsSubmitting(true)
-    setShowSubmitConfirm(false)
-
-    // Calculate results
-    let correct = 0
-    let incorrect = 0
-    let unattempted = 0
-
-    pyqs.forEach(pyq => {
-      const answer = state.answers[pyq.id]
-      if (answer === undefined) {
-        unattempted++
-      } else if (answer === pyq.correct_answer) {
-        correct++
-      } else {
-        incorrect++
-      }
-    })
-
-    const total = pyqs.length
-    const percentage = total > 0 ? Math.round((correct / total) * 100) : 0
-
-    setResults({ correct, incorrect, unattempted, total, percentage })
-    setState(prev => ({ ...prev, isSubmitted: true }))
-    setIsSubmitting(false)
-  }, [pyqs, state.answers, isSubmitting])
-
-  const getOptionClass = (option: string, _index: number) => {
+  const getOptionClass = (option: string) => {
     const baseClass = 'flex items-center gap-3 p-4 border rounded-lg cursor-pointer transition-all'
 
     if (state.isSubmitted) {
@@ -485,7 +483,7 @@ export default function ExamModePage() {
                   <div
                     key={index}
                     onClick={() => handleSelectAnswer(String.fromCharCode(65 + index))}
-                    className={getOptionClass(String.fromCharCode(65 + index), index)}
+                    className={getOptionClass(String.fromCharCode(65 + index))}
                   >
                     <span className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 font-medium text-gray-700">
                       {String.fromCharCode(65 + index)}

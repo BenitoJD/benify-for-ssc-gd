@@ -1,7 +1,7 @@
 'use client'
 
 import { initializeApp, getApps, FirebaseApp } from 'firebase/app'
-import { getMessaging, Messaging, getToken, onMessage, NextFn, MessagePayload } from 'firebase/messaging'
+import { getMessaging, Messaging, getToken, onMessage, MessagePayload } from 'firebase/messaging'
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FCM_API_KEY,

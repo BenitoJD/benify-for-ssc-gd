@@ -318,7 +318,7 @@ export default function AdminQuestionsPage() {
         return
       }
       
-      const _headers = lines[0].split(',').map(h => h.trim().toLowerCase())
+      lines[0].split(',').map(h => h.trim().toLowerCase())
       
       const questions: Array<{
         topic_id: string

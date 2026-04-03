@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { LogOut, User, ChevronUp } from 'lucide-react'
+import { LogOut, ChevronUp } from 'lucide-react'
 import { fetchCurrentUser, logout } from '@/lib/auth'
 
 /**

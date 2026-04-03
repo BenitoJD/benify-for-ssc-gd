@@ -36,7 +36,6 @@ const taskTypeColors = {
 
 export function TodaysTasks({
   tasks,
-  locale,
   viewAllHref = '/pyqs',
   emptyStateHref = '/pyqs',
 }: TodaysTasksProps) {

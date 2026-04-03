@@ -29,6 +29,9 @@ from internal.tests.schemas import (
 from internal.tests.service import TestSeriesService, AttemptService
 from internal.tests.repository import TestSeriesRepository, AttemptRepository
 from internal.questions.models import Question, QuestionType, Difficulty
+from internal.auth.models import User
+from internal.auth.schemas import UserRole
+from internal.auth.service import get_password_hash
 
 
 # ============ Fixtures ============
@@ -336,6 +339,69 @@ class TestTestSeriesAPI:
     async def test_start_test_attempt(self):
         """Test POST /api/v1/test-series/{id}/start endpoint."""
         pass
+
+    @pytest.mark.asyncio
+    async def test_create_test_series_requires_admin(self, client: AsyncClient, test_db: AsyncSession):
+        """Test POST /api/v1/test-series rejects non-admin users."""
+        user = User(
+            email="student@example.com",
+            password_hash=get_password_hash("Test1234"),
+            role=UserRole.STUDENT,
+        )
+        test_db.add(user)
+        await test_db.commit()
+
+        login_response = await client.post(
+            "/api/v1/auth/login",
+            json={
+                "email": "student@example.com",
+                "password": "Test1234",
+            },
+        )
+        access_token = login_response.json()["access_token"]
+
+        response = await client.post(
+            "/api/v1/test-series",
+            headers={"Authorization": f"Bearer {access_token}"},
+            json={
+                "title": "Locked Test Series",
+                "test_type": "quiz",
+            },
+        )
+
+        assert response.status_code == 403
+
+    @pytest.mark.asyncio
+    async def test_create_test_series_allows_admin(self, client: AsyncClient, test_db: AsyncSession):
+        """Test POST /api/v1/test-series allows admin users."""
+        user = User(
+            email="admin@example.com",
+            password_hash=get_password_hash("Admin1234"),
+            role=UserRole.ADMIN,
+        )
+        test_db.add(user)
+        await test_db.commit()
+
+        login_response = await client.post(
+            "/api/v1/auth/login",
+            json={
+                "email": "admin@example.com",
+                "password": "Admin1234",
+            },
+        )
+        access_token = login_response.json()["access_token"]
+
+        response = await client.post(
+            "/api/v1/test-series",
+            headers={"Authorization": f"Bearer {access_token}"},
+            json={
+                "title": "Admin Test Series",
+                "test_type": "quiz",
+            },
+        )
+
+        assert response.status_code == 201
+        assert response.json()["title"] == "Admin Test Series"
 
 
 class TestAttemptsAPI:

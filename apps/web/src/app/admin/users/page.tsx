@@ -1,13 +1,12 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { adminApi, AdminUser } from '@/lib/api/admin'
 import { Search, ChevronLeft, ChevronRight, User, Shield } from 'lucide-react'
 
 export default function AdminUsersPage() {
-  const router = useRouter()
   const searchParams = useSearchParams()
 
   const [users, setUsers] = useState<AdminUser[]>([])

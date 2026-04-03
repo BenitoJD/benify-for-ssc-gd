@@ -17,7 +17,7 @@ import {
   CheckCircle,
   AlertTriangle
 } from 'lucide-react'
-import { adminApi, AdminTestSeries, AdminSubject, TestSeriesCreateDTO } from '@/lib/api/admin'
+import { adminApi, AdminTestSeries, TestSeriesCreateDTO } from '@/lib/api/admin'
 
 type ModalMode = 'create' | 'edit' | 'view' | null
 
@@ -31,7 +31,6 @@ const TEST_TYPES = {
 export default function AdminTestSeriesPage() {
   const searchParams = useSearchParams()
   const [testSeries, setTestSeries] = useState<AdminTestSeries[]>([])
-  const [subjects, setSubjects] = useState<AdminSubject[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
   const [search, setSearch] = useState('')
@@ -95,8 +94,7 @@ export default function AdminTestSeriesPage() {
 
   const fetchSubjects = useCallback(async () => {
     try {
-      const response = await adminApi.listSubjects({ limit: 100 })
-      setSubjects(response.data)
+      await adminApi.listSubjects({ limit: 100 })
     } catch (err) {
       console.error('Failed to load subjects:', err)
     }

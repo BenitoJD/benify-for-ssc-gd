@@ -8,9 +8,6 @@ import {
   Trash2,
   Eye,
   X,
-  ChevronLeft,
-  ChevronRight,
-  Filter,
   FileText,
   CheckCircle,
   Clock,
@@ -20,9 +17,7 @@ import {
   adminApi,
   AdminDocumentChecklist,
   AdminDocumentChecklistCreateDTO,
-  AdminDocumentChecklistUpdateDTO,
-  DocumentComplianceStats,
-  DocumentComplianceByGender
+  DocumentComplianceStats
 } from '@/lib/api/admin'
 
 type ModalMode = 'create' | 'edit' | 'view' | null
@@ -175,7 +170,7 @@ export default function AdminDocumentsPage() {
       await adminApi.deleteDocumentChecklist(checklist.id)
       fetchChecklists()
       fetchCompliance()
-    } catch (err) {
+    } catch {
       alert('Failed to delete checklist. Please try again.')
     }
   }
@@ -524,7 +519,7 @@ export default function AdminDocumentsPage() {
                     </label>
                     <select
                       value={formData.stage}
-                      onChange={(e) => setFormData({ ...formData, stage: e.target.value as any })}
+                      onChange={(e) => setFormData({ ...formData, stage: e.target.value as AdminDocumentChecklist['stage'] })}
                       required
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
                     >

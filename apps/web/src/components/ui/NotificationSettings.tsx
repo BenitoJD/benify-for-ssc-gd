@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useTranslations } from 'next-intl'
-import { Bell, BellOff, Save, Check, X, MessageCircle, Calendar, FileText, Award } from 'lucide-react'
+import { Bell, BellOff, Save, Check, MessageCircle, Calendar, FileText, Award } from 'lucide-react'
 import { clsx } from 'clsx'
 import {
   isPushSupported,
@@ -13,11 +13,6 @@ import {
   storeFCMToken,
   removeFCMToken,
 } from '@/lib/fcm'
-
-interface NotificationSettingsProps {
-  locale: 'en'
-  userId: string
-}
 
 export interface NotificationPreferences {
   streak_reminder: boolean
@@ -31,7 +26,7 @@ export interface NotificationPreferences {
   announcement: boolean
 }
 
-export function NotificationSettings({ locale, userId }: NotificationSettingsProps) {
+export function NotificationSettings() {
   const t = useTranslations('notifications')
   const [isLoading, setIsLoading] = useState(false)
   const [isSaving, setIsSaving] = useState(false)

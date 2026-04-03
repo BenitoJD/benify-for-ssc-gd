@@ -3,7 +3,21 @@ import { describe, expect, it, vi } from 'vitest'
 
 // Mock next-intl
 vi.mock('next-intl', () => ({
-  useTranslations: () => (key: string) => key,
+  useTranslations: () => (key: string) => {
+    const translations: Record<string, string> = {
+      'onboarding.steps.language.english': 'Study in English',
+      'onboarding.steps.year.sscGDExam': 'SSC GD Exam',
+      'onboarding.steps.studyHours.hoursPerDay': 'hours per day',
+      'onboarding.steps.studyHours.hour': 'hour',
+      'onboarding.steps.studyHours.hours': 'hours',
+      'onboarding.steps.studyHours.recommendation': 'Recommendation',
+      'onboarding.steps.studyHours.recommendLight': 'Light daily target',
+      'onboarding.steps.studyHours.recommendModerate': 'Balanced daily target',
+      'onboarding.steps.studyHours.recommendIntense': 'Intensive daily target',
+    }
+
+    return translations[key] || key
+  },
 }))
 
 // Mock components
@@ -15,10 +29,9 @@ import { StudyHoursSlider } from '@/components/ui/StudyHoursSlider'
 describe('OnboardingProgress', () => {
   it('renders progress bar with correct percentage', () => {
     const labels = ['Language', 'Year', 'Assessment', 'Study Hours', 'Fitness']
-    render(<OnboardingProgress currentStep={2} totalSteps={5} labels={labels} />)
+    const { container } = render(<OnboardingProgress currentStep={2} totalSteps={5} labels={labels} />)
     
-    // Check that progress bar exists
-    const progressBar = document.querySelector('.bg-primary-600')
+    const progressBar = container.querySelector('[style="width: 60%;"]')
     expect(progressBar).toBeTruthy()
   })
 
@@ -35,9 +48,9 @@ describe('OnboardingProgress', () => {
     const labels = ['Language', 'Year', 'Assessment', 'Study Hours', 'Fitness']
     render(<OnboardingProgress currentStep={1} totalSteps={5} labels={labels} />)
     
-    // Step 2 (index 1) should have ring indicating it's active
-    const activeStep = document.querySelector('.ring-4')
+    const activeStep = screen.getByText('2').closest('div')
     expect(activeStep).toBeTruthy()
+    expect(activeStep?.className).toContain('border-2')
   })
 })
 
@@ -86,7 +99,7 @@ describe('YearSelector', () => {
     render(<YearSelector value={2026} onChange={vi.fn()} />)
     
     const yearButton = screen.getByText('2026').closest('button')
-    expect(yearButton?.className).toContain('border-primary-600')
+    expect(yearButton?.className).toContain('border-[#111827]')
   })
 
   it('renders custom years when provided', () => {

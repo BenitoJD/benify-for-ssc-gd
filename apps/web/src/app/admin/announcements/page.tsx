@@ -3,7 +3,6 @@
 import { useEffect, useState, useCallback } from 'react'
 import {
   Plus,
-  Search,
   Edit,
   Trash2,
   Eye,
@@ -18,7 +17,6 @@ import {
   adminApi,
   AdminAnnouncement,
   AdminAnnouncementCreateDTO,
-  AdminAnnouncementUpdateDTO
 } from '@/lib/api/admin'
 
 type ModalMode = 'create' | 'edit' | 'view' | null
@@ -133,7 +131,7 @@ export default function AdminAnnouncementsPage() {
     try {
       await adminApi.deleteAnnouncement(announcement.id)
       fetchAnnouncements()
-    } catch (err) {
+    } catch {
       alert('Failed to delete announcement. Please try again.')
     }
   }
@@ -420,7 +418,7 @@ export default function AdminAnnouncementsPage() {
                     </label>
                     <select
                       value={formData.priority}
-                      onChange={(e) => setFormData({ ...formData, priority: e.target.value as any })}
+                      onChange={(e) => setFormData({ ...formData, priority: e.target.value as AdminAnnouncement['priority'] })}
                       required
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
                     >
@@ -437,7 +435,7 @@ export default function AdminAnnouncementsPage() {
                     </label>
                     <select
                       value={formData.target}
-                      onChange={(e) => setFormData({ ...formData, target: e.target.value as any })}
+                      onChange={(e) => setFormData({ ...formData, target: e.target.value as AdminAnnouncement['target'] })}
                       required
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
                     >

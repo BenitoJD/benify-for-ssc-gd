@@ -3,7 +3,7 @@
 import { useTranslations } from 'next-intl'
 import { clsx } from 'clsx'
 import Link from 'next/link'
-import { AlertTriangle, TrendingDown, ArrowRight } from 'lucide-react'
+import { TrendingDown, ArrowRight } from 'lucide-react'
 
 export interface WeakArea {
   id: string
@@ -23,7 +23,6 @@ interface WeakAreasWidgetProps {
 
 export function WeakAreasWidget({
   weakAreas,
-  locale,
   viewAllHref = '/analytics',
   emptyStateHref = '/pyqs',
 }: WeakAreasWidgetProps) {

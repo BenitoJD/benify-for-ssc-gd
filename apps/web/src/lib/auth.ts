@@ -76,6 +76,10 @@ export function createApiUrl(path: string): string {
     return `${baseUrl}${normalizedPath.slice('/api/v1'.length)}`
   }
 
+  if (baseUrl.endsWith('/api/v1') && !normalizedPath.startsWith('/api/')) {
+    return `${baseUrl.slice(0, -'/api/v1'.length)}${normalizedPath}`
+  }
+
   return `${baseUrl}${normalizedPath}`
 }
 

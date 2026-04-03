@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { Sidebar } from '@/components/ui/Sidebar'
 import { fetchCurrentUser } from '@/lib/auth'
@@ -13,11 +12,10 @@ import {
 } from '@/lib/api/community'
 
 export default function CommunityPage() {
-  const t = useTranslations()
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(true)
   const [discussions, setDiscussions] = useState<Discussion[]>([])
-  const locale: 'en' = 'en'
+  const locale = 'en' as const
   
   // Filters
   const [searchQuery, setSearchQuery] = useState('')
@@ -28,7 +26,6 @@ export default function CommunityPage() {
   // Pagination
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
-  const [totalCount, setTotalCount] = useState(0)
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -74,8 +71,7 @@ export default function CommunityPage() {
         const response = await getDiscussions(params)
         setDiscussions(response.data)
         setTotalPages(response.meta.pages)
-        setTotalCount(response.meta.total)
-      } catch (error) {
+        } catch (error) {
         console.error('Failed to fetch discussions:', error)
       }
     }

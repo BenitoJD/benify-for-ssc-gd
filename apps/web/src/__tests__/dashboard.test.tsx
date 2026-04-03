@@ -3,13 +3,15 @@ import { describe, expect, it, vi } from 'vitest'
 
 // Mock next-intl
 vi.mock('next-intl', () => ({
-  useTranslations: () => (key: string, params?: Record<string, unknown>) => {
+  useTranslations: (namespace?: string) => (key: string, params?: Record<string, unknown>) => {
     const translations: Record<string, string> = {
       'dashboard.examCountdown': 'Exam Countdown',
       'dashboard.daysLeft': 'days left',
       'dashboard.hoursLeft': 'hours left',
       'dashboard.minutesLeft': 'minutes left',
       'dashboard.examDate': 'Exam Date',
+      'dashboard.offlineMessage': 'You are offline. Some features may not work properly.',
+      'dashboard.backOnline': 'You are back online.',
       'dashboard.todayTasks': "Today's Tasks",
       'dashboard.progress': 'Your Progress',
       'dashboard.weakAreas': 'Areas to Improve',
@@ -46,21 +48,23 @@ vi.mock('next-intl', () => ({
       'dashboard.menu': 'Menu',
       'dashboard.closeMenu': 'Close Menu',
     }
+
+    const translationKey = namespace ? `${namespace}.${key}` : key
     
     // Handle parameterized translations
-    if (params && key.includes('.')) {
-      if (key.includes('welcome')) {
+    if (params && translationKey.includes('.')) {
+      if (translationKey.includes('welcome')) {
         return `Welcome back, ${params.name || 'Student'}!`
       }
-      if (key.includes('daysAgo')) {
+      if (translationKey.includes('daysAgo')) {
         return `${params.days} days ago`
       }
-      if (key.includes('startedStreak')) {
+      if (translationKey.includes('startedStreak')) {
         return `Started a ${params.days}-day streak`
       }
     }
     
-    return translations[key] || key
+    return translations[translationKey] || translations[key] || translationKey
   },
 }))
 
@@ -89,7 +93,7 @@ describe('ExamCountdown', () => {
     
     render(<ExamCountdown targetDate={futureDate} />)
     
-    expect(screen.getByText(/Exam Date:/)).toBeTruthy()
+    expect(screen.getByText('Exam Date')).toBeTruthy()
   })
 })
 
@@ -243,7 +247,7 @@ describe('OfflineIndicator', () => {
     
     render(<OfflineIndicator />)
     
-    expect(screen.getByText('You are offline. Some features may not work.')).toBeTruthy()
+    expect(screen.getByText('You are offline. Some features may not work properly.')).toBeTruthy()
     
     // Restore
     Object.defineProperty(navigator, 'onLine', {

@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { useSearchParams } from 'next/navigation'
+import DOMPurify from 'dompurify'
 import {
   Plus,
   Search,
@@ -53,6 +54,7 @@ export default function AdminLessonsPage() {
     order_index: 0,
     status: 'draft',
   })
+  const sanitizedLessonContent = selectedLesson?.content ? DOMPurify.sanitize(selectedLesson.content) : null
 
   const fetchLessons = useCallback(async (
     searchTerm: string, 
@@ -521,8 +523,8 @@ export default function AdminLessonsPage() {
                 <div>
                   <p className="text-sm font-medium text-gray-500 mb-1">Content</p>
                   <div className="bg-gray-50 rounded-lg p-4 prose prose-sm max-w-none">
-                    {selectedLesson.content ? (
-                      <div dangerouslySetInnerHTML={{ __html: selectedLesson.content }} />
+                    {sanitizedLessonContent ? (
+                      <div dangerouslySetInnerHTML={{ __html: sanitizedLessonContent }} />
                     ) : (
                       <p className="text-gray-400">No content</p>
                     )}

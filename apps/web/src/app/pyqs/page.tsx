@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, type FormEvent } from 'react'
+import { useState, useEffect, useCallback, type FormEvent } from 'react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { Search, Filter, Bookmark, Clock, ChevronRight, Loader2 } from 'lucide-react'
@@ -67,11 +67,7 @@ export default function PYQLibraryPage() {
   }, [selectedSubject])
 
   // Fetch PYQs when filters change
-  useEffect(() => {
-    fetchPYQs()
-  }, [selectedYear, selectedSubject, selectedTopic, searchQuery, page])
-
-  const fetchPYQs = async () => {
+  const fetchPYQs = useCallback(async () => {
     setLoading(true)
     setLoadError(null)
     try {
@@ -95,7 +91,11 @@ export default function PYQLibraryPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [page, searchQuery, selectedSubject, selectedTopic, selectedYear])
+
+  useEffect(() => {
+    void fetchPYQs()
+  }, [fetchPYQs])
 
   const toggleBookmark = (id: string) => {
     setBookmarkedIds(prev => {

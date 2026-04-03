@@ -7,14 +7,12 @@ import { clsx } from 'clsx'
 
 export function OfflineIndicator() {
   const t = useTranslations('dashboard')
-  const [isOnline, setIsOnline] = useState(true)
-  const [showBanner, setShowBanner] = useState(false)
+  const [isOnline, setIsOnline] = useState(() => (typeof navigator === 'undefined' ? true : navigator.onLine))
+  const [showBanner, setShowBanner] = useState(() => (typeof navigator === 'undefined' ? false : !navigator.onLine))
   const [dismissed, setDismissed] = useState(false)
 
   useEffect(() => {
-    // Set initial state
-    setIsOnline(navigator.onLine)
-    setShowBanner(!navigator.onLine)
+    let hideTimer: ReturnType<typeof setTimeout> | null = null
 
     const handleOnline = () => {
       setIsOnline(true)
@@ -22,7 +20,7 @@ export function OfflineIndicator() {
       setDismissed(false)
       
       // Auto-hide after 3 seconds when back online
-      setTimeout(() => {
+      hideTimer = setTimeout(() => {
         setShowBanner(false)
       }, 3000)
     }
@@ -37,6 +35,9 @@ export function OfflineIndicator() {
     window.addEventListener('offline', handleOffline)
 
     return () => {
+      if (hideTimer) {
+        clearTimeout(hideTimer)
+      }
       window.removeEventListener('online', handleOnline)
       window.removeEventListener('offline', handleOffline)
     }

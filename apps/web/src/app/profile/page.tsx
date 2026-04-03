@@ -34,7 +34,7 @@ function formatDate(value?: string): string {
 
 export default function ProfilePage() {
   const router = useRouter()
-  const locale: 'en' = 'en'
+  const locale = 'en' as const
   const [isLoading, setIsLoading] = useState(true)
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [error, setError] = useState<string | null>(null)

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import {
@@ -26,7 +26,7 @@ export default function AnalyticsPage() {
   const [stageReadiness, setStageReadiness] = useState<StageReadinessResponse | null>(null)
   const [error, setError] = useState<string | null>(null)
 
-  const loadAnalytics = async () => {
+  const loadAnalytics = useCallback(async () => {
     setIsLoading(true)
     setError(null)
 
@@ -53,11 +53,11 @@ export default function AnalyticsPage() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [router])
 
   useEffect(() => {
     void loadAnalytics()
-  }, [router])
+  }, [loadAnalytics])
 
   if (isLoading) {
     return (

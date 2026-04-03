@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useTranslations } from 'next-intl'
 import { useParams, useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -37,12 +37,7 @@ export default function PracticeModePage() {
     bookmarked: new Set(),
   })
 
-  // Fetch PYQs based on filters
-  useEffect(() => {
-    fetchPYQs()
-  }, [])
-
-  const fetchPYQs = async () => {
+  const fetchPYQs = useCallback(async () => {
     setLoading(true)
     try {
       const year = searchParams.get('year')
@@ -60,7 +55,12 @@ export default function PracticeModePage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [searchParams])
+
+  // Fetch PYQs based on filters
+  useEffect(() => {
+    void fetchPYQs()
+  }, [fetchPYQs])
 
   const generateMockPYQs = (): PYQ[] => {
     return [
@@ -204,7 +204,7 @@ export default function PracticeModePage() {
     setIsBookmarked(!isBookmarked)
   }
 
-  const getOptionClass = (option: string, _index: number) => {
+  const getOptionClass = (option: string) => {
     const baseClass = 'flex items-center gap-3 p-4 border rounded-[8px] cursor-pointer transition-all'
 
     if (!answeredCurrent && !answerRevealed) {
@@ -346,7 +346,7 @@ export default function PracticeModePage() {
                 <div
                   key={index}
                   onClick={() => handleSelectAnswer(String.fromCharCode(65 + index))}
-                  className={getOptionClass(String.fromCharCode(65 + index), index)}
+                  className={getOptionClass(String.fromCharCode(65 + index))}
                 >
                   <span className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-[6px] bg-[#FAFAFA] border border-[#EAEAEA] font-semibold text-sm text-[#111827]">
                     {String.fromCharCode(65 + index)}

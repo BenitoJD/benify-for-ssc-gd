@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { Sidebar } from '@/components/ui/Sidebar'
 import { PageHeader } from '@/components/ui/PageHeader'
@@ -12,11 +11,10 @@ import {
 } from '@/lib/api/community'
 
 export default function AskQuestionPage() {
-  const t = useTranslations()
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const locale: 'en' = 'en'
+  const locale = 'en' as const
   
   // Form state
   const [title, setTitle] = useState('')
