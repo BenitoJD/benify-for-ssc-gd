@@ -33,11 +33,11 @@ export default function AskQuestionPage() {
       try {
         const user = await fetchCurrentUser()
         if (!user) {
-          router.push('/login')
+          router.replace('/login')
           return
         }
       } catch {
-        router.push('/login')
+        router.replace('/login')
         return
       } finally {
         setIsLoading(false)

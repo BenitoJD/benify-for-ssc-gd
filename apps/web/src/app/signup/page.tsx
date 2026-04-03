@@ -44,7 +44,7 @@ export default function SignupPage() {
 
     try {
       await authApi.register({ email: email.trim(), password, name: trimmedName || undefined })
-      router.push('/onboarding')
+      router.replace('/onboarding')
     } catch (err: unknown) {
       if (err && typeof err === 'object' && 'response' in err) {
         const axiosError = err as { response?: { data?: { detail?: string } } }

@@ -53,7 +53,7 @@ export function FloatingUserMenu() {
     try {
       await logout()
     } finally {
-      router.push('/login')
+      router.replace('/login')
     }
   }
 

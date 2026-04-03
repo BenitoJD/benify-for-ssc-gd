@@ -70,7 +70,7 @@ apiClient.interceptors.response.use(
       } catch (refreshError) {
         clearStudentSession()
         if (typeof window !== 'undefined') {
-          window.location.href = requestUrl.startsWith('/admin') ? '/admin/login' : '/login'
+          window.location.replace(requestUrl.startsWith('/admin') ? '/admin/login' : '/login')
         }
         return Promise.reject(refreshError)
       }

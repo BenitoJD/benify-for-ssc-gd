@@ -33,7 +33,7 @@ export default function AnalyticsPage() {
     try {
       const user = await fetchCurrentUser()
       if (!user) {
-        router.push('/login')
+        router.replace('/login')
         return
       }
 

@@ -43,12 +43,12 @@ export default function DiscussionDetailPage() {
       try {
         const user = await fetchCurrentUser()
         if (!user) {
-          router.push('/login')
+          router.replace('/login')
           return
         }
         setCurrentUserId(user.sub)
       } catch {
-        router.push('/login')
+        router.replace('/login')
         return
       } finally {
         setIsLoading(false)

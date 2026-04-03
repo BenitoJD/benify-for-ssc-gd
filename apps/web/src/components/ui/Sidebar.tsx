@@ -49,7 +49,7 @@ export function Sidebar({ locale }: SidebarProps) {
       await logout()
     } finally {
       setIsMobileOpen(false)
-      router.push('/login')
+      router.replace('/login')
     }
   }
 

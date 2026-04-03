@@ -44,7 +44,7 @@ export default function ProfilePage() {
       try {
         const currentUser = await fetchCurrentUser()
         if (!currentUser) {
-          router.push('/login')
+          router.replace('/login')
           return
         }
 

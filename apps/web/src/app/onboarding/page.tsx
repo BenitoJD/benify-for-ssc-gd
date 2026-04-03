@@ -55,7 +55,7 @@ export default function OnboardingPage() {
       try {
         const user = await fetchCurrentUser()
         if (!user) {
-          router.push('/login')
+          router.replace('/login')
           return
         }
 
@@ -96,7 +96,7 @@ export default function OnboardingPage() {
           // Profile might not exist yet, that's fine
         }
       } catch {
-        router.push('/login')
+        router.replace('/login')
         return
       } finally {
         setIsLoading(false)

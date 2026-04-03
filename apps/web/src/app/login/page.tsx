@@ -19,7 +19,7 @@ export default function LoginPage() {
 
     try {
       await authApi.login({ email, password })
-      router.push('/dashboard')
+      router.replace('/dashboard')
     } catch (err: unknown) {
       if (err && typeof err === 'object' && 'response' in err) {
         const axiosError = err as { response?: { data?: { detail?: string } } }

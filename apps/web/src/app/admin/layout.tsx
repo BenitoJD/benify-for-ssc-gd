@@ -78,7 +78,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         }
       } catch {
         if (!cancelled) {
-          router.push('/admin/login')
+          router.replace('/admin/login')
         }
         return
       } finally {
@@ -99,7 +99,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     try {
       await adminApi.logout()
     } finally {
-      router.push('/admin/login')
+      router.replace('/admin/login')
     }
   }
 

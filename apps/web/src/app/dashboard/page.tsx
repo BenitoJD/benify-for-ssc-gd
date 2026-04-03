@@ -42,7 +42,7 @@ export default function DashboardPage() {
       try {
         const user = await fetchCurrentUser()
         if (!user) {
-          router.push('/login')
+          router.replace('/login')
           return
         }
 
@@ -96,7 +96,7 @@ export default function DashboardPage() {
           }))
         )
       } catch {
-        router.push('/login')
+        router.replace('/login')
         return
       } finally {
         setIsLoading(false)

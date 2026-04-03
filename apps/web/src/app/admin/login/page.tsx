@@ -19,7 +19,7 @@ export default function AdminLoginPage() {
 
     try {
       await adminApi.login({ email, password })
-      router.push('/admin')
+      router.replace('/admin')
     } catch (err: unknown) {
       if (err && typeof err === 'object' && 'response' in err) {
         const axiosError = err as { response?: { data?: { detail?: string } } }

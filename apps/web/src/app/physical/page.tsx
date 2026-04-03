@@ -123,7 +123,7 @@ export default function PhysicalPage() {
       try {
         const user = await fetchCurrentUser()
         if (!user) {
-          router.push('/login')
+          router.replace('/login')
           return
         }
 
@@ -137,7 +137,7 @@ export default function PhysicalPage() {
           // Use default gender
         }
       } catch {
-        router.push('/login')
+        router.replace('/login')
         return
       } finally {
         setIsAuthLoading(false)

@@ -338,7 +338,7 @@ export default function ExamModePage() {
                   try {
                     await logout()
                   } finally {
-                    router.push('/login')
+                    router.replace('/login')
                   }
                 }}
                 className="flex items-center gap-2 px-3 py-2 text-sm font-bold text-red-600 bg-red-50 hover:bg-red-100 border-2 border-red-200 rounded-xl transition-all shadow-[0_3px_0_rgb(254,202,202)] hover:-translate-y-0.5 active:translate-y-0.5 active:shadow-none"

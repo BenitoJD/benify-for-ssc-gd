@@ -33,12 +33,6 @@ export default async function HomePage() {
               >
                 {t("nav.features")}
               </Link>
-              <Link
-                href="/dashboard"
-                className="hover:text-black transition-colors"
-              >
-                {t("nav.dashboard")}
-              </Link>
               <Link href="#faq" className="hover:text-black transition-colors">
                 {t("nav.faq")}
               </Link>

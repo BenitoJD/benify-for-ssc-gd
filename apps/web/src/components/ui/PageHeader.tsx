@@ -45,7 +45,7 @@ export function PageHeader({
     try {
       await logout()
     } finally {
-      router.push('/login')
+      router.replace('/login')
     }
   }
 
