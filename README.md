@@ -8,6 +8,9 @@
 - [Tech Stack](#tech-stack)
 - [Features](#features)
 - [Quick Start](#quick-start)
+- [How Students Use It](#how-students-use-it)
+- [How Admins Use It](#how-admins-use-it)
+- [How Agents Use It](#how-agents-use-it)
 - [Architecture](#architecture)
 - [API Documentation](#api-documentation)
 - [Development Guide](#development-guide)
@@ -174,6 +177,316 @@ npm run dev:api
 | API | http://localhost:3100 |
 | API Documentation | http://localhost:3100/docs (when `DEBUG=true`) |
 | MinIO Console | http://localhost:9001 |
+
+---
+
+## How Students Use It
+
+This is the learner-facing flow the product is built around.
+
+### Student Journey
+
+1. Go to `http://localhost:3101`
+2. Create an account at `/signup`
+3. Complete onboarding at `/onboarding`
+4. Start using the main learning surfaces:
+   - `/dashboard` for plan, streaks, and progress
+   - `/pyqs` for practice and previous year questions
+   - `/physical` for PST/PET tracking
+   - `/documents` for document-readiness support
+   - `/community` for discussion
+
+### Student Authentication
+
+- Student login is at `/login`
+- Authentication uses JWT plus httpOnly cookies
+- Learner sessions are refreshed automatically by the frontend client
+
+### Student-Facing Product Areas
+
+- **Dashboard**: exam countdown, weak areas, recent activity, streaks
+- **Practice/PYQs**: written practice and mock-style flows
+- **Physical**: training plans, readiness tracking, mock physical test
+- **Documents**: checklists, medical guidance, reminders
+- **Community**: questions, replies, peer interaction
+
+---
+
+## How Admins Use It
+
+Admins manage users, content, documents, physical training plans, and announcements through the admin UI and backend admin APIs.
+
+### Admin Login
+
+- Admin web login: `http://localhost:3101/admin/login`
+- Admin API login: `POST /api/v1/admin/login`
+- Admin session bootstrap: `GET /api/v1/admin/me`
+
+The admin access token is intentionally short-lived and the backend also sets auth cookies for the admin session.
+
+### Admin Dashboard
+
+Main admin area:
+
+- `http://localhost:3101/admin`
+
+Primary dashboard capabilities:
+
+- platform stats
+- recent registrations
+- quick links into content and user operations
+- OpenCloud endpoint hints for automation
+
+### Admin UI Areas
+
+The admin app is organized around these routes:
+
+- `/admin/users`
+  - inspect users
+  - filter/search by role or email/name
+  - open user detail pages
+  - suspend or reactivate users
+
+- `/admin/content`
+  - content operations overview
+  - fast access to subjects, topics, lessons, questions, and test series
+
+- `/admin/content/subjects`
+  - create, edit, publish, and delete subjects
+
+- `/admin/content/topics`
+  - manage topics within subjects
+
+- `/admin/content/lessons`
+  - manage lesson content, order, premium flag, and assets
+
+- `/admin/content/questions`
+  - manage question bank entries
+  - bulk import question CSV-style data through the admin UI
+
+- `/admin/content/test-series`
+  - create and manage chapter, sectional, full-length, and quiz test series
+
+- `/admin/documents`
+  - manage document checklists
+  - manage medical guidelines
+  - review compliance views
+  - manage announcements
+
+- `/admin/physical`
+  - manage physical training plans
+  - inspect compliance breakdowns
+
+### Admin API Surface
+
+These backend endpoints back the admin UI:
+
+- `POST /api/v1/admin/login`
+- `GET /api/v1/admin/dashboard`
+- `GET /api/v1/admin/me`
+- `GET /api/v1/admin/users`
+- `GET /api/v1/admin/users/{user_id}`
+- `PATCH /api/v1/admin/users/{user_id}/status`
+
+Additional admin CRUD APIs are exposed for:
+
+- subjects
+- topics
+- lessons
+- questions
+- test series
+- document checklists
+- medical guidelines
+- announcements
+- physical plans
+
+### Admin Workflow Recommendation
+
+Use the browser admin UI for:
+
+- day-to-day content review
+- small edits
+- moderation and user checks
+- announcements
+- physical/document configuration
+
+Use the OpenCloud endpoints for:
+
+- bulk content ingestion
+- repeatable content sync jobs
+- agent-driven update workflows
+- audit-friendly imports
+
+---
+
+## How Agents Use It
+
+This app exposes a dedicated agent-friendly content operations surface under the OpenCloud admin endpoints.
+
+### Agent Auth Modes
+
+Agents can authenticate in two ways:
+
+1. Admin bearer token from the normal admin auth flow
+2. `X-OpenCloud-Api-Key` when `OPENCLOUD_ADMIN_API_KEY` is configured
+
+Capability discovery:
+
+- `GET /api/v1/admin/opencloud/capabilities`
+
+Returns:
+
+- whether OpenCloud API key auth is enabled
+- supported auth modes
+- bulk sync endpoint
+- supported resources
+
+### Supported Agent Resources
+
+The bulk sync endpoint supports:
+
+- `subjects`
+- `topics`
+- `lessons`
+- `questions`
+- `test_series`
+
+Endpoint:
+
+- `POST /api/v1/admin/opencloud/content/sync`
+
+Audit log endpoint:
+
+- `GET /api/v1/admin/opencloud/audit-logs`
+
+### Agent Content Sync Model
+
+The sync endpoint is designed for bulk upsert operations.
+
+Behavior:
+
+- creates new records when natural keys do not exist
+- updates matching records when upsert keys already exist
+- skips unchanged resources
+- records audit logs for each sync run
+- supports `dry_run`
+
+Typical natural references used by the sync layer:
+
+- subject: `code`
+- topic: `subject_code + topic_name`
+- lesson: `subject_code + topic_name + title`
+- question: topic reference + question text
+- test series: title + attached topic refs
+
+### Minimal Agent Example
+
+```bash
+curl -X POST http://localhost:3100/api/v1/admin/opencloud/content/sync \
+  -H "Content-Type: application/json" \
+  -H "X-OpenCloud-Api-Key: replace-with-your-opencloud-key" \
+  -d '{
+    "subjects": [
+      {
+        "code": "GK",
+        "name": "General Knowledge",
+        "description": "Static and current general awareness",
+        "order_index": 1
+      }
+    ],
+    "topics": [
+      {
+        "subject_code": "GK",
+        "name": "Indian History",
+        "description": "Ancient to modern history",
+        "order_index": 1,
+        "estimated_hours": 6
+      }
+    ],
+    "lessons": [
+      {
+        "subject_code": "GK",
+        "topic_name": "Indian History",
+        "title": "Revolt of 1857",
+        "content": "Detailed lesson content",
+        "order_index": 1,
+        "estimated_minutes": 25,
+        "is_premium": false
+      }
+    ],
+    "questions": [
+      {
+        "subject_code": "GK",
+        "topic_name": "Indian History",
+        "question_text": "Who was the last Mughal emperor of India?",
+        "options": ["Bahadur Shah Zafar", "Akbar", "Aurangzeb", "Humayun"],
+        "correct_answer": "A",
+        "explanation": "Bahadur Shah Zafar was the last Mughal emperor.",
+        "difficulty": "easy",
+        "source": "OpenCloud",
+        "exam_year": 2024
+      }
+    ],
+    "test_series": [
+      {
+        "title": "History Sprint",
+        "description": "Quick chapter test",
+        "test_type": "chapter",
+        "duration_minutes": 15,
+        "total_questions": 10,
+        "topic_refs": [
+          {
+            "subject_code": "GK",
+            "topic_name": "Indian History"
+          }
+        ],
+        "instructions": "Attempt all questions."
+      }
+    ]
+  }'
+```
+
+### Dry Run Example
+
+```bash
+curl -X POST http://localhost:3100/api/v1/admin/opencloud/content/sync \
+  -H "Content-Type: application/json" \
+  -H "X-OpenCloud-Api-Key: replace-with-your-opencloud-key" \
+  -d '{
+    "dry_run": true,
+    "subjects": [
+      {
+        "code": "GK",
+        "name": "General Knowledge",
+        "order_index": 1
+      }
+    ]
+  }'
+```
+
+### Audit Log Example
+
+```bash
+curl http://localhost:3100/api/v1/admin/opencloud/audit-logs \
+  -H "X-OpenCloud-Api-Key: replace-with-your-opencloud-key"
+```
+
+### When Agents Should Use OpenCloud Instead of the Browser
+
+Prefer OpenCloud when:
+
+- importing many subjects/topics/lessons/questions
+- syncing content from another system
+- running recurring update jobs
+- you need deterministic audit logs
+- you want idempotent retries
+
+Prefer the admin UI when:
+
+- reviewing small edits visually
+- inspecting a specific user or content item
+- making one-off announcement or moderation changes
+- validating how the content looks in the app
 
 ---
 
