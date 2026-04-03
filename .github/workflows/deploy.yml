@@ -105,7 +105,16 @@ jobs:
           ssh -i ~/.ssh/id_ed25519 -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" \
             "GHCR_OWNER='$GHCR_OWNER' IMAGE_TAG='$IMAGE_TAG' bash -s" <<'EOF'
           set -euo pipefail
-          cd /opt/olli-for-ssc-gd
+          if [[ -d /opt/olli-for-ssc-gd ]]; then
+            REPO_DIR=/opt/olli-for-ssc-gd
+          elif [[ -d /opt/benify-for-ssc-gd ]]; then
+            REPO_DIR=/opt/benify-for-ssc-gd
+          else
+            echo "No deployment directory found at /opt/olli-for-ssc-gd or /opt/benify-for-ssc-gd" >&2
+            exit 1
+          fi
+
+          cd "$REPO_DIR"
           git fetch origin
           git checkout main
           git reset --hard "$IMAGE_TAG"

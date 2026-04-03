@@ -1,7 +1,18 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-REPO_DIR="${REPO_DIR:-/opt/olli-for-ssc-gd}"
+DEFAULT_REPO_DIR="/opt/olli-for-ssc-gd"
+LEGACY_REPO_DIR="/opt/benify-for-ssc-gd"
+REPO_DIR="${REPO_DIR:-$DEFAULT_REPO_DIR}"
+
+if [[ ! -d "$REPO_DIR" && "$REPO_DIR" == "$DEFAULT_REPO_DIR" && -d "$LEGACY_REPO_DIR" ]]; then
+  REPO_DIR="$LEGACY_REPO_DIR"
+fi
+
+if [[ ! -d "$REPO_DIR" ]]; then
+  echo "Repository directory not found: $REPO_DIR" >&2
+  exit 1
+fi
 BRANCH="${BRANCH:-main}"
 ENV_FILE="${ENV_FILE:-$REPO_DIR/.env.production}"
 COMPOSE_FILE="${COMPOSE_FILE:-$REPO_DIR/docker-compose.prod.yml}"
