@@ -169,6 +169,22 @@ Or from the repo root after your Python environment is ready:
 npm run dev:api
 ```
 
+### Production Deployment Overview
+
+This repository also includes a server-oriented production deployment path:
+
+- `docker-compose.prod.yml` for the full application stack
+- `ops/nginx.prod.conf` for reverse proxying web and API traffic
+- `ops/deploy/auto-deploy.sh` for pull-based auto deployment from `main`
+- `ops/systemd/benify-autodeploy.service` and `.timer` for continuous deployment on a server
+
+Typical server layout:
+
+- repo clone at `/opt/benify-for-ssc-gd`
+- production env file at `/opt/benify-for-ssc-gd/.env.production`
+- public app served on port `80`
+- API served behind Nginx at `/api`
+
 ### Access Points
 
 | Service | URL |
